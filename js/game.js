@@ -2,6 +2,11 @@ import * as THREE from 'three';
 
 class Game {
   constructor() {
+    this.uiHandler = new UIHandler();
+    this.uiHandler.CreateHelpMenu();
+
+    this.canvas = document.querySelector("#glCanvas");
+
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0xffffff);
@@ -9,11 +14,12 @@ class Game {
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(this.renderer.domElement);
 
+    //document.body.appendChild(this.renderer.domElement);
+    this.createExampleSceneObjects();
     
     this.STEPS_PER_FRAME = 5;
     this.cameraMoveSpeed = 25;
@@ -81,6 +87,16 @@ class Game {
     return this.playerDirection;
   }
 
+  createExampleSceneObjects() {
+    const boxWidth = 1;
+    const boxHeight = 1;
+    const boxDepth = 1;
+    const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+    const material = new THREE.MeshBasicMaterial({color: 0x44aa88});
+    const cube = new THREE.Mesh(geometry, material);
+
+    this.scene.add(cube);
+  }
   
   controls(deltaTime) {
     const speedDelta = deltaTime * this.cameraMoveSpeed;

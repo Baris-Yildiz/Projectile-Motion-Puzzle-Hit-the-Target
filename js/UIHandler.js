@@ -21,4 +21,15 @@ class UIHandler {
         textElement.innerText = content;
         this.gameUI.appendChild(textElement);
     }
+
+    CreateHelpMenu() {
+        this.AppendUIText("HELP MENU");
+        this.AppendUIText("-----------------");
+
+        this.AppendUIText("CONTROLS");
+        this.AppendUIText("-----------------");
+
+        this.AppendUIText("SHORTCUTS");
+        this.AppendUIText("-----------------");
+    }
 }
