@@ -113,6 +113,12 @@ class Game {
     if (this.keyStates['KeyD']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
     }
+    if (this.keyStates['Space']) {
+      this.playerVelocity.y += speedDelta; 
+    }
+    if (this.keyStates['ShiftLeft'] || this.keyStates['ShiftRight']) {
+      this.playerVelocity.y -= speedDelta; 
+    }
   }
 
   
