@@ -46,17 +46,15 @@ class Game {
     });
     
     document.body.addEventListener('click', (event) => {
-      //document.body.exitPointerLock();
+      document.body.requestPointerLock();
       this.objectMover.onMouseClick(event);
     });
     
     document.body.addEventListener('mousemove', (event) => {
-      this.camera.rotation.y -= event.movementX / 500;
-      this.camera.rotation.x -= event.movementY / 500;
-      //document.body.requestPointerLock();
-      // if (document.pointerLockElement === document.body) {
-        
-      // }
+      if (document.pointerLockElement === document.body) {
+        this.camera.rotation.y -= event.movementX / 500;
+        this.camera.rotation.x -= event.movementY / 500;
+      }
     });
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
