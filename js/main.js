@@ -1,5 +1,5 @@
 'use strict'
-main();
+//main();
 
 import * as THREE from "three"
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+import {ObjectMover} from './ObjectMover.js';
 class Game {
   constructor() {
     this.uiHandler = new UIHandler();
@@ -19,15 +19,17 @@ class Game {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     //document.body.appendChild(this.renderer.domElement);
-    this.createExampleSceneObjects();
-    
+    this.objectMover = new ObjectMover(this.scene, this.camera, this.renderer);
     this.STEPS_PER_FRAME = 5;
     this.cameraMoveSpeed = 25;
     this.playerVelocity = new THREE.Vector3();
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};
 
+    
+    this.createExampleSceneObjects();
     this.initEventListeners();
+
     this.animate();
   }
 
@@ -35,20 +37,26 @@ class Game {
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
       this.keyStates[event.code] = true;
+      this.objectMover.transformModeControls(event);
+      
+
     });
     document.addEventListener('keyup', (event) => {
       this.keyStates[event.code] = false;
     });
     
-    document.body.addEventListener('mousedown', () => {
-      document.body.requestPointerLock();
+    document.body.addEventListener('click', (event) => {
+      //document.body.exitPointerLock();
+      this.objectMover.onMouseClick(event);
     });
     
     document.body.addEventListener('mousemove', (event) => {
-      if (document.pointerLockElement === document.body) {
-        this.camera.rotation.y -= event.movementX / 500;
-        this.camera.rotation.x -= event.movementY / 500;
-      }
+      this.camera.rotation.y -= event.movementX / 500;
+      this.camera.rotation.x -= event.movementY / 500;
+      //document.body.requestPointerLock();
+      // if (document.pointerLockElement === document.body) {
+        
+      // }
     });
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -93,9 +101,17 @@ class Game {
     const boxDepth = 1;
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
     const material = new THREE.MeshBasicMaterial({color: 0x44aa88});
-    const cube = new THREE.Mesh(geometry, material);
+    const cube1 = new THREE.Mesh(geometry, material);
+    cube1.position.z = -5;
+    //const cube2 = new THREE.Mesh(geometry, material);
+    //cube2.position.z = -10;
 
-    this.scene.add(cube);
+    this.objectMover.addRayCastObject(cube1);
+    //this.objectMover.addRayCastObject(cube2);
+    
+    this.scene.add(this.objectMover.rayCastableObjects);
+    
+    
   }
   
   controls(deltaTime) {
@@ -137,18 +153,4 @@ class Game {
 
 const game = new Game();
 
-// demo
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-// const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
-// const material2 = new THREE.MeshBasicMaterial({ color: 0x0000ff }); 
 
-// const cube1 = new THREE.Mesh(geometry, material1);
-// const cube2 = new THREE.Mesh(geometry, material2);
-
-
-// cube1.position.x = -1.5; 
-// cube2.position.x = 1.5; 
-
-
-// game.scene.add(cube1);
-// game.scene.add(cube2);
