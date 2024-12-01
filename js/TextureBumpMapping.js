@@ -15,17 +15,7 @@ import * as THREE from "three"; //import satırının kalkması gerekebilir Text
     const geometry = new THREE.BoxGeometry(1, 1, 1,
         512,512, 512);
 
-    const plane = new THREE.Mesh(geometry, material);
-    plane.position.z = -2;
-
-
-    const light = new THREE.PointLight(0xFFFFFF, 2);
-    light.position.set(1, 0, -1);
-
-
-
-    this.scene.add(plane);
-    this.scene.add(light);
+    const mesh = new THREE.Mesh(geometry, material);
 *
 * */
 class TextureMaps {
