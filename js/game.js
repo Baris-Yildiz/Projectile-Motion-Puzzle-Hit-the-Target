@@ -9,7 +9,17 @@ class Game {
 
     this.clock = new THREE.Clock();
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xffffff);
+    //placeholder koydum https://jaxry.github.io/panorama-to-cubemap/ buradan kesilebilir
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      'resources/skybox/posx.jpg',
+      'resources/skybox/negx.jpg',
+      'resources/skybox/posy.jpg',
+      'resources/skybox/negy.jpg',
+      'resources/skybox/posz.jpg',
+      'resources/skybox/negz.jpg',
+    ]);
+    this.scene.background = texture; //new THREE.Color(0x000000);
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
