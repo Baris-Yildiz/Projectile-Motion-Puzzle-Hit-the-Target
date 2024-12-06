@@ -1,13 +1,65 @@
 #gameUI {
     position: absolute;
-    color: wheat;
-    background-color: rgba(60, 115, 122, 0.75);
+    color: black;
     margin: auto;
     display: block;
-    width: 95%; height: 95%;
+    width: 95vw; height: 95vh;
     top: 0; bottom: 0; left: 0; right: 0;
     visibility: hidden;
-    align-content: center;
+    border-style: solid;
+    background-color: #363039;
+    background-image: url("../resources/screen.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: darken;
+    opacity: 0.95;
+}
+
+.navBar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navBarButton{
+    font-size: large;
+    font-family: "Cascadia Mono", serif;
+    color: white;
+    background-image: linear-gradient(#4a404c,  #655b67);
+    height: 10vh;
+    flex: 1;
+}
+
+.navBarButtonClicked {
+    background-image: linear-gradient(#655b67, #9a8f9c);
+}
+
+.navBarButton:hover {
+    background-image: linear-gradient(#655b67, #9a8f9c);
+}
+
+.settingsSlider {
+    margin: 15px;
+    cursor: pointer;
+}
+
+.page {
+    width: 100%;
+    color: white;
+}
+
+.pageHeader {
+    font-size: larger;
+    font-family: "Cascadia Code", serif;
+    margin: 10px;
+}
+
+.pageText {
+    font-size: medium;
+    font-family: "Cascadia Mono", serif;
+    margin: 20px;
 }
 
 #glCanvas {
@@ -28,4 +80,8 @@
     font-size: 25px;
     color: black;
     text-align: center;
+}
+
+#textureCanvas {
+    display: none;
 }
