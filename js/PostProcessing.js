@@ -19,10 +19,20 @@ class PostProcessing{
         
             uniform sampler2D tDiffuse;
             uniform float brightness;
+            
+            void addRedVignette() {
+                vec2 center = vec2(0.5, 0.5);
+                
+                float distToCenter = length( fTexCoords - center );
+                float maxDist = 0.5 * sqrt(2.0);
+                
+                fColor.gb *= smoothstep(0.01, 0.5, maxDist - distToCenter);
+            }
         
             void main() {
                 vec4 color = texture(tDiffuse, fTexCoords);
                 fColor = color * brightness;
+                addRedVignette();
                 fColor.a = 1.0;
             }`;
 
