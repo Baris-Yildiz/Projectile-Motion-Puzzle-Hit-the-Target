@@ -1,16 +1,14 @@
-import * as THREE from "three";
-import {Sky} from "three/addons/objects/Sky.js";
+import{THREE, Sky} from "./LibImports.js"
 
-//Game constructor'da this.skybox = new Skybox(this);
-//Game animate'de skybox.sunAnimate(timeElapsed);
+//In constructor: this.skybox = new Skybox(this);
+//In update: this.skybox.sunAnimate(timeElapsed);
 class Skybox {
     constructor(game) {
         this.sunlight = null;
         this.ambientLight = null;
         this.sunPosition = null;
-        this.timeElapsed = 0;
-        this.game = game;
         this.sky = null;
+        this.game = game;
 
         this.skyInit();
     }
@@ -49,7 +47,7 @@ class Skybox {
         this.sunPosition = new THREE.Vector3();
 
         let skyUniforms = sky.material.uniforms;
-        skyUniforms['sunPosition'].value = sunPosition;
+        skyUniforms['sunPosition'].value = this.sunPosition;
         skyUniforms['turbidity'].value = 0.2;
         skyUniforms['rayleigh'].value = 0.2;
         skyUniforms['mieCoefficient'].value = 0.005;
@@ -60,7 +58,7 @@ class Skybox {
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
         this.game.scene.add(this.ambientLight);
 
-        this.game.scene.add( sky );
+        this.game.scene.add( this.sky );
     }
 
     sunAnimate(timeElapsed) {
@@ -71,5 +69,7 @@ class Skybox {
         this.sunPosition.set(Math.cos(timeElapsed) * sunRadius, Math.sin(timeElapsed) * sunRadius, 0);
     }
 }
+
+export default Skybox;
 
 

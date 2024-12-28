@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import {THREE} from "./LibImports.js"
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 export class ObjectMover {

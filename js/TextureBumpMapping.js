@@ -1,25 +1,13 @@
-import * as THREE from "three"; //import satırının kalkması gerekebilir TextureMaps classının görünmesi için
+//import satırının kalkması gerekebilir TextureMaps classının görünmesi için
 /*
 * Örnek kullanım:
 * const textureMaps = new TextureMaps("./resources/textures/brickwall.png"); //texture dosyası input olarak verilir
-    const material = new THREE.MeshPhongMaterial({ //oluşturulan mapler MeshPongMaterial'da kullanılır.
-      map: textureMaps.albedoMap,
-      bumpMap: textureMaps.bumpMap,
-      bumpScale:1,
-      displacementMap: textureMaps.displacementMap,
-      displacementScale:1,
-      displacementBias:-1
-    });
-
-
-    const geometry = new THREE.BoxGeometry(1, 1, 1,
-        512,512, 512);
-
-    const mesh = new THREE.Mesh(geometry, material);
-*
 * */
+
+import {THREE} from "./LibImports.js"
 class TextureMaps {
     constructor(path) {
+        this.path = path;
         this.albedoMap = new THREE.TextureLoader().load(path);
 
         this.displacementMap = new THREE.TextureLoader().load(path,
@@ -91,5 +79,6 @@ class TextureMaps {
         texture.needsUpdate = true;
 
     }
-
 }
+
+export default TextureMaps;
