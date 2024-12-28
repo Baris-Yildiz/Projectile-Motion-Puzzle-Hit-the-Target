@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
     <link rel="stylesheet" href="css/UI.css">
+    <script type="module" src="js/LibImports.js"></script>
+    <script type="module" src="js/game.js"></script>
+    <script type="module" src="js/PostProcessing.js"></script>
+    <script type="module" src="js/Skybox.js"></script>
+    <script type="module" src="js/ParticleSystem.js"></script>
+    <script type="module" src="js/TextureBumpMapping.js"></script>
     <script src="js/UIHandler.js"></script>
+    <script src="js/Settings.js"></script>
     <script src="js/ColorUtils.js"></script>
-    <script src="js/shaders.js"></script>
-    <script src="js/ParticleSystem.js"></script>
-    <script type="module" src="js/game.js" defer></script>
   </head>
   <body>
 
@@ -53,13 +57,6 @@
               omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et
               voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus
               , ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat</p>
-
-
-            <p class="pageText">Lorem ipsum dolor sit amet,
-              consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-              Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           </div>
 
           <div id="optionsPage" style="display: none">
@@ -111,13 +108,13 @@
                 <p class="pageHeader">Gameplay Settings</p>
                 <div>
                   <input oninput="onSettingsSliderValueChanged('X Sensitivity')" type="range"
-                         id="X Sensitivity" class="settingsSlider" min="0" max="100" value="50">
+                         id="X Sensitivity" class="settingsSlider" min="1" max="100" value="50">
                   <label for="X Sensitivity" class="pageText">X Sensitivity: 50</label>
                 </div>
 
                 <div>
                   <input oninput="onSettingsSliderValueChanged('Y Sensitivity')"
-                         type="range" id="Y Sensitivity" class="settingsSlider" min="0" max="100" value="50">
+                         type="range" id="Y Sensitivity" class="settingsSlider" min="1" max="100" value="50">
                   <label for="Y Sensitivity" class="pageText">Y Sensitivity: 50</label>
                 </div>
               </div>
@@ -125,7 +122,21 @@
           </div>
 
           <div id="keybindingPage" style="display: none">
-            <p class="pageHeader">This is the Keybindings Page Header</p>
+            <div class="keybinding">
+              <div class="keys">
+                <div class="key">W</div>
+                <div class="key">A</div>
+                <div class="key">S</div>
+                <div class="key">D</div>
+              </div>
+              <p class="pageHeader">Character Movement</p>
+            </div>
+
+            <div class="keybinding">
+              <div class="key">H</div>
+              <p class="pageHeader">Help Menu</p>
+            </div>
+
           </div>
         </div>
 
