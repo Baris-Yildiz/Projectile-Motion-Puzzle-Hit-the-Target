@@ -63,7 +63,7 @@
             <div>
               <p class="pageHeader">Audio Settings</p>
               <div>
-                <input oninput="onSettingsSliderValueChanged('SFX')" type="range" id="SFX" class="settingsSlider" min="0" max="100" value="50">
+                <input oninput="onSettingsSliderValueChanged('SFX')" onchange="playMenuSFX()" type="range" id="SFX" class="settingsSlider" min="0" max="100" value="50">
                 <label for="SFX" class="pageText">SFX: 50</label>
               </div>
 

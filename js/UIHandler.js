@@ -12,6 +12,10 @@ let gameRef;
 let gameUI;
 let uiState;
 
+//ayrı bir class yapılabilir
+const menu_sfx = new Audio("resources/sound/menu_click.mp3");
+const backgroundMusic = null;
+
 function onSettingsSliderValueChanged(id) {
     let labels = document.getElementsByTagName('label');
     let slider = document.getElementById(id);
@@ -33,6 +37,12 @@ function onSettingsSliderValueChanged(id) {
                         break;
                     case "Brightness":
                         gameRef.settings.setBrightness(slider.value / 50.0);
+                        break;
+                    case "SFX":
+                        updateSFXVolume(slider.value/100);
+                        break;
+                    case "Music":
+                        updateMusicVolume(slider.value/100);
                         break;
                 }
             }
@@ -62,6 +72,9 @@ function onButtonClick(clickedButton) {
 
     uiButtons.item(clickedButton).classList.add("navBarButtonClicked");
     uiPages[clickedButton].style.display = "block";
+    menu_sfx.play().catch(error => {
+        console.error('Audio playback failed:', error);
+    });
 }
 
 function toggleUI(event) {
@@ -71,6 +84,11 @@ function toggleUI(event) {
     }
     uiState = !uiState;
     gameUI.style.visibility = uiState ? "unset" : "hidden";
+    if(uiState){
+        menu_sfx.play().catch(error => {
+            console.error('Audio playback failed:', error);
+        });
+    }
 }
 
 function initUI(game) {
@@ -78,4 +96,16 @@ function initUI(game) {
     gameUI = document.getElementById("gameUI");
     uiState = false;
     document.addEventListener("keyup",toggleUI);
+}
+
+function updateSFXVolume(volume) {
+    menu_sfx.volume = volume;
+}
+function updateMusicVolume(volume) {
+    if (backgroundMusic) {
+        backgroundMusic.volume = volume; 
+    }
+}
+function playMenuSFX() {
+    menu_sfx.play();
 }
