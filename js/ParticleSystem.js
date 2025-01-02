@@ -1,9 +1,14 @@
-import * as THREE from "three";
-/* Örnek kullanım:
-Bu dosyadaki class kodlarının hepsini game.js e koymak gerekiyor çalışması için şimdilik.
-Bu kodun update e yazılması gerekmiyor, scene oluşturulurken 1 kere yazılırsa yetiyor.
+import {THREE} from "./LibImports.js";
 
-* let numberOfParticles = 250;
+
+// let particles = [new Particle(...), new Particle(...)];
+// let emitter = new ParticleEmitter(particles);
+// emitter.startEmitting(scene);
+// at update:
+// emitter.updateParticleTime(timeElapsed);
+
+/* Example particles list instantiation
+    let numberOfParticles = 250;
 
     let particles = [];
 
@@ -37,16 +42,9 @@ Bu kodun update e yazılması gerekmiyor, scene oluşturulurken 1 kere yazılır
 
       let particle = new Particle(geometry, velocity, color, life,scale, position, material);
       particles.push(particle);
-    }
+ */
+//TODO: destroy particles when they die (u_life < 0)
 
-    let emitter = new ParticleEmitter(particles);
-
-    emitter.startEmitting(this.scene);
-*
-Bu kodun ise update e yazılması gerekiyor (deltaTime nerede arttırılıyorsa). Global bir t değişkenine ihtiyaç vardır. Bu değişken
-particle ömrünü hesaplamak için kullanılıyor.
-t += deltaTime;
-* */
 class ParticleEmitter {
     constructor(particles) {
         this.particles = particles;
@@ -57,6 +55,12 @@ class ParticleEmitter {
             scene.add(this.particles[i].object);
         }
     }
+
+    updateParticleTime(time) {
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].updateTime(time);
+        }
+    }
 }
 class Particle {
     constructor(geometry = new THREE.PlaneGeometry(1,1),
@@ -65,8 +69,10 @@ class Particle {
                 life = 1,
                 scale = 1,
                 position = new THREE.Vector3(0, 0, -2),
-                material = new THREE.ShaderMaterial()) {
+                material = new THREE.ShaderMaterial(),
+                t = 0.0) {
 
+        this.t = t;
         this.setGeometryAndMaterial(geometry, material);
         this.setVelocity(velocity);
         this.setScale(scale);
@@ -75,8 +81,8 @@ class Particle {
         this.setLife(life);
 
         this.setOnBeforeRenderCallback(() => {
-            this.material.uniforms.t.value = t
-            this.material.uniforms.u_life.value = life - t;
+            this.material.uniforms.t.value = this.t;
+            this.material.uniforms.u_life.value = this.life - this.t;
         });
 
         this.material.uniforms.rand.value = 1 + (Math.random()*2);
@@ -117,60 +123,11 @@ class Particle {
         this.object.position.copy(this.position);
         this.material.uniforms.position = this.position;
     }
+
+    updateTime(value) {
+        this.t = value;
+    }
 }
 
-const particleVShader = `
-    uniform vec3 init_vel;
-    uniform float g, t; 
-    uniform vec4 u_color;
-    uniform float u_life;
-    uniform float u_scale;
-    
-    out vec4 o_color;
-        
-    void main()
-    {
-        if (t >= u_life) return;
-        vec3 object_pos;
-        object_pos.x = position.x + init_vel.x*t;
-        object_pos.y = position.y + init_vel.y*t- g*t*t / 2.0;
-        object_pos.z = position.z + init_vel.z*t;
-        o_color = u_color;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(u_scale*object_pos, 1);
-    }
-`
-const particleVShader2 = `
-    uniform vec3 init_vel;
-    uniform float g, t; 
-    uniform vec4 u_color;
-    uniform float u_life;
-    uniform float rand;
-    
-    out vec4 o_color;
-    
-    float random(vec3 st) {
-        return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-    }
-        
-    void main()
-    {
-        if (u_life <= 0.0) return;
-        
-        vec3 object_pos;
-        object_pos.x = position.x + rand * 3.0 * init_vel.x*t;
-        object_pos.y = position.y + rand * 3.0 * init_vel.y*t*2.0;
-        object_pos.z = position.z + init_vel.z*t;
-        o_color = u_color;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(object_pos, 1);
-    }
-`
+export {Particle, ParticleEmitter};
 
-const particleFShader = `
-    in vec4 o_color;
-    out vec4 f_color;
-    void main()
-    {
-       
-       f_color = o_color;
-    }
-`
