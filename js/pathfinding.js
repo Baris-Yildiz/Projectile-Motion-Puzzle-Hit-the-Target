@@ -336,17 +336,6 @@ class PathfindingAI {
             this.zombie.position.copy(this.lastValidPosition);
         }
     }
-    update() {
-        const distanceToPlayer = this.zombie.position.distanceTo(this.player.position);
-        
-        // Switch between wandering and chasing based on player detection
-        if (distanceToPlayer > this.detectionRange) {
-            this.updateWandering();
-        } else {
-            this.isWandering = false;
-            this.updateChasing();
-        }
-    }
 }
 
 //Game Class'ında
