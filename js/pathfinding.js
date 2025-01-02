@@ -12,7 +12,6 @@ class PathfindingAI {
         this.currentVelocity = new THREE.Vector3();
         this.smoothingFactor = 0.1;
 
-        // Wandering behavior parameters
         this.wanderRadius = 4;
         this.wanderSpeed = 0.02;
         this.wanderTarget = this.getRandomWanderTarget();
@@ -200,7 +199,7 @@ class PathfindingAI {
                    Math.pow((this.avoidanceRange - distance) / 
                    (this.avoidanceRange - this.preferredDistance), 2);
         }
-        return 0.5; // Base avoidance weight
+        return 0.5; 
     }
 
     isPositionSafe(position) {
@@ -229,7 +228,6 @@ class PathfindingAI {
             attempts.push(direction.multiplyScalar(this.speed));
         }
 
-        // Try each direction and choose the best one
         let bestPosition = null;
         let bestDistance = Infinity;
         
@@ -247,7 +245,6 @@ class PathfindingAI {
         if (bestPosition) {
             this.zombie.position.copy(bestPosition);
         } else {
-            // If no good position found, maintain current position
             this.zombie.position.copy(this.lastValidPosition);
         }
     }
@@ -255,6 +252,7 @@ class PathfindingAI {
 
 //Game Class'ında
 //player ve zombie = mesh, obstacles = mesh array
+//zombie class'ı varsa koyulabilir
 //const zombieAI = new PathfindingAI(zombie, this.player, this.obstacles);
 //this.zombieAIs.push(zombieAI);
 
