@@ -36,5 +36,40 @@ class Settings {
         //this.game.composer.passes[1].uniforms.brightness.value = this.brightness;
     }
 
+    setEnvironmentQuality(value) {
+        this.environmentQuality = value;
+        let turbidity;
+        let rayleigh;
+        let mieCoef;
+        let mieDir;
+
+        switch (this.environmentQuality) {
+            case 0:
+                turbidity = 0.2;
+                rayleigh = 0.05;
+                mieCoef = 0.005;
+                mieDir = 0.2;
+                break;
+            case 1:
+                turbidity = 0.2;
+                rayleigh = 0.05;
+                mieCoef = 0.05;
+                mieDir = 0.55;
+                break;
+            case 2:
+                turbidity = 0.5;
+                rayleigh = 0.1;
+                mieCoef = 0.0005;
+                mieDir = 0.98;
+                break;
+        }
+
+        let skyUniforms = gameRef.skybox.sky.material.uniforms;
+        skyUniforms['turbidity'].value = turbidity;
+        skyUniforms['rayleigh'].value = rayleigh;
+        skyUniforms['mieCoefficient'].value = mieCoef;
+        skyUniforms['mieDirectionalG'].value = mieDir;
+    }
+
 
 }

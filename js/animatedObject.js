@@ -1,6 +1,5 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import {THREE, GLTFLoader, FBXLoader} from "./LibImports.js"
+
 
 class AnimatedObject {
     constructor(scene, path, position = [0, 0, 0], rotation = [0, 0, 0], scale = [1, 1, 1]) {
@@ -9,7 +8,7 @@ class AnimatedObject {
         this.fbxLoader = new FBXLoader();
         this.mixer = null;
         this.load(path,position,rotation,scale);
-        this.addLights();
+        //this.addLights();
     }
 
     load(path, positions, rotations, scale) {
@@ -52,6 +51,13 @@ class AnimatedObject {
         this.model.position.set(positions[0], positions[1], positions[2]);
         this.model.rotation.set(rotations[0], rotations[1], rotations[2]);
         this.model.scale.set(scale[0], scale[1], scale[2]);
+
+        this.model.traverse(
+            (child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+            }
+        });
 
         // Eğer modelde animasyon varsa mixer oluştur
         if (this.model.animations && this.model.animations.length > 0) {

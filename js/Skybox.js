@@ -17,25 +17,10 @@ class Skybox {
 
         this.game.renderer.shadowMap.enabled = true;
 
-        let geometry = new THREE.BoxGeometry(1,1,1);
-        let material = new THREE.MeshStandardMaterial({color:0xffffff});
-        let mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(-1.5,-1,-2);
-        mesh.castShadow = true;
-        this.game.scene.add(mesh);
-
-        let pgeometry = new THREE.PlaneGeometry(100,100 )  ;
-        let pmaterial = new THREE.MeshStandardMaterial({color:0x00ff00});
-        let pmesh = new THREE.Mesh(pgeometry, pmaterial);
-        pmesh.position.set(-1.5,-1.5,-2);
-        pmesh.rotateX(-Math.PI/2.0);
-        pmesh.receiveShadow = true;
-        this.game.scene.add(pmesh);
-
-        let sunlight = new THREE.DirectionalLight(0xffffff, 1);
+        let sunlight = new THREE.DirectionalLight(0xffffff, 100);
         sunlight.position.set(0, 1, 0);
         sunlight.castShadow = true;
-        sunlight.target = mesh;
+        //sunlight.target = mesh;
         this.sunlight = sunlight;
 
         this.game.scene.add(sunlight);
@@ -46,12 +31,7 @@ class Skybox {
 
         this.sunPosition = new THREE.Vector3();
 
-        let skyUniforms = sky.material.uniforms;
-        skyUniforms['sunPosition'].value = this.sunPosition;
-        skyUniforms['turbidity'].value = 0.2;
-        skyUniforms['rayleigh'].value = 0.2;
-        skyUniforms['mieCoefficient'].value = 0.005;
-        skyUniforms['mieDirectionalG'].value = 0.2;
+        sky.material.uniforms['sunPosition'].value = this.sunPosition;
 
         this.sky = sky;
 

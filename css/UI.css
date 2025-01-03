@@ -85,3 +85,31 @@
 #textureCanvas {
     display: none;
 }
+
+.keybinding {
+    display: flex;
+}
+
+.keys {
+    margin-top: 2px;
+    overflow: hidden;
+}
+
+.key {
+    width: 50px;
+    height: 50px;
+
+    float: left;
+
+    background-color: wheat;
+    color: black;
+
+    align-content: center;
+    text-align: center;
+
+    margin-left: 2px;
+
+    border-radius: 10px;
+    border: black solid;
+    font-family: Arial, sans-serif;
+}

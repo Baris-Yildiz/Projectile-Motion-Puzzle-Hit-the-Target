@@ -4,6 +4,8 @@ import Skybox from "./Skybox.js"
 import {Particle, ParticleEmitter} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
+import AnimatedObject from "./animatedObject.js";
+import {createPlane} from "./SceneHelpers.js";
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -90,19 +92,25 @@ class Game {
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
+    this.camera.position.set(0, 1, 0);
 
     this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    console.log(this.renderer.getContext());
     //document.body.appendChild(this.renderer.domElement);
 
     this.postProcessing = new PostProcessing(this);
     this.particleEmitter = null;
     this.objectMover = new ObjectMover(this.scene, this.camera, this.renderer);
-    this.createExampleSceneObjects();
+
+    this.animatableObjects = [];
     this.skybox = new Skybox(this);
+
+    this.createSceneObjects();
+
+    //this.createExampleSceneObjects();
+
     
     this.STEPS_PER_FRAME = 5;
     this.cameraMoveSpeed = 25;
@@ -114,7 +122,7 @@ class Game {
     //this.composer = this.setupPostProcessing();
     this.settings = new Settings(this);
 
-
+    this.settings.setEnvironmentQuality(Quality.HIGH);
     this.initEventListeners();
     this.animate();
   }
@@ -179,8 +187,157 @@ class Game {
     return this.playerDirection;
   }
 
+  createSceneObjects() {
+    const moonLight = new THREE.AmbientLight(0xffffff, 1 );
+    this.scene.add(moonLight);
+
+    const scale = 0.25;
+    const SCENE_SIZE = 200 * scale;
+    const PLAYGROUND_SIZE = 50 * scale;
+    const PAVEMENT_SIZE = 10 * scale;
+    const BASKETBALL_COURT_SCALE = [0,0,0].fill(scale * 4);
+    const OLD_CAR_SCALE = [0,0,0].fill(scale * 0.005 /0.25);
+    const OLD_CAR2_SCALE = [0,0,0].fill(scale * 0.0125 /0.25);
+    const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
+    const ROAD_SIZE = 20 * scale;
+    const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
+
+
+    const groundMesh = createPlane(SCENE_SIZE, SCENE_SIZE,
+        new THREE.Vector3(0, 0, 0), 0xaaaaaa);
+    this.scene.add(groundMesh);
+
+    const playgroundMesh = createPlane(PLAYGROUND_SIZE, PLAYGROUND_SIZE,
+        new THREE.Vector3(0, 0.01, 0), 0x00ff00);
+    this.scene.add(playgroundMesh);
+
+    const pavementPositions = [(PLAYGROUND_SIZE + PAVEMENT_SIZE)/2.0,
+      (PLAYGROUND_SIZE + PAVEMENT_SIZE)/-2.0
+    ];
+
+    const roadPositions = [(PLAYGROUND_SIZE + PAVEMENT_SIZE * 2 + ROAD_SIZE)/2.0,
+      (PLAYGROUND_SIZE + PAVEMENT_SIZE * 2 + ROAD_SIZE)/-2.0
+    ];
+
+    let pavementTextures = [
+        'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_BaseColor.jpg'
+      , 'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Bump.jpg'];
+
+    let roadTextures = [
+      'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_BaseColor.jpg'
+      , 'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_Bump.jpg'];
+
+    for (let i = 0; i < 4; i++) {
+
+      const corner1 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
+          new THREE.Vector3(pavementPositions[i % 2] , 0.01,
+          pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
+      this.scene.add(corner1);
+
+      const corner2 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
+          new THREE.Vector3(pavementPositions[i % 2] , 0.01,
+              -pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
+      this.scene.add(corner2);
+
+      const pavementMesh1 = createPlane(PAVEMENT_SIZE, PLAYGROUND_SIZE,
+          new THREE.Vector3(pavementPositions[i % 2], 0.01, 0), 0xdddddd, pavementTextures);
+      this.scene.add(pavementMesh1);
+
+      const pavementMesh2 = createPlane(PLAYGROUND_SIZE, PAVEMENT_SIZE,
+          new THREE.Vector3(0.0, 0.01, pavementPositions[i % 2]), 0xdddddd, pavementTextures);
+      this.scene.add(pavementMesh2);
+
+      const roadMesh1 = createPlane(ROAD_SIZE, PLAYGROUND_SIZE * 3,
+          new THREE.Vector3(roadPositions[i % 2], 0.01, 0), 0xdddddd, roadTextures);
+      this.scene.add(roadMesh1);
+
+      const roadMesh2 = createPlane(PLAYGROUND_SIZE * 3, ROAD_SIZE,
+          new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures);
+      this.scene.add(roadMesh2);
+    }
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/12_basketball__football_court.glb',
+        [0.0, 0.4, -PLAYGROUND_SIZE / 5.0], [0, 0, 0], BASKETBALL_COURT_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/old_rusty_car2.glb',
+        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0], [0, Math.PI, 0], OLD_CAR_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
+        [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE));
+
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
+        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35]));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
+        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1]));
+
+    for (let i = 0; i < 6; i++) {
+      this.animatableObjects.push( new AnimatedObject(this.scene,
+          'resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+          [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
+            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE));
+    }
+
+    for (let i = 0; i < 6; i++) {
+      this.animatableObjects.push( new AnimatedObject(this.scene,
+          'resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+          [-(-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2),
+            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE));
+    }
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings1.glb',
+        [0.0,
+          0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0], BUILDINGS_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings2.glb',
+        [0.0,
+          0.01, PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0], BUILDINGS_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings3.glb',
+        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings3.glb',
+        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings3.glb',
+        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE));
+
+    this.animatableObjects.push( new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/buildings3.glb',
+        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE));
+  }
+
 
   createExampleSceneObjects() {
+
+
+    let planeGeometry = new THREE.PlaneGeometry(100,100 )  ;
+    let planeMaterial = new THREE.MeshStandardMaterial({color:0x00ff00});
+    let planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+    planeMesh.position.set(0,0,0);
+    planeMesh.rotateX(-Math.PI/2.0);
+    planeMesh.receiveShadow = true;
+    this.scene.add(planeMesh);
+
+    /*
     let numberOfParticles = 250;
 
     let particles = [];
@@ -221,29 +378,31 @@ class Game {
 
     this.particleEmitter.startEmitting(this.scene);
 
-    const textureMaps = new TextureMaps("./resources/textures/brickwall.jpg");
+    const textureMaps = new TextureMaps("./resources/textures/TCom_Gore_512_albedo.png");
 
     const material = new THREE.MeshPhongMaterial({
       map: textureMaps.albedoMap,
       bumpMap: textureMaps.bumpMap,
-      bumpScale:1,
-      displacementMap: textureMaps.displacementMap,
-      displacementScale:1,
-      displacementBias:-1
+      bumpScale:30,
     });
 
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1,
-        512,512, 512);
+    const geometry = new THREE.BoxGeometry(
+        1, 1,1);
 
     const brick = new THREE.Mesh(geometry, material);
     brick.position.z = -2;
 
+    const l = new THREE.PointLight(0xffffff, 10);
+
     this.scene.add(brick);
+    l.position.set(0, 0, 1);
+    l.target = brick;
+    this.scene.add(l);
 
     this.objectMover.addRayCastObject(brick);
 
-    this.scene.add(this.objectMover.rayCastableObjects);
+    this.scene.add(this.objectMover.rayCastableObjects);*/
 
   }
 
@@ -280,8 +439,12 @@ class Game {
       this.updatePlayer(deltaTime);
     }
 
+    for (let i = 0; i < this.animatableObjects.length; i++) {
+      this.animatableObjects[i].update(deltaTime);
+    }
+
     this.skybox.sunAnimate(timeElapsed);
-    this.particleEmitter.updateParticleTime(t);
+    //this.particleEmitter.updateParticleTime(t);
     this.renderer.render(this.scene, this.camera);
     this.postProcessing.composer.render();
 

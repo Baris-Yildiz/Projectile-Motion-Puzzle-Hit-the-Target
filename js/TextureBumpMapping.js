@@ -15,7 +15,7 @@ class TextureMaps {
         this.bumpMap = new THREE.TextureLoader().load(path,
             (tex) => {this.modifyTexture(tex, convertToBumpMapPixel)});
 
-        function convertToBumpMapPixel(imageData, i) {
+        function convertToBumpMapPixel(imageData, i) { //desaturate + invert
 
             let rgba = {
                 r:imageData.data[i],
