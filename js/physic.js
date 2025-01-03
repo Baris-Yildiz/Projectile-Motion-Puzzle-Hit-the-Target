@@ -1,5 +1,4 @@
-import * as Ammo from "ammo.js";
-import * as THREE from "three";
+import {Ammo, THREE} from "./LibImports.js";
 
 class Physic {
     constructor(scene, camera) {
@@ -337,6 +336,8 @@ class Physic {
     }
 
 }
+
+export default Physic;
 
 // document.body.addEventListener('click', () => {
 //             this.ShootBullet(bullet_model, mass);        Eklenmesi gerek initeventlistener'a

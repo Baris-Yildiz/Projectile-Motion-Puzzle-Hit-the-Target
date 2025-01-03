@@ -22,6 +22,18 @@ class Settings {
         this.game = game;
     }
 
+    setSfx(value) {
+        this.sfx = value;
+        for (let i = 0; i < this.game.sfxList.length; i++) {
+            this.game.sfxList[i].volume = this.sfx;
+        }
+    }
+
+    setMusic(value) {
+        this.music = value;
+        this.game.backgroundMusic.volume = this.music;
+    }
+
     setFov(value) {
         this.fov = value;
         this.game.camera.fov = this.fov;

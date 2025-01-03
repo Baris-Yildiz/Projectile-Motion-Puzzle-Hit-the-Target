@@ -12,9 +12,6 @@ let gameRef;
 let gameUI;
 let uiState;
 
-//ayrı bir class yapılabilir
-const menu_sfx = new Audio("resources/sound/menu_click.mp3");
-const backgroundMusic = null;
 
 function onSettingsSliderValueChanged(id) {
     let labels = document.getElementsByTagName('label');
@@ -39,10 +36,10 @@ function onSettingsSliderValueChanged(id) {
                         gameRef.settings.setBrightness(slider.value / 50.0);
                         break;
                     case "SFX":
-                        updateSFXVolume(slider.value/100);
+                        gameRef.settings.setSfx(slider.value / 100.0);
                         break;
                     case "Music":
-                        updateMusicVolume(slider.value/100);
+                        gameRef.settings.setMusic(slider.value / 100.0);
                         break;
                 }
             }
@@ -57,7 +54,6 @@ function onButtonClick(clickedButton) {
         document.getElementById("aboutPage"),
         document.getElementById("optionsPage"),
         document.getElementById("keybindingPage"),
-
     ];
 
     for (let i = 0; i < uiPages.length; i++) {
@@ -72,9 +68,7 @@ function onButtonClick(clickedButton) {
 
     uiButtons.item(clickedButton).classList.add("navBarButtonClicked");
     uiPages[clickedButton].style.display = "block";
-    menu_sfx.play().catch(error => {
-        console.error('Audio playback failed:', error);
-    });
+    playMenuSFX();
 }
 
 function toggleUI(event) {
@@ -84,10 +78,9 @@ function toggleUI(event) {
     }
     uiState = !uiState;
     gameUI.style.visibility = uiState ? "unset" : "hidden";
+
     if(uiState){
-        menu_sfx.play().catch(error => {
-            console.error('Audio playback failed:', error);
-        });
+        playMenuSFX();
     }
 }
 
@@ -98,14 +91,9 @@ function initUI(game) {
     document.addEventListener("keyup",toggleUI);
 }
 
-function updateSFXVolume(volume) {
-    menu_sfx.volume = volume;
-}
-function updateMusicVolume(volume) {
-    if (backgroundMusic) {
-        backgroundMusic.volume = volume; 
-    }
-}
+
 function playMenuSFX() {
-    menu_sfx.play();
+    gameRef.sfxList[0].play().catch(error => {
+        console.error('Audio playback failed:', error);
+    });
 }

@@ -7,6 +7,7 @@ import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
 import {createPlane} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
+import Physic from "./physic.js";
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -72,6 +73,11 @@ const particleFShader = `
 class Game {
   constructor() {
 
+    this.sfxList = [];
+    this.sfxList.push(new Audio("resources/sound/menu_click.mp3"));
+
+    this.backgroundMusic = null;
+
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
 
@@ -117,6 +123,8 @@ class Game {
     this.settings = new Settings(this);
 
     this.settings.setEnvironmentQuality(Quality.HIGH);
+
+    this.physics = new Physic(this.scene, this.camera);
   }
 
   async startGame() {
@@ -146,12 +154,9 @@ class Game {
       }
     }
 
-    console.log(this.animatableObjects);
-
     const zombieAI = new PathfindingAI(zombie, player, allMeshes, []);
 
     this.zombieAIs.push(zombieAI);
-    console.log(zombieAI);
   }
 
   // Initialize event listeners for controls and window resize
@@ -214,11 +219,15 @@ class Game {
     return this.playerDirection;
   }
 
-  loadAnimatedObject(path, position, rotation, scale) {
+  loadAnimatedObject(path, position, rotation, scale, addPhysics = false) {
     return new Promise((resolve, reject) => {
           let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
+            if (addPhysics) {
+              this.physics.addPhysicsToLoadedModel(obj.model, 10);
+            }
+
             resolve();
           });
     })
@@ -296,7 +305,7 @@ class Game {
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4, -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
-        BASKETBALL_COURT_SCALE);
+        BASKETBALL_COURT_SCALE, true);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/old_rusty_car2.glb',
         [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
@@ -475,6 +484,7 @@ class Game {
     this.renderer.render(this.scene, this.camera);
     this.postProcessing.composer.render();
     this.zombieAIs.forEach(zombieAI => zombieAI.update());
+    this.physics.updatePhysics(deltaTime);
 
     requestAnimationFrame(this.animate.bind(this));
 
