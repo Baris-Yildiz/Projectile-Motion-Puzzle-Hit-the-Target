@@ -7,42 +7,56 @@ class AnimatedObject {
         this.gltfLoader = new GLTFLoader();
         this.fbxLoader = new FBXLoader();
         this.mixer = null;
-        this.load(path,position,rotation,scale);
+        this.path = path;
+        this.rotation = rotation;
+        this.position = position;
+        this.scale = scale;
+        this.meshes = [];
         //this.addLights();
     }
 
+    async Load() {
+        const promise = await this.load(this.path,this.position,this.rotation,this.scale);
+        console.log("model loaded!");
+    }
+
     load(path, positions, rotations, scale) {
-        const extension = path.split('.').pop().toLowerCase();
+        return new Promise((resolve, reject) => {
+            const extension = path.split('.').pop().toLowerCase();
 
-        if (extension === 'gltf' || extension === 'glb') {
+            if (extension === 'gltf' || extension === 'glb') {
 
-            this.gltfLoader.load(
-                path,
-                (gltf) => {
-                    this.model = gltf.scene;
-                    this.setupModel(positions, rotations, scale);
-                },
-                undefined,
-                (error) => {
-                    console.error('GLTF Yükleme Hatası:', error);
-                }
-            );
-        } else if (extension === 'fbx') {
+                this.gltfLoader.load(
+                    path,
+                    (gltf) => {
+                        this.model = gltf.scene;
+                        this.setupModel(positions, rotations, scale);
+                        resolve(gltf);
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('GLTF Yükleme Hatası:', error);
+                        reject(error);
+                    }
+                );
+            } else if (extension === 'fbx') {
 
-            this.fbxLoader.load(
-                path,
-                (fbx) => {
-                    this.model = fbx;
-                    this.setupModel(positions, rotations, scale);
-                },
-                undefined,
-                (error) => {
-                    console.error('FBX Yükleme Hatası:', error);
-                }
-            );
-        } else {
-            console.error('Desteklenmeyen dosya formatı:', extension);
-        }
+                this.fbxLoader.load(
+                    path,
+                    (fbx) => {
+                        this.model = fbx;
+                        this.setupModel(positions, rotations, scale);
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('FBX Yükleme Hatası:', error);
+                    }
+                );
+            } else {
+                console.error('Desteklenmeyen dosya formatı:', extension);
+            }
+        })
+
     }
 
     setupModel(positions, rotations, scale) {
@@ -55,6 +69,9 @@ class AnimatedObject {
         this.model.traverse(
             (child) => {
             if (child.isMesh) {
+                this.meshes.push(child);
+                child.geometry.boundingBox.min *= scale;
+                child.geometry.boundingBox.max *= scale;
                 child.castShadow = true;
             }
         });

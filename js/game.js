@@ -6,6 +6,7 @@ import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
 import {createPlane} from "./SceneHelpers.js";
+import PathfindingAI from "./pathfinding.js"
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -98,8 +99,6 @@ class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    //document.body.appendChild(this.renderer.domElement);
-
     this.postProcessing = new PostProcessing(this);
     this.particleEmitter = null;
     this.objectMover = new ObjectMover(this.scene, this.camera, this.renderer);
@@ -107,24 +106,52 @@ class Game {
     this.animatableObjects = [];
     this.skybox = new Skybox(this);
 
-    this.createSceneObjects();
+    this.zombieAIs = [];
 
-    //this.createExampleSceneObjects();
-
-    
     this.STEPS_PER_FRAME = 5;
     this.cameraMoveSpeed = 25;
     this.playerVelocity = new THREE.Vector3();
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};
 
-
-    //this.composer = this.setupPostProcessing();
     this.settings = new Settings(this);
 
     this.settings.setEnvironmentQuality(Quality.HIGH);
+  }
+
+  async startGame() {
+    await this.createSceneObjects();
+    console.log("scene loaded!");
+    this.setupEnemyAI();
     this.initEventListeners();
     this.animate();
+  }
+
+  setupEnemyAI() {
+    const zombie = new THREE.Mesh(new THREE.BoxGeometry(0.5,.5,.5,),
+        new THREE.MeshBasicMaterial({color: 0xff0000}));
+    zombie.position.set(-13, 0.5, 0);
+
+    const player = new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5,),
+        new THREE.MeshBasicMaterial({color: 0x00ff00}));
+    player.position.set(0, 0.5, 0);
+
+    this.scene.add(player);
+    this.scene.add(zombie);
+
+    let allMeshes = [];
+    for (let i = 0; i < this.animatableObjects.length; i++) {
+      for (let j = 0; j < this.animatableObjects[i].meshes.length; j++) {
+        allMeshes.push(this.animatableObjects[i].meshes[j]);
+      }
+    }
+
+    console.log(this.animatableObjects);
+
+    const zombieAI = new PathfindingAI(zombie, player, allMeshes, []);
+
+    this.zombieAIs.push(zombieAI);
+    console.log(zombieAI);
   }
 
   // Initialize event listeners for controls and window resize
@@ -187,8 +214,18 @@ class Game {
     return this.playerDirection;
   }
 
-  createSceneObjects() {
-    const moonLight = new THREE.AmbientLight(0xffffff, 1 );
+  loadAnimatedObject(path, position, rotation, scale) {
+    return new Promise((resolve, reject) => {
+          let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
+          obj.Load().then(() => {
+            this.animatableObjects.push(obj);
+            resolve();
+          });
+    })
+  }
+
+  async createSceneObjects() {
+    const moonLight = new THREE.AmbientLight(0xffffff, 1);
     this.scene.add(moonLight);
 
     const scale = 0.25;
@@ -196,7 +233,7 @@ class Game {
     const PLAYGROUND_SIZE = 50 * scale;
     const PAVEMENT_SIZE = 10 * scale;
     const BASKETBALL_COURT_SCALE = [0,0,0].fill(scale * 4);
-    const OLD_CAR_SCALE = [0,0,0].fill(scale * 0.005 /0.25);
+    const OLD_CAR_SCALE = [0,0,0].fill(scale * 0.005  /0.25);
     const OLD_CAR2_SCALE = [0,0,0].fill(scale * 0.0125 /0.25);
     const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
     const ROAD_SIZE = 20 * scale;
@@ -220,7 +257,7 @@ class Game {
     ];
 
     let pavementTextures = [
-        'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_BaseColor.jpg'
+      'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_BaseColor.jpg'
       , 'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Bump.jpg'];
 
     let roadTextures = [
@@ -231,7 +268,7 @@ class Game {
 
       const corner1 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
           new THREE.Vector3(pavementPositions[i % 2] , 0.01,
-          pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
+              pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
       this.scene.add(corner1);
 
       const corner2 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
@@ -256,79 +293,69 @@ class Game {
       this.scene.add(roadMesh2);
     }
 
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/12_basketball__football_court.glb',
-        [0.0, 0.4, -PLAYGROUND_SIZE / 5.0], [0, 0, 0], BASKETBALL_COURT_SCALE));
+    await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
+        [0.0, 0.4, -PLAYGROUND_SIZE / 5.0],
+        [0, 0, 0],
+        BASKETBALL_COURT_SCALE);
 
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/old_rusty_car2.glb',
-        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0], [0, Math.PI, 0], OLD_CAR_SCALE));
+    await this.loadAnimatedObject('resources/assets/glbAssets/old_rusty_car2.glb',
+        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
+        [0, Math.PI, 0],
+        OLD_CAR_SCALE);
+
+    await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
+        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35]);
+
+    await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
+        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1]);
+
+    for (let i = 0; i < 6; i++) {
+      await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+          [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
+            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE);
+    }
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings1.glb',
+        [0.0, 0.01,
+          -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0], BUILDINGS_SCALE);
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings2.glb',
+        [0.0, 0.01,
+          PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0], BUILDINGS_SCALE);
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings3.glb',
+        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE);
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings3.glb',
+        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE);
+
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings3.glb',
+        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE);
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/buildings3.glb',
+        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE);
 
     this.animatableObjects.push( new AnimatedObject(this.scene,
         'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
         [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE));
-
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
-        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35]));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
-        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1]));
-
-    for (let i = 0; i < 6; i++) {
-      this.animatableObjects.push( new AnimatedObject(this.scene,
-          'resources/assets/Barricade/SM_vgledec_tier_3.gltf',
-          [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
-            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE));
-    }
-
-    for (let i = 0; i < 6; i++) {
-      this.animatableObjects.push( new AnimatedObject(this.scene,
-          'resources/assets/Barricade/SM_vgledec_tier_3.gltf',
-          [-(-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2),
-            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE));
-    }
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings1.glb',
-        [0.0,
-          0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0], BUILDINGS_SCALE));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings2.glb',
-        [0.0,
-          0.01, PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0], BUILDINGS_SCALE));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings3.glb',
-        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings3.glb',
-        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings3.glb',
-        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE));
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
-        'resources/assets/glbAssets/buildings3.glb',
-        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE));
   }
 
 
   createExampleSceneObjects() {
-
-
     let planeGeometry = new THREE.PlaneGeometry(100,100 )  ;
     let planeMaterial = new THREE.MeshStandardMaterial({color:0x00ff00});
     let planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -447,26 +474,13 @@ class Game {
     //this.particleEmitter.updateParticleTime(t);
     this.renderer.render(this.scene, this.camera);
     this.postProcessing.composer.render();
+    this.zombieAIs.forEach(zombieAI => zombieAI.update());
 
     requestAnimationFrame(this.animate.bind(this));
+
   }
 }
 
 let game = new Game();
+game.startGame();
 export default game;
-
-// demo
-// const geometry = new THREE.BoxGeometry(1, 1, 1);
-// const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-// const material2 = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-
-// const cube1 = new THREE.Mesh(geometry, material1);
-// const cube2 = new THREE.Mesh(geometry, material2);
-
-
-// cube1.position.x = -1.5;
-// cube2.position.x = 1.5;
-
-
-// game.scene.add(cube1);
-// game.scene.add(cube2);

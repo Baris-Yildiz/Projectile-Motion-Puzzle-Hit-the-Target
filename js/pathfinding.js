@@ -1,3 +1,5 @@
+import {THREE} from "./LibImports.js";
+
 class PathfindingAI {
     constructor(zombie, player, obstacles, otherZombies) {
         this.zombie = zombie; //zombi mesh
@@ -234,10 +236,15 @@ class PathfindingAI {
         
         for (const obstacle of this.obstacles) {
             const building = {
+                minX: obstacle.geometry.boundingBox.min.x,
+                minZ: obstacle.geometry.boundingBox.min.z,
+                maxX: obstacle.geometry.boundingBox.max.x,
+                maxZ: obstacle.geometry.boundingBox.max.z,
+                /*
                 minX: obstacle.position.x - obstacle.geometry.parameters.width/2,
                 maxX: obstacle.position.x + obstacle.geometry.parameters.width/2,
                 minZ: obstacle.position.z - obstacle.geometry.parameters.depth/2,
-                maxZ: obstacle.position.z + obstacle.geometry.parameters.depth/2
+                maxZ: obstacle.position.z + obstacle.geometry.parameters.depth/2*/
             };
 
             // Calculate closest point on building to zombie
@@ -337,6 +344,8 @@ class PathfindingAI {
         }
     }
 }
+
+export default PathfindingAI;
 
 //Game Class'ında
 //Group da kullanılabilir
