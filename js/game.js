@@ -76,7 +76,7 @@ class Game {
     this.sfxList = [];
     this.sfxList.push(new Audio("resources/sound/menu_click.mp3"));
 
-    this.backgroundMusic = null;
+    this.backgroundMusic = new Audio("resources/sound/background_music.mp3");
 
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
