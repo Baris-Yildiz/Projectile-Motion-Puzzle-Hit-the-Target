@@ -77,6 +77,7 @@ class Game {
     this.sfxList.push(new Audio("resources/sound/menu_click.mp3"));
 
     this.backgroundMusic = new Audio("resources/sound/background_music.mp3");
+    this.settings = new Settings(this);
 
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
@@ -120,7 +121,6 @@ class Game {
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};
 
-    this.settings = new Settings(this);
 
     this.settings.setEnvironmentQuality(Quality.HIGH);
 
