@@ -1,14 +1,4 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  
-}
-html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Prevent scrollbars */
-  }
+
 #gameUI {
     position: absolute;
     color: black;
@@ -126,75 +116,91 @@ html, body {
 }
 
 
-#loadingScreen {
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+  }
+
+  #loadingScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0c0c0c, #222222);
+    color: white;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    width: 100%;
+    align-items: center;
+    background-image: url('assets/futuristic-city.jpg'); /* Replace with your image */
+    background-size: cover;
+    background-position: center;
+    text-shadow: 2px 2px 5px black;
   }
-  
-  /* Title */
+
   .title {
-    font-size: 2.5em;
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px #76c7c0;
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    animation: glow 1.5s infinite alternate;
   }
-  
-  /* Subtitle */
+
   .subtitle {
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    color: #888;
-    text-shadow: 0 0 5px #444;
+    font-size: 1.5rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
   }
-  
-  /* Play Button */
+
   #playButton {
-    padding: 15px 30px;
-    background: linear-gradient(90deg, #141f0c, #7700ff);
-    border: none;
-    border-radius: 25px;
+    padding: 1rem 3rem;
+    font-size: 1.5rem;
+    font-weight: bold;
     color: #fff;
-    font-size: 1.2em;
+    background: linear-gradient(135deg, #ff6200, #ff8c00);
+    border: none;
+    border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 0 15px #0d4e44;
-    transition: transform 0.2s ease, box-shadow 0.3s;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+    z-index: 1; /* Ensure button is on top */
   }
-  
+
   #playButton:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 20px #0d4e44;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.5);
   }
-  
-  #playButton:active {
-    transform: scale(0.95);
+
+  @keyframes glow {
+    0% { text-shadow: 0 0 10px #ff8c00, 0 0 20px #ff6200; }
+    100% { text-shadow: 0 0 20px #ff8c00, 0 0 30px #ff6200; }
   }
-  
-  /* Progress Bar Container */
+
   #progressContainer {
-    display: none; /* Initially hidden */
+    display: none; /* This can be toggled on if needed */
     width: 80%;
-    background: #222;
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 5px;
     overflow: hidden;
-    margin-top: 20px;
-    box-shadow: 0 0 10px #000;
+    margin-top: 1rem;
   }
-  
-  /* Progress Bar */
+
   #progressBar {
     height: 10px;
-    width: 0%; /* Initially empty */
-    background: linear-gradient(90deg, #00ffcc, #0077ff);
-    box-shadow: 0 0 15px #00ffcc;
-    transition: width 0.1s;
+    width: 0;
+    background: linear-gradient(135deg, #76c7c0, #2a9d8f);
+    transition: width 0.5s;
+  }
+  #scoreDisplay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 24px;
+    font-family: Arial, sans-serif;
+    z-index: 100;
   }
   
-  /* Loading Text */
-  .loadingText {
-    margin-top: 15px;
-    font-size: 1em;
-    color: #aaa;
-    display: none; /* Initially hidden */
-}

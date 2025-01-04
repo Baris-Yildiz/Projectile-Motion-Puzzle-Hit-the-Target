@@ -134,8 +134,6 @@ class Game {
     this.initEventListeners();
     this.animate();
     this.soundManager.playBackgroundMusic();
-    
-    
   }
 
   setupEnemyAI() {
@@ -174,6 +172,7 @@ class Game {
     
 
     document.body.addEventListener('click', (event) => {
+      if(uiState) return;
       document.body.requestPointerLock();
       this.objectMover.onMouseClick(event);
     });

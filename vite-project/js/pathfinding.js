@@ -156,7 +156,6 @@ class PathfindingAI {
 
     update() {
         const currentTime = Date.now();
-
         // Check if zombie can see player
         if (this.canSeePlayer()) {
             this.hasSpottedPlayer = true;
@@ -342,6 +341,9 @@ class PathfindingAI {
         } else {
             this.zombie.position.copy(this.lastValidPosition);
         }
+    }
+    die() {
+        document.getElementById("scoreDisplay").innerText = parseInt(document.getElementById("score").innerText) + 1;
     }
 }
 

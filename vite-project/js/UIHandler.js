@@ -78,9 +78,12 @@ function toggleUI(event) {
     }
     uiState = !uiState;
     gameUI.style.visibility = uiState ? "unset" : "hidden";
-
+    console.log(uiState);
     if(uiState){
         playMenuSFX();
+        document.exitPointerLock();
+    }else{
+        document.body.requestPointerLock();
     }
 }
 
