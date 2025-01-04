@@ -499,6 +499,7 @@ let game = new Game();
 export default game;
 
 function initializeScene() {
+  game.startGame();
   document.getElementById('playButton').style.display = 'none';
 
   // Show the progress bar
@@ -507,7 +508,7 @@ function initializeScene() {
   progressContainer.style.display = 'block';
 
   // Timed progress bar simulation
-  const totalTime = 10000; // Total time for the progress bar (in milliseconds)
+  const totalTime = 850; // Total time for the progress bar (in milliseconds)
   const intervalTime = 50; // Update the bar every 50ms
   let elapsed = 0;
 
@@ -523,7 +524,7 @@ function initializeScene() {
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('screen').style.display = 'block';
 
-      game.startGame();
+      
     }
   }, intervalTime);
 }
