@@ -85,7 +85,6 @@ class Game {
     this.clock = new THREE.Clock();
 
     this.scene = new THREE.Scene();
-    //placeholder koydum https://jaxry.github.io/panorama-to-cubemap/ buradan kesilebilir
     /*const loader = new THREE.CubeTextureLoader();
     const texture = loader.load([
       'resources/skybox/posx.jpg',
