@@ -31,7 +31,8 @@ class Physic {
 
     createExampleSceneObjects() {
         // Ground
-        this.createPhysicsBox(new THREE.Vector3(0, -1, 0), new THREE.Vector3(10, 1, 10), 0, 0x888888);
+        this.createPhysicsBox(new THREE.Vector3(0, -1, 0),
+            new THREE.Vector3(10, 1, 10), 0, 0x888888);
 
         // Moving Boxes
         this.createPhysicsBox(new THREE.Vector3(0, 15, 0), new THREE.Vector3(1, 1, 1), 1, 0xff0000);
@@ -195,8 +196,7 @@ class Physic {
                 mesh.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
 
             }
-
-            this.checkCollisions(mesh);
+            //this.checkCollisions(mesh);
         }
     }
 
@@ -237,13 +237,13 @@ class Physic {
 
     addPhysicsToBasicModels(type, model, position, scale, model_mass) {
         if (type === 'box'){
-            const boxSize = new Ammo.btVector3(scale[0] , scale[1] , scale[2] ); // Instead of convex Hull Shape
+            const boxSize = new Ammo.btVector3(scale.x , scale.y , scale.z ); // Instead of convex Hull Shape
             const shape = new Ammo.btBoxShape(boxSize);
 
 
             const transform = new Ammo.btTransform();
             transform.setIdentity();
-            transform.setOrigin(new Ammo.btVector3(position[0], position[1], position[2]));
+            transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
 
             const mass = model_mass; // Models mass
             const localInertia = new Ammo.btVector3(0, 0, 0);
@@ -336,7 +336,6 @@ class Physic {
         Ammo.destroy(transform);
         Ammo.destroy(rbInfo);
     }
-
 }
 
 export default Physic;
