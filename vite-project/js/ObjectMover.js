@@ -39,18 +39,45 @@ export class ObjectMover {
     }
     transformModeControls(e) {
         if(e.key === 'r'){
-            this.transformControls.setMode('rotate')
+            this.transformControls.setMode('rotate');
+            moveState = true;
+            document.getElementById('moveState').style.display = "block";
+            document.getElementById('moveState').innerText = "rotate";
+            this.setControls(true);
+            document.exitPointerLock();
         }
         else if(e.key === 'c'){
-            this.transformControls.setMode('translate')
+            this.transformControls.setMode('translate');
+            moveState = true;
+            document.getElementById('moveState').style.display = "block";
+            document.getElementById('moveState').innerText = "translate";
+            this.setControls(true);
+            document.exitPointerLock();
         }
-        else if(e.key === 'h'){
-            this.hideControls(this.transformControls)
-        }
+        
         else if(e.key === 'l'){
             this.transformControls.setSpace('local');
+            moveState = true;
+            document.getElementById('moveState').style.display = "block";
+            document.getElementById('moveState').innerText = "local";
+            this.setControls(true);
+
+            document.exitPointerLock();
+        }
+        else if(e.key === 'h'){
+            this.setControls(uiState);
+        }
+        else if(e.key === 'n'){
+            moveState = false;
+            document.getElementById('moveState').style.display = "none";
+            document.body.requestPointerLock();
+            this.setControls(false);
         }
     }
-
+    setControls(on){
+        this.transformControls.showX = on;
+        this.transformControls.showY = on;
+        this.transformControls.showZ =on;
+    }
    
 }

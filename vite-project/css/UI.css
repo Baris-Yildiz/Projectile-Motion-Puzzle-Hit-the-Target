@@ -203,4 +203,16 @@ body, html {
     font-family: Arial, sans-serif;
     z-index: 100;
   }
+  #moveState {
+    display: none;
+    position: fixed; /* Fix the position to the top-right corner */
+    top: 10px;       /* 10px from the top */
+    right: 10px;     /* 10px from the right */
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    color: white;    /* Text color */
+    font-size: 16px; /* Text size */
+    border-radius: 5px; /* Rounded corners */
+    z-index: 100;    /* Ensure it's on top */
+}
   

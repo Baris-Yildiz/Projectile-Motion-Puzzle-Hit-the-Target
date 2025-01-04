@@ -24,7 +24,7 @@
     <div id="loadingScreen">
       <div class="title">Placeholder Title</div>
       <div class="subtitle">subtitle</div>
-      <button id="playButton" onclick="initializeScene()">Play</button>
+      <button id="playButton" onclick="initializeScene();document.body.requestPointerLock();">Play</button>
 
       <div id="progressContainer" style="display: none; width: 100%; background: #ddd; border-radius: 5px; overflow: hidden; margin-top: 10px;">
         <div id="progressBar" style="height: 10px; width: 0; background: #76c7c0; transition: width 0.1s;"></div>
@@ -32,7 +32,7 @@
     </div>
     <div id="screen">
       <div id="scoreDisplay">Score: 0</div>
-
+      <div id="moveState"></div>
       <canvas id="glCanvas"></canvas>
       <div id="gameUI">
         <div class="navBar">

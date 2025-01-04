@@ -11,6 +11,7 @@ let quality = ["LOW", "MEDIUM", "HIGH"];
 let gameRef;
 let gameUI;
 let uiState;
+let moveState = false;
 
 
 function onSettingsSliderValueChanged(id) {
@@ -101,3 +102,4 @@ function playMenuSFX() {
         console.error('Audio playback failed:', error);
     });
 }
+

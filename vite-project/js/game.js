@@ -173,8 +173,14 @@ class Game {
 
     document.body.addEventListener('click', (event) => {
       if(uiState) return;
-      document.body.requestPointerLock();
-      this.objectMover.onMouseClick(event);
+      
+      if(!moveState){
+        document.body.requestPointerLock();
+        
+      }else{
+        this.objectMover.onMouseClick(event);
+      }
+      
     });
     
     document.body.addEventListener('mousemove', (event) => {
