@@ -327,10 +327,10 @@ class Game {
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
 
-    this.createParticleSystemInstances();
+    this.createParticleSystemInstances(scale);
   }
 
-  createParticleSystemInstances() {
+  createParticleSystemInstances(scale) {
     let numberOfParticles = 250;
     let smokeParticles = [];
 
@@ -373,6 +373,9 @@ class Game {
     }
 
     const smokeEmitter = new ParticleEmitter(smokeParticles);
+    console.log(smokeEmitter);
+    smokeEmitter.setParticleOffset(new THREE.Vector3(-11 * scale / 0.25, 0, scale));
+    console.log(smokeEmitter);
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);

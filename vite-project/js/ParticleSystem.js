@@ -6,6 +6,13 @@ class ParticleEmitter {
         this.particles = particles;
     }
 
+    setParticleOffset(offset) {
+        for (let i = 0; i < this.particles.length; i++) {
+            let particle = this.particles[i];
+            this.particles[i].setPosition(particle.position.add(offset));
+        }
+    }
+
     startEmitting(scene) {
         for (let i = 0; i < this.particles.length; i++) {
             scene.add(this.particles[i].object);
