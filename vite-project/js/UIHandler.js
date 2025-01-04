@@ -88,13 +88,12 @@ function initUI(game) {
     gameRef = game;
     gameUI = document.getElementById("gameUI");
     uiState = false;
-    document.addEventListener("keyup",toggleUI);
-    console.log(game);
-    gameRef.backgroundMusic.volume = game.settings.music;
-    gameRef.backgroundMusic.loop = true;
-    gameRef.backgroundMusic.play().catch(error => {
+    document.addEventListener("keyup",toggleUI);/*
+    game.backgroundMusic.volume = game.settings.music;
+    game.backgroundMusic.loop = true;
+    game.backgroundMusic.play().catch(error => {
         console.error('Music playback failed:', error);
-    });
+    });*/
 }
 
 
