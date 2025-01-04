@@ -24,14 +24,13 @@ class Settings {
 
     setSfx(value) {
         this.sfx = value;
-        for (let i = 0; i < this.game.sfxList.length; i++) {
-            this.game.sfxList[i].volume = this.sfx;
-        }
+        this.game.soundManager.setSFX(value);
+        
     }
 
     setMusic(value) {
         this.music = value;
-        this.game.backgroundMusic.volume = this.music;
+        this.game.soundManager.setBackgroundMusicVolume(value);
     }
 
     setFov(value) {

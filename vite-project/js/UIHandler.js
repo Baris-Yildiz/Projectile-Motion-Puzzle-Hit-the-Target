@@ -94,7 +94,7 @@ function initUI(game) {
 
 
 function playMenuSFX() {
-    gameRef.sfxList[0].play().catch(error => {
+    gameRef.soundManager.sfxList[0].play().catch(error => {
         console.error('Audio playback failed:', error);
     });
 }

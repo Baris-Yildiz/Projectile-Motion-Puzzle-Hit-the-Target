@@ -5,6 +5,7 @@ import {THREE, EffectComposer, RenderPass, ShaderPass} from "./LibImports.js"
 class PostProcessing{
     constructor(game){
         this.game = game;
+        this.enabled = false;
 
         this.postProcessingVShader = `
             out vec2 fTexCoords;        
@@ -64,6 +65,14 @@ class PostProcessing{
         this.shaderPass.uniforms.brightness.value = 1.0;
         this.composer.addPass(this.shaderPass);
     }
+    render() {
+        if(this.enabled){
+            this.composer.render();
+        }
+    }
+    toggleOn(isEnabled){
+        this.enabled = isEnabled;
+    }   
 }
 
 export default PostProcessing;

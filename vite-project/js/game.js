@@ -8,6 +8,7 @@ import AnimatedObject from "./animatedObject.js";
 import {createPlane} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import Physic from "./physic.js";
+import SoundManager from "./SoundManager.js";
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -73,10 +74,7 @@ const particleFShader = `
 class Game {
   constructor() {
 
-    this.sfxList = [];
-    this.sfxList.push(new Audio("resources/sound/menu_click.mp3"));
-
-    this.backgroundMusic = new Audio("resources/sound/background_music.mp3");
+    
     this.settings = new Settings(this);
 
     initUI(this);
@@ -121,9 +119,12 @@ class Game {
     this.keyStates = {};
 
 
+
     this.settings.setEnvironmentQuality(Quality.HIGH);
 
     this.physics = new Physic(this.scene, this.camera);
+    this.soundManager = new SoundManager(this);
+
   }
 
   async startGame() {
@@ -132,13 +133,8 @@ class Game {
     this.setupEnemyAI();
     this.initEventListeners();
     this.animate();
-    setTimeout(() => {
-      game.backgroundMusic.volume = game.settings.music/100;
-      game.backgroundMusic.loop = true;
-      game.backgroundMusic.play().catch(error => {
-      console.error('Music playback failed:', error);
-    });
-    }, 200);
+    this.soundManager.playBackgroundMusic();
+    
     
   }
 
@@ -454,15 +450,22 @@ class Game {
 
     if (this.keyStates['KeyW']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(speedDelta));
+      this.soundManager.playWalkingSound();
     }
     if (this.keyStates['KeyS']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(-speedDelta));
+      this.soundManager.playWalkingSound();
+
     }
     if (this.keyStates['KeyA']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(-speedDelta));
+      this.soundManager.playWalkingSound();
+
     }
     if (this.keyStates['KeyD']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
+      this.soundManager.playWalkingSound();
+
     }
     if (this.keyStates['Space']) {
       this.playerVelocity.y += speedDelta;
@@ -531,3 +534,4 @@ function initializeScene() {
 }
 
 window.initializeScene = initializeScene;
+

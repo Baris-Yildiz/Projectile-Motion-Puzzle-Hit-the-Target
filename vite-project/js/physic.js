@@ -2,6 +2,7 @@ import {Ammo, THREE} from "./LibImports.js";
 
 class Physic {
     constructor(scene, camera) {
+        //this.soundManager = soundManager(constructor'a koy)
         this.scene = scene;
         this.camera = camera;
         this.initPhysics();
@@ -107,6 +108,7 @@ class Physic {
     }
 
     ShootBullet(bullet_model, bullet_mass) {
+        //this.soundManager.playSFX(0);
         const shape = new Ammo.btConvexHullShape();
 
         // Reach Model Geometry
@@ -340,5 +342,5 @@ class Physic {
 export default Physic;
 
 // document.body.addEventListener('click', () => {
-//             this.ShootBullet(bullet_model, mass);        Eklenmesi gerek initeventlistener'a
+//             this.ShootBullet(bullet_model, mass);        //Eklenmesi gerek initeventlistener'a
 //         });
