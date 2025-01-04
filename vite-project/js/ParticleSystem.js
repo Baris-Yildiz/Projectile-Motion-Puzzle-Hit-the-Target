@@ -1,48 +1,4 @@
 import {THREE} from "./LibImports.js";
-
-
-// let particles = [new Particle(...), new Particle(...)];
-// let emitter = new ParticleEmitter(particles);
-// emitter.startEmitting(scene);
-// at update:
-// emitter.updateParticleTime(timeElapsed);
-
-/* Example particles list instantiation
-    let numberOfParticles = 250;
-
-    let particles = [];
-
-    for (let i = 0; i < numberOfParticles; i++) {
-      let geometry = new THREE.SphereGeometry(Math.random());
-      let divideBy = (numberOfParticles+1)/2.0;
-      let velocity = new THREE.Vector3((i - divideBy)/divideBy,1,0);
-
-      let color = new THREE.Vector4(0.5,0.5,0.5, Math.random() + 0.5);
-      let life = 2;
-      let scale = 0.25;
-      let position = new THREE.Vector3(Math.random(), Math.random() - 1, -2);
-
-      let material = new THREE.ShaderMaterial({
-        glslVersion:THREE.GLSL3,
-        vertexShader: particleVShader2,
-        fragmentShader: particleFShader,
-        transparent: true,
-        uniforms: {
-          init_vel: {
-            value: velocity
-          },
-          g: {value: 10},
-          t:{value:t},
-          u_color: {value: color},
-          u_life : {value: life},
-          u_scale: {value: scale},
-          rand: {value:0},
-        }
-      });
-
-      let particle = new Particle(geometry, velocity, color, life,scale, position, material);
-      particles.push(particle);
- */
 //TODO: destroy particles when they die (u_life < 0)
 
 class ParticleEmitter {
@@ -58,7 +14,8 @@ class ParticleEmitter {
 
     updateParticleTime(time) {
         for (let i = 0; i < this.particles.length; i++) {
-            this.particles[i].updateTime(time);
+
+            this.particles[i].updateTime(time % this.particles[i].life);
         }
     }
 }
@@ -129,5 +86,56 @@ class Particle {
     }
 }
 
-export {Particle, ParticleEmitter};
+const smokeParticleVShader = `
+    uniform vec3 init_vel;
+    uniform float g, t; 
+    uniform vec4 u_color;
+    uniform float u_life;
+    uniform float rand;
+    
+    out vec4 o_color;
+    out vec2 f_uv;
+    
+    float random(vec3 st) {
+        return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+    }
+        
+    void main()
+    {
+        if (u_life <= 0.0) return;
+        f_uv = uv;
+        vec3 object_pos;
+        object_pos.x = position.x + rand * 3.0 * init_vel.x*t;
+        object_pos.y = position.y + rand * 3.0 * init_vel.y*t*2.0;
+        object_pos.z = position.z + init_vel.z*t;
+        o_color = u_color;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(object_pos, 1);
+    }
+`
+
+const smokeParticleFShader = `
+    in vec4 o_color;
+    in vec2 f_uv;
+    
+    out vec4 f_color;
+    
+    uniform sampler2D smokeTexture;
+    void main()
+    {
+        vec2 UV = f_uv;
+
+        vec2 distVector = UV - vec2(0.5, 0.5);
+        float dist = length(distVector);
+
+        if (dist > 0.25) {
+            UV.x -= distVector.x * 0.4;
+            UV.y -= distVector.y * 0.4;    
+        }
+        
+        f_color = texture(smokeTexture, UV) * o_color;
+
+    }
+`
+
+export {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader};
 

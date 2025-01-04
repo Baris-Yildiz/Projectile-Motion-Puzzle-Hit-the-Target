@@ -1,7 +1,7 @@
 import {THREE} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
-import {Particle, ParticleEmitter} from "./ParticleSystem.js"
+import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
@@ -15,68 +15,10 @@ let timeElapsed = 0;
 let sunPosition = null;
 let sunlight = null;
 
-const particleVShader = `
-    uniform vec3 init_vel;
-    uniform float g, t; 
-    uniform vec4 u_color;
-    uniform float u_life;
-    uniform float u_scale;
-    
-    out vec4 o_color;
-        
-    void main()
-    {
-        if (t >= u_life) return;
-        vec3 object_pos;
-        object_pos.x = position.x + init_vel.x*t;
-        object_pos.y = position.y + init_vel.y*t- g*t*t / 2.0;
-        object_pos.z = position.z + init_vel.z*t;
-        o_color = u_color;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(u_scale*object_pos, 1);
-    }
-`
-const particleVShader2 = `
-    uniform vec3 init_vel;
-    uniform float g, t; 
-    uniform vec4 u_color;
-    uniform float u_life;
-    uniform float rand;
-    
-    out vec4 o_color;
-    
-    float random(vec3 st) {
-        return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-    }
-        
-    void main()
-    {
-        if (u_life <= 0.0) return;
-        
-        vec3 object_pos;
-        object_pos.x = position.x + rand * 3.0 * init_vel.x*t;
-        object_pos.y = position.y + rand * 3.0 * init_vel.y*t*2.0;
-        object_pos.z = position.z + init_vel.z*t;
-        o_color = u_color;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(object_pos, 1);
-    }
-`
-
-const particleFShader = `
-    in vec4 o_color;
-    out vec4 f_color;
-    void main()
-    {
-       
-       f_color = o_color;
-    }
-`
-
 class Game {
   constructor() {
 
-    
     this.settings = new Settings(this);
-
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
 
@@ -104,7 +46,7 @@ class Game {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.postProcessing = new PostProcessing(this);
-    this.particleEmitter = null;
+    this.particleEmitters = [];
     this.objectMover = new ObjectMover(this.scene, this.camera, this.renderer);
 
     this.animatableObjects = [];
@@ -118,8 +60,6 @@ class Game {
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};
 
-
-
     this.settings.setEnvironmentQuality(Quality.HIGH);
 
     this.physics = new Physic(this.scene, this.camera);
@@ -129,7 +69,6 @@ class Game {
 
   async startGame() {
     await this.createSceneObjects();
-    console.log("scene loaded!");
     this.setupEnemyAI();
     this.initEventListeners();
     this.animate();
@@ -169,7 +108,7 @@ class Game {
     document.addEventListener('keyup', (event) => {
       this.keyStates[event.code] = false;
     });
-    
+
 
     document.body.addEventListener('click', (event) => {
       if(uiState) return;
@@ -182,7 +121,7 @@ class Game {
       }
       
     });
-    
+
     document.body.addEventListener('mousemove', (event) => {
       if (document.pointerLockElement === document.body) {
         this.camera.rotation.y -= event.movementX * this.settings.horizontalSensitivity / 500;
@@ -193,14 +132,14 @@ class Game {
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
-  
+
   onWindowResize() {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
- 
+
   updatePlayer(deltaTime) {
     let damping = Math.exp(-4 * deltaTime) - 1;
     this.playerVelocity.addScaledVector(this.playerVelocity, damping);
@@ -242,7 +181,6 @@ class Game {
             if (movable) {
               obj.model.traverse((child) => {
                 if (child.isMesh) {
-                  console.log(child.material.color);
                   child.material.color.set(MOVABLE_TINT_COLOR);
                 }
               })
@@ -335,59 +273,109 @@ class Game {
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0,
         true);
+    
+        await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
+            [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
+              -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+            [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0, true);
 
-    await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
-        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
-          -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0, true);
+            for (let i = 0; i < 6; i++) {
+              await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+                  [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
+                    0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
+                  BARRICADE_SCALE, 1.0, true);
+            }
 
-        for (let i = 0; i < 6; i++) {
-          await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
-              [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
-                0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
-              BARRICADE_SCALE, 1.0, true);
-        }
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings1.glb',
+                [0.0, 0.01,
+                  -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
+                BUILDINGS_SCALE, 0.0);
+
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings2.glb',
+                [0.0, 0.01,
+                  PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
+                BUILDINGS_SCALE, 0.0);
+
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings3.glb',
+                [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+                  0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings3.glb',
+                [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+                  0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings3.glb',
+                [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+                  0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
+
+            await this.loadAnimatedObject(
+                'resources/assets/glbAssets/buildings3.glb',
+                [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+                  0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
 
         await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings1.glb',
-            [0.0, 0.01,
-              -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
-            BUILDINGS_SCALE, 0.0);
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings2.glb',
-            [0.0, 0.01,
-              PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
-            BUILDINGS_SCALE, 0.0);
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings3.glb',
-            [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-              0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings3.glb',
-            [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-              0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
-
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings3.glb',
-            [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-              0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/buildings3.glb',
-            [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-              0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
-        [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
+            'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
+            [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
+
+    this.createParticleSystemInstances();
+  }
+
+  createParticleSystemInstances() {
+    let numberOfParticles = 250;
+    let smokeParticles = [];
+
+    const smokeTexture = new THREE.TextureLoader().load("resources/textures/smoke.png");
+    smokeTexture.wrapS = THREE.RepeatWrapping;
+    smokeTexture.wrapT = THREE.RepeatWrapping;
+
+    for (let i = 0; i < numberOfParticles; i++) {
+      let geometry = new THREE.SphereGeometry(2, 32 ,32);
+      let colorComp = 1.0 - (Math.random() / 2.0);
+      let color = new THREE.Vector4(colorComp, colorComp, colorComp, 1.0);
+      let scale = 0.1;
+
+      let divideBy = (numberOfParticles+1)/2.0;
+      let velocity = new THREE.Vector3((i - divideBy)/divideBy,1,1);
+
+      let life = Math.random() + 0.5;
+      let position = new THREE.Vector3(Math.random(), Math.random(), -2);
+
+      let material = new THREE.ShaderMaterial({
+        glslVersion:THREE.GLSL3,
+        vertexShader: smokeParticleVShader,
+        fragmentShader: smokeParticleFShader,
+        uniforms: {
+          init_vel: {
+            value: velocity
+          },
+          g: {value: 10},
+          t:{value:t},
+          u_color: {value: color},
+          u_life : {value: life},
+          u_scale: {value: scale},
+          rand: {value:0},
+          smokeTexture: {value: smokeTexture},
+        }
+      });
+
+      let particle = new Particle(geometry, velocity, color, life,scale, position, material);
+      smokeParticles.push(particle);
+    }
+
+    const smokeEmitter = new ParticleEmitter(smokeParticles);
+    smokeEmitter.startEmitting(this.scene);
+
+    this.particleEmitters.push(smokeEmitter);
   }
 
 
@@ -401,45 +389,7 @@ class Game {
     this.scene.add(planeMesh);
 
     /*
-    let numberOfParticles = 250;
 
-    let particles = [];
-
-    for (let i = 0; i < numberOfParticles; i++) {
-      let geometry = new THREE.SphereGeometry(Math.random());
-      let divideBy = (numberOfParticles+1)/2.0;
-      let velocity = new THREE.Vector3((i - divideBy)/divideBy,1,0);
-
-      let color = new THREE.Vector4(0.5,0.5,0.5, Math.random() + 0.5);
-      let life = 2;
-      let scale = 0.25;
-      let position = new THREE.Vector3(Math.random(), Math.random() - 1, -2);
-
-      let material = new THREE.ShaderMaterial({
-        glslVersion:THREE.GLSL3,
-        vertexShader: particleVShader2,
-        fragmentShader: particleFShader,
-        transparent: true,
-        uniforms: {
-          init_vel: {
-            value: velocity
-          },
-          g: {value: 10},
-          t:{value:t},
-          u_color: {value: color},
-          u_life : {value: life},
-          u_scale: {value: scale},
-          rand: {value:0},
-        }
-      });
-
-      let particle = new Particle(geometry, velocity, color, life,scale, position, material);
-      particles.push(particle);
-    }
-
-    this.particleEmitter = new ParticleEmitter(particles);
-
-    this.particleEmitter.startEmitting(this.scene);
 
     const textureMaps = new TextureMaps("./resources/textures/TCom_Gore_512_albedo.png");
 
@@ -447,25 +397,7 @@ class Game {
       map: textureMaps.albedoMap,
       bumpMap: textureMaps.bumpMap,
       bumpScale:30,
-    });
-
-
-    const geometry = new THREE.BoxGeometry(
-        1, 1,1);
-
-    const brick = new THREE.Mesh(geometry, material);
-    brick.position.z = -2;
-
-    const l = new THREE.PointLight(0xffffff, 10);
-
-    this.scene.add(brick);
-    l.position.set(0, 0, 1);
-    l.target = brick;
-    this.scene.add(l);
-
-    this.objectMover.addRayCastObject(brick);
-
-    this.scene.add(this.objectMover.rayCastableObjects);*/
+    });*/
 
   }
 
@@ -514,7 +446,10 @@ class Game {
     }
 
     this.skybox.sunAnimate(timeElapsed);
-    //this.particleEmitter.updateParticleTime(t);
+    for (let i = 0; i < this.particleEmitters.length; i++) {
+      this.particleEmitters[i].updateParticleTime(t);
+    }
+
     this.renderer.render(this.scene, this.camera);
     this.postProcessing.composer.render();
     this.zombieAIs.forEach(zombieAI => zombieAI.update());

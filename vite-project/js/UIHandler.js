@@ -93,7 +93,6 @@ function initUI(game) {
     gameUI = document.getElementById("gameUI");
     uiState = false;
     document.addEventListener("keyup",toggleUI);
-    
 }
 
 
