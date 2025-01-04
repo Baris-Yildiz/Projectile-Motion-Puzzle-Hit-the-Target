@@ -18,15 +18,17 @@
     <script src="js/ColorUtils.js"></script>
   </head>
   <body>
+    <div id="loadingScreen">
+      <div class="title">Placeholder Title</div>
+      <button id="playButton" onclick="initializeScene()">Play</button>
+      <div class="subtitle">subtitle</div>
 
-    <div id="screen">
-      <div id="loadingScreen">
-        <button id="playButton" onclick="initializeScene()">Play</button>
-    
-        <div id="progressContainer" style="display: none; width: 100%; background: #ddd; border-radius: 5px; overflow: hidden; margin-top: 10px;">
-          <div id="progressBar" style="height: 10px; width: 0; background: #76c7c0; transition: width 0.1s;"></div>
-        </div>
+      <div id="progressContainer" style="display: none; width: 100%; background: #ddd; border-radius: 5px; overflow: hidden; margin-top: 10px;">
+        <div id="progressBar" style="height: 10px; width: 0; background: #76c7c0; transition: width 0.1s;"></div>
       </div>
+    </div>
+    <div id="screen">
+      
       <canvas id="glCanvas"></canvas>
       <div id="gameUI">
         <div class="navBar">

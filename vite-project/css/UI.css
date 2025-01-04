@@ -1,3 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  
+}
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent scrollbars */
+  }
 #gameUI {
     position: absolute;
     color: black;
@@ -112,4 +123,78 @@
     border-radius: 10px;
     border: black solid;
     font-family: Arial, sans-serif;
+}
+
+
+#loadingScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  /* Title */
+  .title {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #76c7c0;
+  }
+  
+  /* Subtitle */
+  .subtitle {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    color: #888;
+    text-shadow: 0 0 5px #444;
+  }
+  
+  /* Play Button */
+  #playButton {
+    padding: 15px 30px;
+    background: linear-gradient(90deg, #141f0c, #7700ff);
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 0 15px #0d4e44;
+    transition: transform 0.2s ease, box-shadow 0.3s;
+  }
+  
+  #playButton:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px #0d4e44;
+  }
+  
+  #playButton:active {
+    transform: scale(0.95);
+  }
+  
+  /* Progress Bar Container */
+  #progressContainer {
+    display: none; /* Initially hidden */
+    width: 80%;
+    background: #222;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 0 10px #000;
+  }
+  
+  /* Progress Bar */
+  #progressBar {
+    height: 10px;
+    width: 0%; /* Initially empty */
+    background: linear-gradient(90deg, #00ffcc, #0077ff);
+    box-shadow: 0 0 15px #00ffcc;
+    transition: width 0.1s;
+  }
+  
+  /* Loading Text */
+  .loadingText {
+    margin-top: 15px;
+    font-size: 1em;
+    color: #aaa;
+    display: none; /* Initially hidden */
 }

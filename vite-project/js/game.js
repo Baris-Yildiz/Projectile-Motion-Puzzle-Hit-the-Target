@@ -131,12 +131,15 @@ class Game {
     console.log("scene loaded!");
     this.setupEnemyAI();
     this.initEventListeners();
-    game.backgroundMusic.volume = game.settings.music/100;
-    game.backgroundMusic.loop = true;
-    game.backgroundMusic.play().catch(error => {
-        console.error('Music playback failed:', error);
-    });
     this.animate();
+    setTimeout(() => {
+      game.backgroundMusic.volume = game.settings.music/100;
+      game.backgroundMusic.loop = true;
+      game.backgroundMusic.play().catch(error => {
+      console.error('Music playback failed:', error);
+    });
+    }, 200);
+    
   }
 
   setupEnemyAI() {
@@ -502,14 +505,12 @@ function initializeScene() {
   game.startGame();
   document.getElementById('playButton').style.display = 'none';
 
-  // Show the progress bar
   const progressContainer = document.getElementById('progressContainer');
   const progressBar = document.getElementById('progressBar');
   progressContainer.style.display = 'block';
 
-  // Timed progress bar simulation
-  const totalTime = 850; // Total time for the progress bar (in milliseconds)
-  const intervalTime = 50; // Update the bar every 50ms
+  const totalTime = 885; 
+  const intervalTime = 55; 
   let elapsed = 0;
 
   const interval = setInterval(() => {
@@ -529,5 +530,4 @@ function initializeScene() {
   }, intervalTime);
 }
 
-// Attach initializeScene to the global window object
 window.initializeScene = initializeScene;
