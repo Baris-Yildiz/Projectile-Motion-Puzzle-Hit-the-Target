@@ -5,7 +5,7 @@ import {Particle, ParticleEmitter} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
-import {createPlane} from "./SceneHelpers.js";
+import {createBox} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import Physic from "./physic.js";
 import SoundManager from "./SoundManager.js";
@@ -222,18 +222,25 @@ class Game {
     return this.playerDirection;
   }
 
-  loadAnimatedObject(path, position, rotation, scale, addPhysics = false) {
+  loadAnimatedObject(path, position, rotation, scale, mass) {
     return new Promise((resolve, reject) => {
           let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
-            if (addPhysics) {
-              this.physics.addPhysicsToLoadedModel(obj.model, 10);
-            }
 
+            if (mass !== 0.0) {
+              this.physics.addPhysicsToLoadedModel(obj.model, mass);
+            }
             resolve();
           });
     })
+  }
+
+  loadBasicObject(mesh) {
+    this.physics.addPhysicsToBasicModels('box', mesh, mesh.position,
+        new THREE.Vector3(mesh.geometry.parameters.width, mesh.geometry.parameters.height,
+            mesh.geometry.parameters.depth), 0.0);
+    this.scene.add(mesh);
   }
 
   async createSceneObjects() {
@@ -251,14 +258,11 @@ class Game {
     const ROAD_SIZE = 20 * scale;
     const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
 
+    this.loadBasicObject(createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
+        new THREE.Vector3(0, 0, 0), 0xaaaaaa));
 
-    const groundMesh = createPlane(SCENE_SIZE, SCENE_SIZE,
-        new THREE.Vector3(0, 0, 0), 0xaaaaaa);
-    this.scene.add(groundMesh);
-
-    const playgroundMesh = createPlane(PLAYGROUND_SIZE, PLAYGROUND_SIZE,
-        new THREE.Vector3(0, 0.01, 0), 0x00ff00);
-    this.scene.add(playgroundMesh);
+    this.loadBasicObject(createBox(PLAYGROUND_SIZE, 0.01, PLAYGROUND_SIZE,
+        new THREE.Vector3(0, 0.01, 0), 0x00ff00));
 
     const pavementPositions = [(PLAYGROUND_SIZE + PAVEMENT_SIZE)/2.0,
       (PLAYGROUND_SIZE + PAVEMENT_SIZE)/-2.0
@@ -278,92 +282,91 @@ class Game {
 
     for (let i = 0; i < 4; i++) {
 
-      const corner1 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
+      this.loadBasicObject(createBox(PAVEMENT_SIZE, 0.01, PAVEMENT_SIZE,
           new THREE.Vector3(pavementPositions[i % 2] , 0.01,
-              pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
-      this.scene.add(corner1);
+              pavementPositions[i % 2]) , 0xdddddd, pavementTextures));
 
-      const corner2 = createPlane(PAVEMENT_SIZE, PAVEMENT_SIZE,
+      this.loadBasicObject(createBox(PAVEMENT_SIZE, 0.01,PAVEMENT_SIZE,
           new THREE.Vector3(pavementPositions[i % 2] , 0.01,
-              -pavementPositions[i % 2]) , 0xdddddd, pavementTextures);
-      this.scene.add(corner2);
+              -pavementPositions[i % 2]) , 0xdddddd, pavementTextures));
 
-      const pavementMesh1 = createPlane(PAVEMENT_SIZE, PLAYGROUND_SIZE,
-          new THREE.Vector3(pavementPositions[i % 2], 0.01, 0), 0xdddddd, pavementTextures);
-      this.scene.add(pavementMesh1);
+      this.loadBasicObject(createBox(PAVEMENT_SIZE, 0.01, PLAYGROUND_SIZE,
+          new THREE.Vector3(pavementPositions[i % 2], 0.01, 0), 0xdddddd, pavementTextures));
 
-      const pavementMesh2 = createPlane(PLAYGROUND_SIZE, PAVEMENT_SIZE,
-          new THREE.Vector3(0.0, 0.01, pavementPositions[i % 2]), 0xdddddd, pavementTextures);
-      this.scene.add(pavementMesh2);
+      this.loadBasicObject( createBox(PLAYGROUND_SIZE, 0.01, PAVEMENT_SIZE,
+          new THREE.Vector3(0.0, 0.01, pavementPositions[i % 2]), 0xdddddd, pavementTextures));
 
-      const roadMesh1 = createPlane(ROAD_SIZE, PLAYGROUND_SIZE * 3,
-          new THREE.Vector3(roadPositions[i % 2], 0.01, 0), 0xdddddd, roadTextures);
-      this.scene.add(roadMesh1);
+      this.loadBasicObject( createBox(ROAD_SIZE, 0.01, PLAYGROUND_SIZE * 3,
+          new THREE.Vector3(roadPositions[i % 2], 0.01, 0), 0xdddddd, roadTextures));
 
-      const roadMesh2 = createPlane(PLAYGROUND_SIZE * 3, ROAD_SIZE,
-          new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures);
-      this.scene.add(roadMesh2);
+      this.loadBasicObject( createBox(PLAYGROUND_SIZE * 3, 0.01, ROAD_SIZE,
+          new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
 
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
-        [0.0, 0.4, -PLAYGROUND_SIZE / 5.0],
+        [0.0, 0.4 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
-        BASKETBALL_COURT_SCALE, true);
+        BASKETBALL_COURT_SCALE, 0.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/old_rusty_car2.glb',
         [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
         [0, Math.PI, 0],
-        OLD_CAR_SCALE);
+        OLD_CAR_SCALE, 0.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35]);
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 0.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
         [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1]);
+        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0);
 
-    for (let i = 0; i < 6; i++) {
-      await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
-          [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
-            0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0], BARRICADE_SCALE);
-    }
+        for (let i = 0; i < 6; i++) {
+          await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+              [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
+                0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
+              BARRICADE_SCALE, 0.0);
+        }
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings1.glb',
+            [0.0, 0.01,
+              -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
+            BUILDINGS_SCALE, 0.0);
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings2.glb',
+            [0.0, 0.01,
+              PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
+            BUILDINGS_SCALE, 0.0);
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings3.glb',
+            [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+              0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings3.glb',
+            [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+              0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings3.glb',
+            [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+              0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
+
+        await this.loadAnimatedObject(
+            'resources/assets/glbAssets/buildings3.glb',
+            [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+              0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
 
     await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings1.glb',
-        [0.0, 0.01,
-          -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0], BUILDINGS_SCALE);
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings2.glb',
-        [0.0, 0.01,
-          PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0], BUILDINGS_SCALE);
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings3.glb',
-        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE);
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings3.glb',
-        [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE);
-
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings3.glb',
-        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE);
-
-    await this.loadAnimatedObject(
-        'resources/assets/glbAssets/buildings3.glb',
-        [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE);
-
-    this.animatableObjects.push( new AnimatedObject(this.scene,
         'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
         [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE));
+        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
+
+    this.physics.addWireframeToPhysicsObjects();
   }
 
 
@@ -502,6 +505,7 @@ class Game {
 }
 
 let game = new Game();
+
 export default game;
 
 function initializeScene() {

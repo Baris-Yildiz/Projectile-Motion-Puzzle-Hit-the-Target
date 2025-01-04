@@ -1,10 +1,10 @@
 import {THREE} from "./LibImports.js";
 
-function createPlane(width, height, pos, color, textureFiles) {
+function createBox(width, height, depth, pos, color, textureFiles) {
 
-    let planeMaterial;
+    let material;
     if (textureFiles === undefined) {
-        planeMaterial = new THREE.MeshStandardMaterial({color: color});
+        material = new THREE.MeshStandardMaterial({color: color});
     } else {
         let textures = [];
         for (let i = 0; i < textureFiles.length; i++) {
@@ -12,10 +12,10 @@ function createPlane(width, height, pos, color, textureFiles) {
             textures[i].wrapS = THREE.RepeatWrapping;
             textures[i].wrapT = THREE.RepeatWrapping;
 
-            textures[i].repeat.set(width, height);
+            textures[i].repeat.set(width, depth);
         }
 
-        planeMaterial = new THREE.MeshPhongMaterial({
+        material = new THREE.MeshPhongMaterial({
             map: textures[0],
             bumpMap: textures[1],
             color: color
@@ -23,15 +23,14 @@ function createPlane(width, height, pos, color, textureFiles) {
     }
 
     let mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(width,height),
-        planeMaterial
+        new THREE.BoxGeometry(width,height,depth),
+        material
     );
 
     mesh.position.copy(pos);
-    mesh.rotateX(-Math.PI/2.0);
     mesh.receiveShadow = true;
 
     return mesh;
 }
 
-export {createPlane};
+export {createBox};
