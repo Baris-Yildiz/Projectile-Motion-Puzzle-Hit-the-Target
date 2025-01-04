@@ -222,14 +222,27 @@ class Game {
     return this.playerDirection;
   }
 
-  loadAnimatedObject(path, position, rotation, scale, mass) {
+  loadAnimatedObject(path, position, rotation, scale, mass,
+                     movable = false) {
     return new Promise((resolve, reject) => {
+      const MOVABLE_TINT_COLOR = 0xaaffaa;
           let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
 
             if (mass !== 0.0) {
               this.physics.addPhysicsToLoadedModel(obj.model, mass);
+            }
+
+            if (movable) {
+              obj.model.traverse((child) => {
+                if (child.isMesh) {
+                  console.log(child.material.color);
+                  child.material.color.set(MOVABLE_TINT_COLOR);
+                }
+              })
+
+              this.objectMover.addRayCastObject(obj.model);
             }
             resolve();
           });
@@ -309,24 +322,25 @@ class Game {
         BASKETBALL_COURT_SCALE, 0.0);
 
     await this.loadAnimatedObject('resources/assets/OldCar1/scene.gltf',
-        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 5.0, 0.0],
+        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
         [0, Math.PI, 0],
         OLD_CAR_SCALE, 0.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0);
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0,
+        true);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
         [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
           -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0);
+        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0, true);
 
         for (let i = 0; i < 6; i++) {
           await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
               [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
                 0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
-              BARRICADE_SCALE, 1.0);
+              BARRICADE_SCALE, 1.0, true);
         }
 
         await this.loadAnimatedObject(
@@ -368,6 +382,7 @@ class Game {
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
 
     this.physics.addWireframeToPhysicsObjects();
+    this.scene.add(this.objectMover.rayCastableObjects);
   }
 
 
