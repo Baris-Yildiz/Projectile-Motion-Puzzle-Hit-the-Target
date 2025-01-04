@@ -177,7 +177,7 @@ class Physic {
 
     updatePhysics(deltaTime) {  // Bu fonksyion animate icinde cagirilacak!
         this.physicsWorld.stepSimulation(deltaTime, 2);
-        console.log(this.rigidBodies);
+
         for (let i = 0; i < this.rigidBodies.length; i++) {
             const mesh = this.rigidBodies[i];
             const body = mesh.userData.physicsBody;

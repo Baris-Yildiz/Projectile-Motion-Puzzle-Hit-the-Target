@@ -244,7 +244,7 @@ class Game {
   }
 
   async createSceneObjects() {
-    const moonLight = new THREE.AmbientLight(0xffffff, 1);
+    const moonLight = new THREE.AmbientLight(0xffffff, 10);
     this.scene.add(moonLight);
 
     const scale = 0.25;
@@ -308,24 +308,25 @@ class Game {
         [0, 0, 0],
         BASKETBALL_COURT_SCALE, 0.0);
 
-    await this.loadAnimatedObject('resources/assets/glbAssets/old_rusty_car2.glb',
-        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
+    await this.loadAnimatedObject('resources/assets/OldCar1/scene.gltf',
+        [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 5.0, 0.0],
         [0, Math.PI, 0],
         OLD_CAR_SCALE, 0.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 0.0);
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0);
 
     await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
-        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
+          -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0);
 
         for (let i = 0; i < 6; i++) {
           await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
               [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
-                0.01, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
-              BARRICADE_SCALE, 0.0);
+                0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
+              BARRICADE_SCALE, 1.0);
         }
 
         await this.loadAnimatedObject(
