@@ -5,7 +5,7 @@ import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} f
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
-import {createBox} from "./SceneHelpers.js";
+import {createBox, rainTimer} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import Physic from "./physic.js";
 import SoundManager from "./SoundManager.js";
@@ -194,7 +194,14 @@ class Game {
     })
   }
 
+
+
   loadBasicObject(mesh) {
+
+    mesh.material.onBeforeRender = () => {
+      rainTimer.x = this.clock.getElapsedTime();
+    }
+
     this.physics.addPhysicsToBasicModels('box', mesh, mesh.position,
         new THREE.Vector3(mesh.geometry.parameters.width, mesh.geometry.parameters.height,
             mesh.geometry.parameters.depth), 0.0);
