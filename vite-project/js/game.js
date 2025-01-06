@@ -17,7 +17,7 @@ let sunlight = null;
 
 class Game {
   constructor() {
-
+    this.timeElapsed = 0.0;
     this.settings = new Settings(this);
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
@@ -42,6 +42,8 @@ class Game {
     this.camera.position.set(0, 1, 0);
 
     this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -200,7 +202,7 @@ class Game {
   }
 
   async createSceneObjects() {
-    const moonLight = new THREE.AmbientLight(0xffffff, 10);
+    const moonLight = new THREE.AmbientLight(0xffffff, 2);
     this.scene.add(moonLight);
 
     const scale = 0.25;
@@ -381,29 +383,6 @@ class Game {
     this.particleEmitters.push(smokeEmitter);
   }
 
-
-  createExampleSceneObjects() {
-    let planeGeometry = new THREE.PlaneGeometry(100,100 )  ;
-    let planeMaterial = new THREE.MeshStandardMaterial({color:0x00ff00});
-    let planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-    planeMesh.position.set(0,0,0);
-    planeMesh.rotateX(-Math.PI/2.0);
-    planeMesh.receiveShadow = true;
-    this.scene.add(planeMesh);
-
-    /*
-
-
-    const textureMaps = new TextureMaps("./resources/textures/TCom_Gore_512_albedo.png");
-
-    const material = new THREE.MeshPhongMaterial({
-      map: textureMaps.albedoMap,
-      bumpMap: textureMaps.bumpMap,
-      bumpScale:30,
-    });*/
-
-  }
-
   controls(deltaTime) {
     const speedDelta = deltaTime * this.cameraMoveSpeed;
 
@@ -437,6 +416,7 @@ class Game {
   animate() {
     const deltaTime = Math.min(0.05, this.clock.getDelta()) / this.STEPS_PER_FRAME;
     timeElapsed += deltaTime;
+    this.timeElapsed += deltaTime;
     t += deltaTime;
 
     for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
@@ -455,6 +435,7 @@ class Game {
 
     this.renderer.render(this.scene, this.camera);
     this.postProcessing.composer.render();
+    this.postProcessing.updatePostProcessingTime(t);
     this.zombieAIs.forEach(zombieAI => zombieAI.update());
     this.physics.updatePhysics(deltaTime);
 

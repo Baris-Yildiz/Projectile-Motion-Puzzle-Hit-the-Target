@@ -15,20 +15,22 @@ function createBox(width, height, depth, pos, color, textureFiles) {
             textures[i].repeat.set(width, depth);
         }
 
-        material = new THREE.MeshPhongMaterial({
+        material = new THREE.MeshStandardMaterial({
             map: textures[0],
             bumpMap: textures[1],
-            color: color
+            bumpScale: 1.3,
+            color: color,
         });
     }
 
     let mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(width,height,depth),
+        new THREE.BoxGeometry(width,height,depth, 1, 1, 1),
         material
     );
 
     mesh.position.copy(pos);
     mesh.receiveShadow = true;
+    mesh.castShadow = true;
 
     return mesh;
 }
