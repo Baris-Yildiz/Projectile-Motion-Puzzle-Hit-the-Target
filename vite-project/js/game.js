@@ -337,7 +337,7 @@ class Game {
       this.loadBasicObject( createBox(PLAYGROUND_SIZE * 3, 0.01, ROAD_SIZE,
           new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
-
+/*
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
@@ -396,7 +396,7 @@ class Game {
             await this.loadAnimatedObject(
                 'resources/assets/glbAssets/buildings3.glb',
                 [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-                  0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
+                  0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);*/
 
         await this.loadAnimatedObject(
             'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
