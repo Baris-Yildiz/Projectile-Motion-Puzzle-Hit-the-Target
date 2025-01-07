@@ -131,12 +131,13 @@ class Game {
   // Initialize event listeners for controls and window resize
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
-      if(event.key === 'p'){
+      console.log(event.code);
+      if(event.key.toLowerCase() === 'p') {
         this.player.resetPlayer();
         this.keyStates = {};
         this.playerState = !this.playerState;
       }
-      if(event.key === 'm' ){
+      if(event.key.toLowerCase() === 'm' ){
         this.nameState = !this.nameState;
         this.playerState = !this.nameState;
         this.player.resetPlayer();
@@ -343,6 +344,24 @@ class Game {
           new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
 
+    await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
+        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0,
+        true);
+
+    await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
+        [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
+          -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+        [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0, true);
+
+    for (let i = 0; i < 6; i++) {
+      await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
+          [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
+            0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
+          BARRICADE_SCALE, 1.0, true);
+    }
+
+/*
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 * scale / 0.25 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
@@ -352,23 +371,6 @@ class Game {
         [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
         [0, Math.PI, 0],
         OLD_CAR_SCALE, 0.0);
-
-    await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
-        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0,
-        true);
-    
-        await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
-            [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
-              -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-            [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], 0.0, true);
-
-            for (let i = 0; i < 6; i++) {
-              await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
-                  [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - i * scale * 3.0 - scale * 2,
-                    0.1, -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, 0, 0],
-                  BARRICADE_SCALE, 1.0, true);
-            }
 
             await this.loadAnimatedObject(
                 'resources/assets/glbAssets/buildings1.glb',
@@ -406,7 +408,7 @@ class Game {
         await this.loadAnimatedObject(
             'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
             [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
+            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);*/
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
@@ -528,12 +530,22 @@ class Game {
       this.soundManager.playWalkingSound();
 
     }
+
     if (this.keyStates['Space']) {
       this.playerVelocity.y += speedDelta;
     }
     if (this.keyStates['ShiftLeft'] || this.keyStates['ShiftRight']) {
       this.playerVelocity.y -= speedDelta;
     }
+
+    if (this.keyStates['KeyZ']) {
+      this.renderCamera.rotation.z += speedDelta / 10.0;
+    }
+    if (this.keyStates['KeyX'] || this.keyStates['ShiftRight']) {
+      this.renderCamera.rotation.z -= speedDelta / 10.0;
+    }
+
+
   }
 
   animate() {
