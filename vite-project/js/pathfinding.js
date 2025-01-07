@@ -234,16 +234,15 @@ class PathfindingAI {
         const avoidanceVector = new THREE.Vector3();
         
         for (const obstacle of this.obstacles) {
+            const width = obstacle.geometry.boundingBox.max.x - obstacle.geometry.boundingBox.min.x;
+            const depth = obstacle.geometry.boundingBox.max.z - obstacle.geometry.boundingBox.min.z;
+
             const building = {
-                minX: obstacle.geometry.boundingBox.min.x,
-                minZ: obstacle.geometry.boundingBox.min.z,
-                maxX: obstacle.geometry.boundingBox.max.x,
-                maxZ: obstacle.geometry.boundingBox.max.z,
-                /*
-                minX: obstacle.position.x - obstacle.geometry.parameters.width/2,
-                maxX: obstacle.position.x + obstacle.geometry.parameters.width/2,
-                minZ: obstacle.position.z - obstacle.geometry.parameters.depth/2,
-                maxZ: obstacle.position.z + obstacle.geometry.parameters.depth/2*/
+
+                minX: obstacle.position.x - width/2,
+                maxX: obstacle.position.x + width/2,
+                minZ: obstacle.position.z - depth/2,
+                maxZ: obstacle.position.z + depth/2
             };
 
             // Calculate closest point on building to zombie

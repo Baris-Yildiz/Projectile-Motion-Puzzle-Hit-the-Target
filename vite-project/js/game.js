@@ -105,33 +105,50 @@ class Game {
   }
 
   setupEnemyAI() {
-    const zombie = new THREE.Mesh(new THREE.BoxGeometry(0.5,.5,.5,),
-        new THREE.MeshBasicMaterial({color: 0xff0000}));
-    zombie.position.set(-13, 0.5, 0);
+    let zombies = [];
+    let zombieCount = 10;
+
+    for (let i = 0; i < zombieCount; i++) {
+      let zombie =  new THREE.Mesh(
+          new THREE.BoxGeometry(.5, .5, .5),
+          new THREE.MeshBasicMaterial({color: 0xff0000}),
+      );
+      zombie.position.set(-20 , 0.5, 0);
+      zombies.push(zombie);
+      this.scene.add(zombie);
+    }
 
     const player = new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5,),
         new THREE.MeshBasicMaterial({color: 0x00ff00}));
     player.position.set(0, 0.5, 0);
 
     this.scene.add(player);
-    this.scene.add(zombie);
 
     let allMeshes = [];
     for (let i = 0; i < this.animatableObjects.length; i++) {
       for (let j = 0; j < this.animatableObjects[i].meshes.length; j++) {
         allMeshes.push(this.animatableObjects[i].meshes[j]);
+        console.log(this.animatableObjects[i].meshes[j]);
       }
     }
 
-    const zombieAI = new PathfindingAI(zombie, player, allMeshes, []);
 
-    this.zombieAIs.push(zombieAI);
+
+    let copyZombies = zombies.slice();
+    for (let i = 0; i < zombieCount; i++) {
+      copyZombies.splice(i, 1);
+      let otherZombies = copyZombies;
+      let zombieAI = new PathfindingAI(zombies[i], player, allMeshes, otherZombies);
+      this.zombieAIs.push(zombieAI);
+      copyZombies = zombies.slice();
+    }
+
+    console.log(this.zombieAIs);
   }
 
   // Initialize event listeners for controls and window resize
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
-      console.log(event.code);
       if(event.key.toLowerCase() === 'p') {
         this.player.resetPlayer();
         this.keyStates = {};
@@ -245,6 +262,7 @@ class Game {
       const MOVABLE_TINT_COLOR = 0xaaffaa;
           let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
           obj.Load().then(() => {
+            console.log(obj);
             this.animatableObjects.push(obj);
 
             if (mass !== 0.0) {
@@ -264,8 +282,6 @@ class Game {
           });
     })
   }
-
-
 
   loadBasicObject(mesh) {
 
@@ -361,7 +377,7 @@ class Game {
           BARRICADE_SCALE, 1.0, true);
     }
 
-/*
+    console.log("awaiting basketball");
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 * scale / 0.25 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
@@ -372,43 +388,43 @@ class Game {
         [0, Math.PI, 0],
         OLD_CAR_SCALE, 0.0);
 
-            await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings1.glb',
-                [0.0, 0.01,
-                  -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
-                BUILDINGS_SCALE, 0.0);
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings1.glb',
+                    [0.0, 0.01,
+                      -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
+                    BUILDINGS_SCALE, 0.0);
+
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings2.glb',
+                    [0.0, 0.01,
+                      PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
+                    BUILDINGS_SCALE, 0.0);
+
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings3.glb',
+                    [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+                      0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings3.glb',
+                    [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
+                      0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
+
+
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings3.glb',
+                    [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+                      0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
+
+                await this.loadAnimatedObject(
+                    'resources/assets/glbAssets/buildings3.glb',
+                    [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
+                      0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
 
             await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings2.glb',
-                [0.0, 0.01,
-                  PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
-                BUILDINGS_SCALE, 0.0);
-
-            await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings3.glb',
-                [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-                  0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
-
-            await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings3.glb',
-                [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-                  0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, 0.0);
-
-
-            await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings3.glb',
-                [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-                  0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
-
-            await this.loadAnimatedObject(
-                'resources/assets/glbAssets/buildings3.glb',
-                [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-                  0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, 0.0);
-
-        await this.loadAnimatedObject(
-            'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
-            [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);*/
+                'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
+                [0.0, scale / 0.25 * 0.4 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
+                [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
@@ -498,9 +514,7 @@ class Game {
     }
 
     const smokeEmitter = new ParticleEmitter(smokeParticles);
-    console.log(smokeEmitter);
     smokeEmitter.setParticleOffset(new THREE.Vector3(-11 * scale / 0.25, 0, scale));
-    console.log(smokeEmitter);
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);
@@ -547,6 +561,7 @@ class Game {
   }
 
   animate() {
+
     let d = this.clock.getDelta();
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
     timeElapsed += deltaTime;
