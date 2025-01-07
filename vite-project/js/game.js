@@ -1,7 +1,7 @@
 import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
-import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
+import {Particle, ParticleEmitter} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
@@ -414,9 +414,7 @@ class Game {
     this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
     this.createText();
-
-
-    //this.createParticleSystemInstances(scale);
+    this.createParticleSystemInstances(scale);
   }
   createTextGroup(font, mat){
     let textGroup = new THREE.Group();
@@ -479,8 +477,8 @@ class Game {
 
       let material = new THREE.ShaderMaterial({
         glslVersion:THREE.GLSL3,
-        vertexShader: smokeParticleVShader,
-        fragmentShader: smokeParticleFShader,
+        vertexShader: smokeVertexShader,
+        fragmentShader: smokeFragmentShader,
         uniforms: {
           init_vel: {
             value: velocity

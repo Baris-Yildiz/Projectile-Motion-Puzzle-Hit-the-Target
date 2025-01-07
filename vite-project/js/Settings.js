@@ -41,7 +41,6 @@ class Settings {
 
     setBrightness(value) {
         this.brightness = value;
-        // reference game object's postProcessing member and adjust brightness.
 
         this.game.postProcessing.shaderPass.uniforms.brightness.value = this.brightness;
         //this.game.composer.passes[1].uniforms.brightness.value = this.brightness;
