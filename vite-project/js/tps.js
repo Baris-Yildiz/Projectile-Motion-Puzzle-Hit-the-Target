@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { radians } from 'three/webgpu';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 import { ShadedPlane } from './shaderTest.js';
