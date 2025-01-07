@@ -89,12 +89,14 @@ function loadRainShader(material, width, height) {
                 
                 void drawPuddles(){
                     if (iTime.x <= 1.) return;
-                    for (float j = 1.; j < 10.; j++) {
-                        for (float i = 1.; i < 10. ; i++) {
-                            vec2 pos = vec2(j/10., i/10.);
+                    const float xAmount = 10.;
+                    const float yAmount = 10.;
+                    for (float j = 1.; j < xAmount; j++) {
+                        for (float i = 1.; i < yAmount ; i++) {
+                            vec2 pos = vec2(j/xAmount, i/yAmount);
                             float randomMult = clamp(1.5, 2., 1.+random(pos));
-                            float rInner = 0.05 * mod(iTime.x* randomMult, 1.) ;
-                            float rOuter = 0.075 * mod(iTime.x* randomMult, 1.) ;
+                            float rInner = 0.025 * mod(iTime.x* randomMult, 1.) ;
+                            float rOuter = 0.040 * mod(iTime.x* randomMult, 1.) ;
                             
                             drawPuddle(pos, rInner, rOuter);
                         }
