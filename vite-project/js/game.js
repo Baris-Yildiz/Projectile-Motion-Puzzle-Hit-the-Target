@@ -5,7 +5,7 @@ import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} f
 import TextureMaps from "./TextureBumpMapping.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
-import {createBox} from "./SceneHelpers.js";
+import {createBox, rainTimer} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import Physic from "./physic.js";
 import SoundManager from "./SoundManager.js";
@@ -29,7 +29,7 @@ class Game {
   renderCamera = undefined;
   nameState = false;
   constructor() {
-
+    this.timeElapsed = 0.0;
     this.settings = new Settings(this);
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
@@ -58,6 +58,8 @@ class Game {
     this.camera.userData.playerCamera = 'not player';
     this.renderCamera = this.camera;
     this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -262,7 +264,14 @@ class Game {
     })
   }
 
+
+
   loadBasicObject(mesh) {
+
+    mesh.material.onBeforeRender = () => {
+      rainTimer.x = this.clock.getElapsedTime();
+    }
+
     this.physics.addPhysicsToBasicModels('box', mesh, mesh.position,
         new THREE.Vector3(mesh.geometry.parameters.width, mesh.geometry.parameters.height,
             mesh.geometry.parameters.depth), 0.0);
@@ -270,7 +279,7 @@ class Game {
   }
 
   async createSceneObjects() {
-    const moonLight = new THREE.AmbientLight(0xffffff, 10);
+    const moonLight = new THREE.AmbientLight(0xffffff, 2);
     this.scene.add(moonLight);
 
     const scale = 0.4;
@@ -328,7 +337,7 @@ class Game {
       this.loadBasicObject( createBox(PLAYGROUND_SIZE * 3, 0.01, ROAD_SIZE,
           new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
-    
+/*
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
@@ -392,7 +401,7 @@ class Game {
         await this.loadAnimatedObject(
             'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
             [0.0, scale / 0.25 * 0.5 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
+            [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);*/
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
@@ -492,29 +501,6 @@ class Game {
     this.particleEmitters.push(smokeEmitter);
   }
 
-
-  createExampleSceneObjects() {
-    let planeGeometry = new THREE.PlaneGeometry(100,100 )  ;
-    let planeMaterial = new THREE.MeshStandardMaterial({color:0x00ff00});
-    let planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-    planeMesh.position.set(0,0,0);
-    planeMesh.rotateX(-Math.PI/2.0);
-    planeMesh.receiveShadow = true;
-    this.scene.add(planeMesh);
-
-    /*
-
-
-    const textureMaps = new TextureMaps("./resources/textures/TCom_Gore_512_albedo.png");
-
-    const material = new THREE.MeshPhongMaterial({
-      map: textureMaps.albedoMap,
-      bumpMap: textureMaps.bumpMap,
-      bumpScale:30,
-    });*/
-
-  }
-
   controls(deltaTime) {
     const speedDelta = deltaTime * this.cameraMoveSpeed;
 
@@ -549,6 +535,7 @@ class Game {
     let d = this.clock.getDelta();
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
     timeElapsed += deltaTime;
+    this.timeElapsed += deltaTime;
     t += deltaTime;
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.01);
@@ -584,6 +571,7 @@ class Game {
     this.shadedPlane.update(timeElapsed);
     this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
+    this.postProcessing.updatePostProcessingTime(t);
     this.zombieAIs.forEach(zombieAI => zombieAI.update());
     this.physics.updatePhysics(deltaTime);
 

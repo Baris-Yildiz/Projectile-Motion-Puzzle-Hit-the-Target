@@ -20,6 +20,18 @@ class Skybox {
         let sunlight = new THREE.DirectionalLight(0xffffff, 100);
         sunlight.position.set(0, 1, 0);
         sunlight.castShadow = true;
+
+        sunlight.shadow.mapSize.width = 1024;
+        sunlight.shadow.mapSize.height = 1024;
+
+        sunlight.shadow.camera.left = -50;
+        sunlight.shadow.camera.right = 50;
+        sunlight.shadow.camera.top = 50;
+        sunlight.shadow.camera.bottom = -50;
+        sunlight.shadow.camera.far = 1000;
+
+        sunlight.shadow.bias = -0.0005;
+
         //sunlight.target = mesh;
         this.sunlight = sunlight;
 
