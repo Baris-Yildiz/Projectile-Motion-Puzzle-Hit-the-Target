@@ -1,4 +1,4 @@
-import {THREE} from "./LibImports.js"
+import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
 import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
@@ -9,6 +9,10 @@ import {createBox, rainTimer} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import Physic from "./physic.js";
 import SoundManager from "./SoundManager.js";
+import { PlayerLoader } from './CharacterLoader.js';
+import {ShadedPlane} from './shaderTest.js';
+import {TextAdder} from './TextAdder.js';
+
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -16,6 +20,14 @@ let sunPosition = null;
 let sunlight = null;
 
 class Game {
+  char1Path = 'resources/assets/olmusolsunlutfen/swat.gltf';
+  char2Path = 'resources/assets/char1/char1.gltf';
+  char3Path = 'resources/assets/char2/char2.gltf';
+  char4Path = 'resources/assets/char5/teset.gltf';
+  gunPath = 'resources/assets/gun/scene.gltf';
+  playerState = true;
+  renderCamera = undefined;
+  nameState = false;
   constructor() {
     this.timeElapsed = 0.0;
     this.settings = new Settings(this);
@@ -36,11 +48,15 @@ class Game {
     ]);
     this.scene.background = texture;*/ //new THREE.Color(0x000000);
     this.scene.background = new THREE.Color(0xffffff);
+    //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
+    //this.characterCamera.position.set(0, 0, 800);
+    //this.characterCamera.userData.playerCamera = 'player';
 
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
-    this.camera.position.set(0, 1, 0);
-
+    this.camera.position.set(0, 0, 1000);
+    this.camera.userData.playerCamera = 'not player';
+    this.renderCamera = this.camera;
     this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -49,7 +65,7 @@ class Game {
 
     this.postProcessing = new PostProcessing(this);
     this.particleEmitters = [];
-    this.objectMover = new ObjectMover(this.scene, this.camera, this.renderer);
+    this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
 
     this.animatableObjects = [];
     this.skybox = new Skybox(this);
@@ -64,8 +80,19 @@ class Game {
 
     this.settings.setEnvironmentQuality(Quality.HIGH);
 
-    this.physics = new Physic(this.scene, this.camera);
+    this.physics = new Physic(this.scene, this.renderCamera);
     this.soundManager = new SoundManager(this);
+    this.shadedPlane = new ShadedPlane(window.innerWidth, window.innerHeight, 0.03, 50);
+    this.loader = new GLTFLoader();
+    //loader, characterPath, gunPath, canvas, camera, offSet, aimOffSet, velocity, lookAtOffset, shadedPlane
+    this.player = new PlayerLoader(this.loader, this.char1Path, this.gunPath, this.canvas, this.renderCamera,
+      new THREE.Vector3(0, 1.5, -5/3), //offSet
+      new THREE.Vector3(-0.3, 1.5, -1.2/4), //aimOffSet
+      new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
+      new THREE.Vector3(0, 25 / 10, 250 / 20), //lookAtOffset
+      this.shadedPlane);
+    this.scene.add(this.player.parent);
+    this.scene.add(this.shadedPlane.mesh);
 
   }
 
@@ -104,11 +131,39 @@ class Game {
   // Initialize event listeners for controls and window resize
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
-      this.keyStates[event.code] = true;
-      this.objectMover.transformModeControls(event);
+      if(event.key === 'p'){
+        this.player.resetPlayer();
+        this.keyStates = {};
+        this.playerState = !this.playerState;
+      }
+      if(event.key === 'm' ){
+        this.nameState = !this.nameState;
+        this.playerState = !this.nameState;
+        this.player.resetPlayer();
+      }
+      if(this.playerState){
+        this.player.tps.onKeyDown(event);
+      }
+      else{
+        this.keyStates[event.code] = true;
+        this.objectMover.transformModeControls(event);
+      }
+      
     });
     document.addEventListener('keyup', (event) => {
-      this.keyStates[event.code] = false;
+      if(this.playerState){
+        this.player.tps.onKeyUp(event);
+      }
+      else{
+        this.keyStates[event.code] = false;
+      }
+    });
+    document.addEventListener('pointermove', (event) => {
+      //console.log("pointer move")
+      if(this.playerState){
+        //console.log("player pointer is moving");
+        this.player.tps.onMouseMoveTest(event);
+      }
     });
 
 
@@ -125,9 +180,23 @@ class Game {
     });
 
     document.body.addEventListener('mousemove', (event) => {
-      if (document.pointerLockElement === document.body) {
-        this.camera.rotation.y -= event.movementX * this.settings.horizontalSensitivity / 500;
-        this.camera.rotation.x -= event.movementY * this.settings.verticalSensitivity / 500;
+      if(!this.playerState){
+        if (document.pointerLockElement === document.body) {
+          this.renderCamera.rotation.y -= event.movementX * this.settings.horizontalSensitivity / 500;
+          this.renderCamera.rotation.x -= event.movementY * this.settings.verticalSensitivity / 500;
+         }
+      }
+      
+      
+    });
+    document.addEventListener('mousedown', (event) => {
+      if(this.playerState){
+        this.player.tps.onMousePress(event);
+      }
+    });
+    document.addEventListener('mouseup', (event) => {
+      if(this.playerState){
+        this.player.tps.onMouseRelease(event);
       }
     });
 
@@ -136,9 +205,10 @@ class Game {
 
 
   onWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    this.renderCamera.aspect = window.innerWidth / window.innerHeight;
+    this.renderCamera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.shadedPlane.resize(window.innerWidth, window.innerHeight);
   }
 
 
@@ -147,13 +217,13 @@ class Game {
     this.playerVelocity.addScaledVector(this.playerVelocity, damping);
 
     const deltaPosition = this.playerVelocity.clone().multiplyScalar(deltaTime);
-    this.camera.position.add(deltaPosition);
+    this.renderCamera.position.add(deltaPosition);
 
   }
 
   // Calculate forward direction for movement
   getForwardVector() {
-    this.camera.getWorldDirection(this.playerDirection);
+    this.renderCamera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
     this.playerDirection.normalize();
     return this.playerDirection;
@@ -161,10 +231,10 @@ class Game {
 
   // Calculate side direction for movement
   getSideVector() {
-    this.camera.getWorldDirection(this.playerDirection);
+    this.renderCamera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
     this.playerDirection.normalize();
-    this.playerDirection.cross(this.camera.up);
+    this.playerDirection.cross(this.renderCamera.up);
     return this.playerDirection;
   }
 
@@ -212,7 +282,7 @@ class Game {
     const moonLight = new THREE.AmbientLight(0xffffff, 2);
     this.scene.add(moonLight);
 
-    const scale = 0.25;
+    const scale = 0.4;
     const SCENE_SIZE = 200 * scale;
     const PLAYGROUND_SIZE = 50 * scale;
     const PAVEMENT_SIZE = 10 * scale;
@@ -222,7 +292,7 @@ class Game {
     const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
     const ROAD_SIZE = 20 * scale;
     const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
-
+   
     this.loadBasicObject(createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa));
 
@@ -335,8 +405,49 @@ class Game {
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
+    //this.scene.clear();
+    this.createText();
 
-    this.createParticleSystemInstances(scale);
+
+    //this.createParticleSystemInstances(scale);
+  }
+  createTextGroup(font, mat){
+    let textGroup = new THREE.Group();
+    let baris = new TextAdder('Baris Yildiz', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let muzo = new TextAdder('Berke Savas', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let said = new TextAdder('Said Cetin', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let emre = new TextAdder('Emre Erdogan', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    baris.totalGroup.position.set(12, 0, 0);
+    muzo.totalGroup.position.set(0, 0, 0);
+    said.totalGroup.position.set(-12 , 0, 0);
+    emre.totalGroup.position.set(-24, 0, 0);
+    textGroup.add(baris.totalGroup , muzo.totalGroup , said.totalGroup , emre.totalGroup);
+    textGroup.position.set(1000, 40, 0);
+    console.log("hererere");
+    console.log(muzo.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(baris.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(said.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(emre.textMesh.getWorldPosition(new THREE.Vector3()));
+    
+    textGroup.traverse((child) => {
+      if(child.isMesh){
+        child.scale.set(0.01, 0.01, 0.01);
+        child.rotation.set(-Math.PI/2, 0, 0);
+      }
+    });
+    return textGroup;
+  }
+  createText(){
+    let fontLoader = new FontLoader();
+    let mat = new THREE.MeshBasicMaterial({color: 0xff0000});
+    let font = undefined;
+    
+    fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json', (response) => {
+        font = response;
+        let group = this.createTextGroup(font, mat);
+        this.scene.add(group);
+
+    });
   }
 
   createParticleSystemInstances(scale) {
@@ -421,15 +532,24 @@ class Game {
   }
 
   animate() {
-    const deltaTime = Math.min(0.05, this.clock.getDelta()) / this.STEPS_PER_FRAME;
+    let d = this.clock.getDelta();
+    const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
     timeElapsed += deltaTime;
     this.timeElapsed += deltaTime;
     t += deltaTime;
-
-    for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
-      this.controls(deltaTime);
-      this.updatePlayer(deltaTime);
+    if(this.nameState){
+      this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.01);
+      this.renderCamera.rotation.set(-1.0373973684276367, 
+        -0.0002288740643072648, 
+        1.7371262680459113e-18);
     }
+    if(!this.playerState && !this.nameState){
+      for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
+        this.controls(deltaTime);
+        this.updatePlayer(deltaTime);
+      }
+    }
+    
 
     for (let i = 0; i < this.animatableObjects.length; i++) {
       this.animatableObjects[i].update(deltaTime);
@@ -439,8 +559,17 @@ class Game {
     for (let i = 0; i < this.particleEmitters.length; i++) {
       this.particleEmitters[i].updateParticleTime(t);
     }
+    if(this.playerState){
+      //console.log('player');
+      this.player.characterMixer.update(d);
+      this.player.animationControls.movementUpdate();
+      this.player.tps.update(this.scene);
+      this.player.tps.movementUpdate();
+    }
 
-    this.renderer.render(this.scene, this.camera);
+    //console.log(this.renderCamera);
+    this.shadedPlane.update(timeElapsed);
+    this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(t);
     this.zombieAIs.forEach(zombieAI => zombieAI.update());

@@ -92,7 +92,7 @@ class PostProcessing{
         );
 
         this.composer = new EffectComposer(this.game.renderer);
-        this.renderPass = new RenderPass(this.game.scene, this.game.camera);
+        this.renderPass = new RenderPass(this.game.scene, this.game.renderCamera);
         this.composer.addPass(this.renderPass);
 
         this.shaderPass = new ShaderPass(postProcessingShader);
