@@ -111,8 +111,8 @@ export class ThirdPersonCamera{
             //this.skeleton.bones[31].rotation.x -= Math.sin(this.theta);
             //console.log(this.leftShoulder.position);
             //this.leftShoulder.position.y = 5;
-            this.leftShoulder.rotation.x -= Math.sin(this.theta);
-            this.rightShoulder.rotation.x -= Math.sin(this.theta);
+            this.leftShoulder.rotation.x -= Math.sin(this.theta)*4/5;
+            this.rightShoulder.rotation.x -= Math.sin(this.theta)*4/5;
         }
         else{
             this.offSet.copy(this.original);

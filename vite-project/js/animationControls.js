@@ -12,7 +12,7 @@ export class AnimationControls{
         this.currentAnimation = this.animations['Idle'];
         this.currentAnimation.setLoop(THREE.LoopRepeat);
         this.currentAnimation.play();
-        console.log(this.character.skeleton.bones);
+        //console.log(this.character.skeleton.bones);
         
 
         }

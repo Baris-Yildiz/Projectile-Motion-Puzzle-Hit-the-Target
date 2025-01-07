@@ -32,11 +32,24 @@ export class PlayerLoader {
 
     createAimTarget() {
         this.aimTarget = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshBasicMaterial({ color: 0x0 }));
+        //this.aimTarget.position.set(-24, 7, 100);
         this.aimTarget.position.set(-120, 35, 800);
     }
 
     addAnimation(hash, animationId, animationIndex) {
         hash[animationId] = animationIndex;
+    }
+    resetPlayer(){
+        this.tps.movementArray.fill(false);
+        this.tps.moving = false;
+        this.tps.movementDirection.set(0, 0, 0);
+        this.tps.shooting = false;
+        this.tps.aiming = false;
+        this.tps.controlOffSet = this.tps.offSet;
+        
+        //this.tps.controlOffSet.copy(this.original);
+        //this.tps.aimOffSet.copy(this.aimOriginal);
+        //this.characterMixer.stopAllAction();
     }
 
     loadPlayer() {
@@ -81,7 +94,7 @@ export class PlayerLoader {
                 this.characterMixer = new THREE.AnimationMixer(this.character);
                 //console.log(this.characterMixer);
                 this.characterSkeleton = this.character.getObjectByProperty('type', 'SkinnedMesh').skeleton;
-                console.log(this.characterSkeleton);
+                //console.log(this.characterSkeleton);
                 //console.log(gltf.animations);
 
                 for (let i = 0; i < gltf.animations.length; i++) {
@@ -105,4 +118,6 @@ export class PlayerLoader {
             console.log(`Loading Gun model... ${Math.round(percentComplete)}% complete`);
         });
     }
+
+    
 }

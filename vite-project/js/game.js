@@ -1,4 +1,4 @@
-import {THREE , GLTFLoader} from "./LibImports.js"
+import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
 import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
@@ -11,6 +11,7 @@ import Physic from "./physic.js";
 import SoundManager from "./SoundManager.js";
 import { PlayerLoader } from './CharacterLoader.js';
 import {ShadedPlane} from './shaderTest.js';
+import {TextAdder} from './TextAdder.js';
 
 
 let t = 0.0;
@@ -26,7 +27,7 @@ class Game {
   gunPath = 'resources/assets/gun/scene.gltf';
   playerState = true;
   renderCamera = undefined;
-  
+  nameState = false;
   constructor() {
 
     this.settings = new Settings(this);
@@ -129,15 +130,14 @@ class Game {
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
       if(event.key === 'p'){
+        this.player.resetPlayer();
+        this.keyStates = {};
         this.playerState = !this.playerState;
-        if(this.playerState){
-          console.log("playerState true");
-          //this.renderCamera = this.characterCamera;
-        }else{
-          console.log("playerState false");
-          //this.renderCamera = this.camera;
-        }
-        
+      }
+      if(event.key === 'm' ){
+        this.nameState = !this.nameState;
+        this.playerState = !this.nameState;
+        this.player.resetPlayer();
       }
       if(this.playerState){
         this.player.tps.onKeyDown(event);
@@ -283,7 +283,7 @@ class Game {
     const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
     const ROAD_SIZE = 20 * scale;
     const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
-
+   
     this.loadBasicObject(createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa));
 
@@ -328,7 +328,7 @@ class Game {
       this.loadBasicObject( createBox(PLAYGROUND_SIZE * 3, 0.01, ROAD_SIZE,
           new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
-
+    
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
@@ -396,8 +396,49 @@ class Game {
 
     this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
+    //this.scene.clear();
+    this.createText();
 
-    this.createParticleSystemInstances(scale);
+
+    //this.createParticleSystemInstances(scale);
+  }
+  createTextGroup(font, mat){
+    let textGroup = new THREE.Group();
+    let baris = new TextAdder('Baris Yildiz', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let muzo = new TextAdder('Berke Savas', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let said = new TextAdder('Said Cetin', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    let emre = new TextAdder('Emre Erdogan', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
+    baris.totalGroup.position.set(12, 0, 0);
+    muzo.totalGroup.position.set(0, 0, 0);
+    said.totalGroup.position.set(-12 , 0, 0);
+    emre.totalGroup.position.set(-24, 0, 0);
+    textGroup.add(baris.totalGroup , muzo.totalGroup , said.totalGroup , emre.totalGroup);
+    textGroup.position.set(1000, 40, 0);
+    console.log("hererere");
+    console.log(muzo.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(baris.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(said.textMesh.getWorldPosition(new THREE.Vector3()));
+    console.log(emre.textMesh.getWorldPosition(new THREE.Vector3()));
+    
+    textGroup.traverse((child) => {
+      if(child.isMesh){
+        child.scale.set(0.01, 0.01, 0.01);
+        child.rotation.set(-Math.PI/2, 0, 0);
+      }
+    });
+    return textGroup;
+  }
+  createText(){
+    let fontLoader = new FontLoader();
+    let mat = new THREE.MeshBasicMaterial({color: 0xff0000});
+    let font = undefined;
+    
+    fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json', (response) => {
+        font = response;
+        let group = this.createTextGroup(font, mat);
+        this.scene.add(group);
+
+    });
   }
 
   createParticleSystemInstances(scale) {
@@ -509,7 +550,13 @@ class Game {
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
     timeElapsed += deltaTime;
     t += deltaTime;
-    if(!this.playerState){
+    if(this.nameState){
+      this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.01);
+      this.renderCamera.rotation.set(-1.0373973684276367, 
+        -0.0002288740643072648, 
+        1.7371262680459113e-18);
+    }
+    if(!this.playerState && !this.nameState){
       for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
         this.controls(deltaTime);
         this.updatePlayer(deltaTime);
@@ -525,13 +572,15 @@ class Game {
     for (let i = 0; i < this.particleEmitters.length; i++) {
       this.particleEmitters[i].updateParticleTime(t);
     }
-    if(this.player.tps !== undefined && this.playerState){
+    if(this.playerState){
       //console.log('player');
       this.player.characterMixer.update(d);
       this.player.animationControls.movementUpdate();
       this.player.tps.update(this.scene);
       this.player.tps.movementUpdate();
     }
+
+    //console.log(this.renderCamera);
     this.shadedPlane.update(timeElapsed);
     this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
