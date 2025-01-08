@@ -1,7 +1,7 @@
 import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
-import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
+//import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
 //import {ObjectMover} from "./ObjectMover.js";
 import {Particle, ParticleEmitter} from "./ParticleSystem.js"
@@ -14,6 +14,7 @@ import { PlayerLoader } from './CharacterLoader.js';
 import {ShadedPlane} from './shaderTest.js';
 import {TextAdder} from './TextAdder.js';
 import {Physics} from "./Physics.js";
+import {ToonShaderManager} from "./ToonShaderManager.js";
 
 
 class Game {
@@ -446,7 +447,7 @@ class Game {
         [0.0, scale / 0.25 * 0.4 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE);
 
-    this.physics.addWireframeToPhysicsObjects();
+    //this.physics.addWireframeToPhysicsObjects();
     //this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
     this.createText();
