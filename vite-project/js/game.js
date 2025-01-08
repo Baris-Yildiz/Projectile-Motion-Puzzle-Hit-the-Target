@@ -262,8 +262,8 @@ class Game {
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
 
-            if (mass !== 0.0) {
-              //this.physics.addPhysicsToLoadedModel(obj.model, mass);
+            if (mass > 0) {
+              this.physics.createModelRigidBody(obj.model, mass);
             }
 
             if (movable) {
@@ -280,16 +280,19 @@ class Game {
     })
   }
 
-  loadBasicObject(mesh) {
+  loadBasicObject(mesh, mass= 0) {
 
     mesh.material.onBeforeRender = () => {
       rainTimer.x = this.clock.getElapsedTime();
     }
+
+    this.physics.createBoxRigidBody(mesh, mass);
 /*
     this.physics.addPhysicsToBasicModels('box', mesh, mesh.position,
         new THREE.Vector3(mesh.geometry.parameters.width, mesh.geometry.parameters.height,
             mesh.geometry.parameters.depth), 0.0);*/
     this.scene.add(mesh);
+
   }
 
   async createSceneObjects() {
@@ -310,17 +313,19 @@ class Game {
     let ground = createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
     this.loadBasicObject(ground);
-    this.physics.createBoxRigidBody(ground, 0);
 
     let cube = createBox(1, 1, 1,
         new THREE.Vector3(0, 2, 0), 0xff0000);
-    this.loadBasicObject(cube);
-    this.physics.createBoxRigidBody(cube, 1);
+    this.loadBasicObject(cube, 1);
 
     let cube2 = createBox(1, 1, 1,
         new THREE.Vector3(0, 4, 0), 0xffff00);
-    this.loadBasicObject(cube2);
-    this.physics.createBoxRigidBody(cube2, 1);
+    this.loadBasicObject(cube2, 1);
+
+    await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
+        [0, 4, 0 ],
+        [0.0, Math.PI / 5.0, 0.0], [1, 1, 1], 1.0,
+        true);
 
     let grassTextures = [
         'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_BaseColor.jpg',
@@ -369,10 +374,7 @@ class Game {
           new THREE.Vector3(0.0, 0.01, roadPositions[i % 2]), 0xdddddd, roadTextures));
     }
 
-    await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
-        [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35], 1.0,
-        true);
+
 
         await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
             [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
