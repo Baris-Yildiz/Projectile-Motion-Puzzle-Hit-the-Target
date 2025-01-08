@@ -1,16 +1,4 @@
-'use strict'
-import Physic from "./physic.js";
-import {THREE, Ammo} from "./LibImports.js"
-import {velocity} from "three/tsl";
-
-let scene;
-let camera;
-let renderer;
-let physicsWorld;
-let clock;
-let rigidbodies = [];
-let tempTransform;
-let physics;
+import {Ammo, THREE} from "./LibImports.js";
 
 class Rigidbody {
     constructor(mesh, mass) {
@@ -77,6 +65,7 @@ class Physics {
         let rigidBody = new Rigidbody(mesh, mass);
         rigidBody.createBoxRigidBody();
         this.physicsWorld.addRigidBody(rigidBody.body);
+        mesh.userData.rb = rigidBody;
 
         this.rigidbodies.push({
             mesh: mesh,
@@ -84,8 +73,8 @@ class Physics {
         })
     }
 
-    updatePhysics () {
-        this.physicsWorld.stepSimulation(clock.getDelta(), 10);
+    updatePhysics (delta) {
+        this.physicsWorld.stepSimulation(delta, 10);
 
         for (let i = 0; i < this.rigidbodies.length; i++) {
             this.rigidbodies[i].rigidBody.motionState.getWorldTransform(this.tempTransform);
@@ -100,60 +89,4 @@ class Physics {
     }
 }
 
-
-
-async function main() {
-    const canvas = document.querySelector("#glCanvas");
-    clock = new THREE.Clock();
-    renderer = new THREE.WebGLRenderer({canvas:canvas});
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    tempTransform = new Ammo.btTransform(0, 0, 0);
-    const fov = 75;
-    const aspect = window.innerWidth / window.innerHeight;  // the canvas default
-    const near = 0.5;
-    const far = 50;
-    camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set(0, 5, 20)
-
-    scene = new THREE.Scene();
-
-    const cube = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshBasicMaterial({color: 0x44aa88}));
-
-    cube.position.set(0, 10, 0);
-    scene.add(cube);
-
-    const ground = new THREE.Mesh(
-        new THREE.BoxGeometry(10, 1, 10),
-        new THREE.MeshBasicMaterial({color: 0x0000ff}));
-    ground.position.set(0, -1, 0);
-    scene.add(ground);
-
-    const cube2 = new THREE.Mesh(
-        new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshBasicMaterial({color: 0xff0000}));
-
-    cube2.position.set(0, 15, 0);
-    scene.add(cube2);
-
-    physics = new Physics();
-    physics.createBoxRigidBody(cube, 1);
-    physics.createBoxRigidBody(cube2, 1);
-    physics.createBoxRigidBody(ground, 0);
-
-    console.log(physics.rigidbodies);
-
-    render();
-}
-
-function render() {
-    physics.updatePhysics();
-    renderer.render(scene, camera);
-
-    requestAnimationFrame(render);
-}
-
-main();
+export {Physics}
