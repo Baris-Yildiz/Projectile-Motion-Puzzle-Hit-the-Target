@@ -183,7 +183,7 @@ export class ThirdPersonCamera{
     }
     onKeyDown(event){
         this.moving = true;
-        switch(event.key){
+        switch(event.key.toLowerCase()){
             case 'w':
                 this.movementArray[0] = true;
                 this.movementDirection.z = 1;
@@ -204,7 +204,7 @@ export class ThirdPersonCamera{
     }
     onKeyUp(event){
         this.moving = false;
-        switch(event.key){
+        switch(event.key.toLowerCase()){
             case 'w':
                 this.movementArray[0] = false;
                 this.movementDirection.z = 0;

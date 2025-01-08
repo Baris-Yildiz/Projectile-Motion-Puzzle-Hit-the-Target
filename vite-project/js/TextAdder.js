@@ -21,10 +21,6 @@ export class TextAdder {
         this.bevelOffset = bevelOffset;
         this.bevelSegments = bevelSegments;
         this.material = material;
-        this.spotLight = null;
-        this.lookAtObject = new THREE.Object3D();
-        this.spotLight = new THREE.SpotLight(0xffffff, 0, 10, Math.PI / 2, 0.5, 1);
-        this.spotLightHelper = new THREE.SpotLightHelper(this.spotLight , 0x00ff00);
         this.totalGroup = new THREE.Group();
         this.addText();
     }
@@ -46,10 +42,7 @@ export class TextAdder {
         this.boundingBox = new THREE.Box3().setFromObject(this.textMesh);
         this.centerOffSetX = -0.5 * (this.boundingBox.max.x - this.boundingBox.min.x);
         this.centerOffSetY = 0.5 * (this.boundingBox.max.y - this.boundingBox.min.y);
-        this.lookAtObject.position.set(this.centerOffSetX/10,this.centerOffSetY/10, 0 );
-        this.spotLight.position.set(this.centerOffSetX/10,this.centerOffSetY/10, 100 );
-        this.spotLight.target = this.lookAtObject;
-        this.totalGroup.add(this.textMesh , this.lookAtObject , this.spotLight , this.spotLightHelper);
+        this.totalGroup.add(this.textMesh );
         this.totalGroup.position.set(0,0,0);
     }
     setPosition(x, y, z) {

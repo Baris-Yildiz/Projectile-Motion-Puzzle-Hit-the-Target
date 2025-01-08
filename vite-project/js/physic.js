@@ -195,7 +195,9 @@ class Physic {
                 mesh.position.set(origin.x(), origin.y(), origin.z());
                 mesh.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
 
+                Ammo.destroy(transform);
             }
+
             //this.checkCollisions(mesh);
         }
     }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
     <link rel="stylesheet" href="css/UI.css">
+
     <script type="module" src="js/LibImports.js"></script>
     <script type="module" src="js/game.js"></script>
     <script type="module" src="js/PostProcessing.js"></script>
@@ -13,12 +14,19 @@
     <script type="module" src="js/TextureBumpMapping.js"></script>
     <script type="module" src="js/pathfinding.js"></script>
     <script type="module" src="js/SoundManager.js"></script>
-
     <script type="module" src="js/physic.js"></script>
+    <script src="js/shaders/postProcessingVertexShader.js"></script>
+    <script src="js/shaders/postProcessingFragmentShader.js"></script>
+    <script src="js/shaders/smokeVertexShader.js"></script>
+    <script src="js/shaders/smokeFragmentShader.js"></script>
+    <script src="js/shaders/rainPuddleVertexShader.js"></script>
+    <script src="js/shaders/rainPuddleFragmentShader.js"></script>
+    <script src="js/shaders/sparkleVertexShader.js"></script>
+    <script src="js/shaders/sparkleFragmentShader.js"></script>
     <script src="js/UIHandler.js"></script>
     <script src="js/Settings.js"></script>
     <script src="js/ColorUtils.js"></script>
-    
+    <script type="module" src="js/Physics.js"></script>
   </head>
   <body>
     <div id="loadingScreen">
@@ -144,7 +152,7 @@
                 <div class="key">S</div>
                 <div class="key">D</div>
               </div>
-              <p class="pageHeader">Character Movement</p>
+              <p class="pageHeader">Character/Camera Movement</p>
             </div>
 
             <div class="keybinding">
@@ -153,14 +161,34 @@
             </div>
 
             <div class="keybinding">
-              <div class="key">L</div>
-              <p class="pageHeader">Switch to Object Move Mode</p>
+              <div class="keys">
+                <div class="key">L</div>
+                <div class="key">N</div>
+                <div class="key">R</div>
+                <div class="key">C</div>
+              </div>
+              <p class="pageHeader">Object Local Move Mode / Object Rotate Mode / Object World Position / Exit Object Move Mode</p>
             </div>
 
             <div class="keybinding">
               <div class="key">N</div>
               <p class="pageHeader">Switch back to Normal Mode</p>
             </div>
+
+            <div class="keybinding">
+              <div class="key">P</div>
+              <p class="pageHeader">Switch between cameras</p>
+            </div>
+
+            <div class="keybinding">
+              <div class="keys">
+                <div class="key">Z</div>
+                <div class="key">X</div>
+              </div>
+              <p class="pageHeader">Camera Tilt</p>
+            </div>
+
+
 
           </div>
         </div>

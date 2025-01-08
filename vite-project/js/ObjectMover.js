@@ -10,7 +10,7 @@ export class ObjectMover {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.rayCastableObjects = new THREE.Group();
-        this.scene.add(this.transformControls.getHelper());
+        //this.scene.add(this.transformControls.getHelper());
     }
 
     addRayCastObject(object){
@@ -38,41 +38,43 @@ export class ObjectMover {
         this.transformControls.showZ = !this.transformControls.showZ;
     }
     transformModeControls(e) {
-        if(e.key === 'r'){
-            this.transformControls.setMode('rotate');
-            moveState = true;
-            document.getElementById('moveState').style.display = "block";
-            document.getElementById('moveState').innerText = "rotate";
-            this.setControls(true);
-            document.exitPointerLock();
-        }
-        else if(e.key === 'c'){
-            console.log("c");
-            this.transformControls.setMode('translate');
-            moveState = true;
-            document.getElementById('moveState').style.display = "block";
-            document.getElementById('moveState').innerText = "translate";
-            this.setControls(true);
-            document.exitPointerLock();
-        }
-        
-        else if(e.key === 'l'){
-            this.transformControls.setSpace('local');
-            moveState = true;
-            document.getElementById('moveState').style.display = "block";
-            document.getElementById('moveState').innerText = "local";
-            this.setControls(true);
 
-            document.exitPointerLock();
-        }
-        else if(e.key === 'h'){
-            this.setControls(uiState);
-        }
-        else if(e.key === 'n'){
-            moveState = false;
-            document.getElementById('moveState').style.display = "none";
-            document.body.requestPointerLock();
-            this.setControls(false);
+        switch (e.key.toLowerCase()) {
+            case 'r':
+                this.transformControls.setMode('rotate');
+                moveState = true;
+                document.getElementById('moveState').style.display = "block";
+                document.getElementById('moveState').innerText = "rotate";
+                this.setControls(true);
+                document.exitPointerLock();
+                break;
+            case 'c':
+                this.transformControls.setMode('translate');
+                this.transformControls.setSpace('world');
+                moveState = true;
+                document.getElementById('moveState').style.display = "block";
+                document.getElementById('moveState').innerText = "translate";
+                this.setControls(true);
+                document.exitPointerLock();
+                break;
+            case 'l':
+                this.transformControls.setSpace('local');
+                moveState = true;
+                document.getElementById('moveState').style.display = "block";
+                document.getElementById('moveState').innerText = "local";
+                this.setControls(true);
+
+                document.exitPointerLock();
+                break;
+            case 'h':
+                this.setControls(uiState);
+                break;
+            case 'n':
+                moveState = false;
+                document.getElementById('moveState').style.display = "none";
+                document.body.requestPointerLock();
+                this.setControls(false);
+                break;
         }
     }
     setControls(on){
