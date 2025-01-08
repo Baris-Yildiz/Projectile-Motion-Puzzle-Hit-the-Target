@@ -78,6 +78,7 @@ export class PlayerLoader {
                     if (child.isMesh) {
                         child.castShadow = true; // Enable shadows for character
                         child.receiveShadow = true;
+                        //console.log("Mesh found:", child.name, child.material);
                     }
                     if (child.name === 'mixamorigRightHand') {
                         child.attach(this.gun);
@@ -94,6 +95,7 @@ export class PlayerLoader {
                 this.characterMixer = new THREE.AnimationMixer(this.character);
                 //console.log(this.characterMixer);
                 this.characterSkeleton = this.character.getObjectByProperty('type', 'SkinnedMesh').skeleton;
+                console.log(this.characterSkeleton);
                 //console.log(this.characterSkeleton);
                 //console.log(gltf.animations);
 

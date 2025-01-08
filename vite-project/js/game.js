@@ -3,7 +3,7 @@ import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
 import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
 import TextureMaps from "./TextureBumpMapping.js"
-import {ObjectMover} from "./ObjectMover.js";
+//import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
 import {createBox, rainTimer} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
@@ -12,7 +12,7 @@ import SoundManager from "./SoundManager.js";
 import { PlayerLoader } from './CharacterLoader.js';
 import {ShadedPlane} from './shaderTest.js';
 import {TextAdder} from './TextAdder.js';
-
+import {ToonShaderManager} from './ToonShaderManager.js';
 
 let t = 0.0;
 let timeElapsed = 0;
@@ -37,21 +37,14 @@ class Game {
     this.clock = new THREE.Clock();
 
     this.scene = new THREE.Scene();
-    /*const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      'resources/skybox/posx.jpg',
-      'resources/skybox/negx.jpg',
-      'resources/skybox/posy.jpg',
-      'resources/skybox/negy.jpg',
-      'resources/skybox/posz.jpg',
-      'resources/skybox/negz.jpg',
-    ]);
-    this.scene.background = texture;*/ //new THREE.Color(0x000000);
+    
     this.scene.background = new THREE.Color(0xffffff);
     //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
     //this.characterCamera.position.set(0, 0, 800);
     //this.characterCamera.userData.playerCamera = 'player';
-
+    this.toonShaderManager = new ToonShaderManager();
+    
+   
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
     this.camera.position.set(0, 0, 1000);
@@ -65,7 +58,7 @@ class Game {
 
     this.postProcessing = new PostProcessing(this);
     this.particleEmitters = [];
-    this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
+    //this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
 
     this.animatableObjects = [];
     this.skybox = new Skybox(this);
@@ -85,7 +78,7 @@ class Game {
     this.shadedPlane = new ShadedPlane(window.innerWidth, window.innerHeight, 0.03, 50);
     this.loader = new GLTFLoader();
     //loader, characterPath, gunPath, canvas, camera, offSet, aimOffSet, velocity, lookAtOffset, shadedPlane
-    this.player = new PlayerLoader(this.loader, this.char1Path, this.gunPath, this.canvas, this.renderCamera,
+    this.player = new PlayerLoader(this.loader, this.char2Path, this.gunPath, this.canvas, this.renderCamera,
       new THREE.Vector3(0, 1.5, -5/3), //offSet
       new THREE.Vector3(-0.3, 1.5, -1.2/4), //aimOffSet
       new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
@@ -100,6 +93,11 @@ class Game {
     await this.createSceneObjects();
     this.setupEnemyAI();
     this.initEventListeners();
+    this.player.character.traverse((child) => {
+      if (child.isMesh) {
+        console.log("Found a mesh:", child);
+      }});
+
     this.animate();
     this.soundManager.playBackgroundMusic();
   }
@@ -146,7 +144,7 @@ class Game {
       }
       else{
         this.keyStates[event.code] = true;
-        this.objectMover.transformModeControls(event);
+        //this.objectMover.transformModeControls(event);
       }
       
     });
@@ -174,7 +172,7 @@ class Game {
         document.body.requestPointerLock();
         
       }else{
-        this.objectMover.onMouseClick(event);
+        //this.objectMover.onMouseClick(event);
       }
       
     });
@@ -199,7 +197,12 @@ class Game {
         this.player.tps.onMouseRelease(event);
       }
     });
-
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'KeyT') {
+        
+          this.toonShaderManager.toggleToonShader(this.scene);
+      }
+  });
     window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
@@ -257,7 +260,7 @@ class Game {
                 }
               })
 
-              this.objectMover.addRayCastObject(obj.model);
+              //this.objectMover.addRayCastObject(obj.model);
             }
             resolve();
           });
@@ -409,7 +412,7 @@ class Game {
             [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, 0.0);
 
     this.physics.addWireframeToPhysicsObjects();
-    this.scene.add(this.objectMover.rayCastableObjects);
+    //this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
     this.createText();
 
@@ -542,6 +545,11 @@ class Game {
     timeElapsed += deltaTime;
     this.timeElapsed += deltaTime;
     t += deltaTime;
+
+
+  
+
+
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.01);
       this.renderCamera.rotation.set(-1.0373973684276367, 
@@ -565,12 +573,15 @@ class Game {
       this.particleEmitters[i].updateParticleTime(t);
     }
     if(this.playerState){
-      //console.log('player');
       this.player.characterMixer.update(d);
       this.player.animationControls.movementUpdate();
       this.player.tps.update(this.scene);
       this.player.tps.movementUpdate();
     }
+    if (this.toonShaderManager.isToonEnabled) {
+      this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
+    }
+    
 
     //console.log(this.renderCamera);
     this.shadedPlane.update(timeElapsed);

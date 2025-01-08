@@ -47,6 +47,7 @@ export class ObjectMover {
             document.exitPointerLock();
         }
         else if(e.key === 'c'){
+            console.log("c");
             this.transformControls.setMode('translate');
             moveState = true;
             document.getElementById('moveState').style.display = "block";
