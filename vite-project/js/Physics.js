@@ -44,15 +44,7 @@ class Rigidbody {
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
         this.localInertia = new Ammo.btVector3(0, 0, 0);
 
-        let verticePositions = [];
-        model.traverse((child) => {
-            if (child.isMesh) {
-                let arr = child.geometry.attributes.position.array;
-                for (let i = 0; i < arr.length; i++) {
-                    verticePositions.push(arr[i]);
-                }
-            }
-        })
+        let verticePositions = model.children[0].geometry.attributes.position.array;
 
         let triangles = [];
 
@@ -64,8 +56,6 @@ class Rigidbody {
             });
         }
         console.log(model);
-        console.log(triangles);
-        console.log(model.scale);
 
         let triangle, triangleMesh = new Ammo.btTriangleMesh();
         let a = new Ammo.btVector3(0, 0, 0);
@@ -93,11 +83,7 @@ class Rigidbody {
         Ammo.destroy(c);
 
         this.shape = new Ammo.btConvexHullShape(triangleMesh, true);
-        model.traverse((child) => {
-            if (child.isMesh) {
-                child.geometry.verticesNeedUpdate = true;
-            }
-        })
+        model.children[0].geometry.verticesNeedUpdate = true;
 
         this.shape.setMargin(0.05);
         this.shape.calculateLocalInertia(mass, this.localInertia);
@@ -153,6 +139,20 @@ class Physics {
             mesh: model,
             rigidBody: rigidBody
         })
+    }
+
+    applyInstantForce(index, x,y,z) {
+        let force = new Ammo.btVector3(x,y,z);
+        this.rigidbodies[index].rigidBody.body.applyCentralImpulse(force);
+        Ammo.destroy(force);
+    }
+
+    applyInstantForceAtAPoint(index, fx, fy, fz, px, py, pz) {
+        let force = new Ammo.btVector3(fx,fy,fz);
+        let point = new Ammo.btVector3(px,py,pz);
+        this.rigidbodies[index].rigidBody.body.applyForce(force, point);
+        Ammo.destroy(force);
+        Ammo.destroy(point);
     }
 
     updatePhysics (delta) {

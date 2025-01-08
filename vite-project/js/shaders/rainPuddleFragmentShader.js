@@ -21,14 +21,14 @@ const rainPuddleFragmentShaderBeforeMain = `#include <common>
                 
                 void drawPuddles(){
                     if (iTime.x <= 1.) return;
-                    const float xAmount = 10.;
+                    const float xAmount = 15.;
                     const float yAmount = 10.;
                     for (float j = 1.; j < xAmount; j++) {
                         for (float i = 1.; i < yAmount ; i++) {
                             vec2 pos = vec2(j/xAmount, i/yAmount);
                             float randomMult = clamp(1.5, 2., 1.+random(pos));
-                            float rInner = 0.0025 * mod(iTime.x* randomMult, 1.) ;
-                            float rOuter = 0.0040 * mod(iTime.x* randomMult, 1.) ;
+                            float rInner = 0.0025 * mod(iTime.x* randomMult, 1.);
+                            float rOuter = 0.0040 * mod(iTime.x* randomMult, 1.);
                             
                             drawPuddle(pos, rInner, rOuter);
                         }
