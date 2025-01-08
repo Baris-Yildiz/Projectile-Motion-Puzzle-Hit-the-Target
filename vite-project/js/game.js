@@ -22,6 +22,8 @@ class Game {
   playerState = true;
   renderCamera = undefined;
   nameState = false;
+  charMixers = undefined;
+  chars = undefined;
   constructor() {
     this.settings = new Settings(this);
     initUI(this);
@@ -168,9 +170,11 @@ class Game {
       if(uiState) return;
       
       if(!moveState){
+        this.scene.remove(this.objectMover.transformControls.getHelper());
         document.body.requestPointerLock();
         
       }else{
+        this.scene.add(this.objectMover.transformControls.getHelper());
         this.objectMover.onMouseClick(event);
       }
       
@@ -426,40 +430,90 @@ class Game {
   }
   createTextGroup(font, mat){
     let textGroup = new THREE.Group();
+    let chars = [];
+    const charMixers = [];
+    
+    const characterPaths = [this.char1Path, this.char2Path, this.char3Path, this.char4Path];
+    loadCharacters(characterPaths);
+    function loadCharacters(paths) {
+      const loader = new GLTFLoader();
+
+      paths.forEach((path, index) => {
+        loader.load(path, (gltf) => {
+        const char = gltf.scene;
+        const charMixer = new THREE.AnimationMixer(char);
+        if(index !==3){
+          char.scale.set(10, 10, 10);
+        }
+       for(let i = 0; i < gltf.animations.length; i++){
+        if(gltf.animations[i].name.startsWith('Idle')){
+          const action = charMixer.clipAction(gltf.animations[i]);
+          action.setLoop(true);
+          action.play();
+        }
+      }
+      char.position.set(19 - index * 16, 0, 20); 
+      char.rotation.set(-Math.PI / 2, 0, 0);
+      textGroup.add(char);
+      charMixers.push(charMixer);
+      chars.push(char);
+    });
+    });
+    }
     let baris = new TextAdder('Baris Yildiz', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
     let muzo = new TextAdder('Berke Savas', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
     let said = new TextAdder('Said Cetin', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
     let emre = new TextAdder('Emre Erdogan', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
-    baris.totalGroup.position.set(12, 0, 0);
+    baris.totalGroup.position.set(16, 0, 0);
     muzo.totalGroup.position.set(0, 0, 0);
-    said.totalGroup.position.set(-12 , 0, 0);
-    emre.totalGroup.position.set(-24, 0, 0);
-    textGroup.add(baris.totalGroup , muzo.totalGroup , said.totalGroup , emre.totalGroup);
+    said.totalGroup.position.set(-16 , 0, 0);
+    emre.totalGroup.position.set(-32, 0, 0);
+    let s4 = new THREE.SpotLight(0xffffff, 10, 250, Math.PI / 3, Math.PI / 3, 0.1);
+    let s2 = new THREE.SpotLight(0xffffff, 10, 250, Math.PI / 3, Math.PI / 3, 0.1);
+    let s3 = new THREE.SpotLight(0xffffff, 10, 250, Math.PI / 3, Math.PI / 3, 0.1);
+    let s1 = new THREE.SpotLight(0xffffff, 10, 250, Math.PI / 3, Math.PI / 3, 0.1);
+    s1.position.copy(muzo.textMesh.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(-3, 10, 0)));
+    s2.position.copy(said.textMesh.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(-3, 10, 0)));
+    s3.position.copy(emre.textMesh.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(5, 10, 0)));
+    s4.position.copy(baris.textMesh.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(-3, 10, 0)));
+    s1.target = muzo.textMesh;
+    s2.target = said.textMesh;
+    s3.target = emre.textMesh;
+    s4.target = baris.textMesh;
+    /*
+    let l1 = new THREE.SpotLightHelper(s1 , 0xff0000);
+    let l2 = new THREE.SpotLightHelper(s2 , 0x00ff00);
+    let l3 = new THREE.SpotLightHelper(s3 , 0x0000ff);
+    let l4 = new THREE.SpotLightHelper(s4 , 0xffff00);
+    */
+    textGroup.add(baris.totalGroup , muzo.totalGroup , said.totalGroup , emre.totalGroup,s1, s2, s3, s4);
     textGroup.position.set(1000, 40, 0);
-    console.log("hererere");
-    console.log(muzo.textMesh.getWorldPosition(new THREE.Vector3()));
-    console.log(baris.textMesh.getWorldPosition(new THREE.Vector3()));
-    console.log(said.textMesh.getWorldPosition(new THREE.Vector3()));
-    console.log(emre.textMesh.getWorldPosition(new THREE.Vector3()));
-    
-    textGroup.traverse((child) => {
-      if(child.isMesh){
-        child.scale.set(0.01, 0.01, 0.01);
-        child.rotation.set(-Math.PI/2, 0, 0);
-      }
-    });
-    return textGroup;
+    baris.textMesh.rotation.set(-Math.PI / 2, 0, 0);
+    baris.textMesh.scale.set(0.01, 0.01, 0.01);
+    muzo.textMesh.rotation.set(-Math.PI / 2, 0, 0);
+    muzo.textMesh.scale.set(0.01, 0.01, 0.01);
+    said.textMesh.rotation.set(-Math.PI / 2, 0, 0);
+    said.textMesh.scale.set(0.01, 0.01, 0.01);
+    emre.textMesh.rotation.set(-Math.PI / 2, 0, 0);
+    emre.textMesh.scale.set(0.01, 0.01, 0.01);
+    console.log('here');
+    console.log(textGroup);
+
+    return {textGroup, charMixers, chars};
+
   }
   createText(){
     let fontLoader = new FontLoader();
-    let mat = new THREE.MeshBasicMaterial({color: 0xff0000});
-    let font = undefined;
-    
-    fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json', (response) => {
-        font = response;
-        let group = this.createTextGroup(font, mat);
-        this.scene.add(group);
+    let mat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
 
+    fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json', (font) => {
+        // Ensure font is available in this callback
+        let group = this.createTextGroup(font, mat); // Call createTextGroup only after the font is loaded
+        this.scene.add(group.textGroup);
+        this.charMixers = group.charMixers;
+        this.chars = group.chars;
+    }, undefined, (error) => {
+        console.error('Error loading font:', error);
     });
   }
 
@@ -556,7 +610,7 @@ class Game {
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
 
     if(this.nameState){
-      this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.01);
+      this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.11);
       this.renderCamera.rotation.set(-1.0373973684276367, 
         -0.0002288740643072648, 
         1.7371262680459113e-18);
@@ -567,6 +621,12 @@ class Game {
         this.updatePlayer(d);
       }
     }
+    if(this.charMixers !== undefined && !this.playerState){
+      for(let i = 0; i < this.charMixers.length; i++){
+        this.charMixers[i].update(d);
+      }
+    }
+    
 
     this.skybox.sunAnimate(this.clock.getElapsedTime());
     for (let i = 0; i < this.particleEmitters.length; i++) {

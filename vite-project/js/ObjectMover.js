@@ -10,7 +10,7 @@ export class ObjectMover {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.rayCastableObjects = new THREE.Group();
-        this.scene.add(this.transformControls.getHelper());
+        //this.scene.add(this.transformControls.getHelper());
     }
 
     addRayCastObject(object){

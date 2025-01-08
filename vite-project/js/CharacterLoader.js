@@ -31,9 +31,12 @@ export class PlayerLoader {
     }
 
     createAimTarget() {
-        this.aimTarget = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshBasicMaterial({ color: 0x0 }));
+        this.aimTarget = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
         //this.aimTarget.position.set(-24, 7, 100);
         this.aimTarget.position.set(-120, 35, 800);
+        this.aimTarget.material.depthTest = false; 
+        this.aimTarget.material.depthWrite = false;
+        this.aimTarget.renderOrder = 9999;
     }
 
     addAnimation(hash, animationId, animationIndex) {
