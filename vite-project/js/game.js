@@ -1,4 +1,4 @@
-import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
+import {THREE , GLTFLoader , FontLoader , Ammo} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
 //import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
@@ -295,7 +295,8 @@ class Game {
     }
 
     this.physics.createBoxRigidBody(mesh, mass);
-    this.scene.add(mesh);
+    this.objectMover.addRayCastObject(mesh);
+    //this.scene.add(mesh);
   }
 
   async createSceneObjects() {
@@ -674,7 +675,9 @@ class Game {
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
     //this.zombieAIs.forEach(zombieAI => zombieAI.update());
+  
     this.physics.updatePhysics(1/144);
+   
 
     requestAnimationFrame(this.animate.bind(this));
 

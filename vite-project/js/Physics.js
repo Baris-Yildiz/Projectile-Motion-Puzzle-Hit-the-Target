@@ -3,6 +3,27 @@ import {Ammo, THREE} from "./LibImports.js";
 class Rigidbody {
     constructor() {
     }
+    createKinematicBoxRigidBody(mesh) {
+        this.transform = new Ammo.btTransform();
+        this.transform.setIdentity();
+        this.transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y, mesh.position.z));
+        this.transform.setRotation(new Ammo.btQuaternion(mesh.quaternion.x, mesh.quaternion.y, mesh.quaternion.z, mesh.quaternion.w));
+    
+        this.motionState = new Ammo.btDefaultMotionState(this.transform);
+    
+        const btSize = new Ammo.btVector3(mesh.scale.x * 0.5, mesh.scale.y * 0.5, mesh.scale.z * 0.5);
+        this.shape = new Ammo.btBoxShape(btSize);
+        this.shape.setMargin(0.05);
+    
+        this.info = new Ammo.btRigidBodyConstructionInfo(0, this.motionState, this.shape, new Ammo.btVector3(0, 0, 0));
+        this.body = new Ammo.btRigidBody(this.info);
+
+        this.body.setCollisionFlags(this.body.getCollisionFlags() | Ammo.btCollisionObject.CF_KINEMATIC_OBJECT);
+        this.body.setActivationState(Ammo.DISABLE_DEACTIVATION);
+    
+        Ammo.destroy(btSize);
+    }
+    
 
     createBoxRigidBody(mesh, mass) {
         this.transform = new Ammo.btTransform();
@@ -145,6 +166,18 @@ class Physics {
             rigidBody: rigidBody
         })
     }
+    createKinematicCube(mesh) {
+        const rigidBody = new Rigidbody();
+        rigidBody.createKinematicBoxRigidBody(mesh);
+        this.physicsWorld.addRigidBody(rigidBody.body);
+        mesh.userData.rb = rigidBody;
+    
+        this.rigidbodies.push({
+            mesh: mesh,
+            rigidBody: rigidBody
+        });
+    }
+    
 
     createModelRigidBody(model, mass) {
 
