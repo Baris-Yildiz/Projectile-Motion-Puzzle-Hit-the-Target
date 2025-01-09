@@ -76,7 +76,7 @@ export class ThirdPersonCamera{
         this.lastMousePosition.copy(this.mousePosition);
         this.phi -= event.movementX * 0.0005;
         this.theta += event.movementY * 0.0005;
-        this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 8, Math.PI / 8);
+        this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 4, Math.PI / 4);
         this.target.children[1].position.y = Math.sin(this.theta)*300;
         let thetaQ = new THREE.Quaternion().setFromAxisAngle(this.side , 0);
         let phiQ = new THREE.Quaternion().setFromAxisAngle(this.up , this.phi);

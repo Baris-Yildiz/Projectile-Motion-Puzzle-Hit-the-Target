@@ -52,6 +52,32 @@ class Rigidbody {
 
         Ammo.destroy(btSize);
     }
+
+    createSphereRigidBody(mesh, mass) {
+
+        this.transform = new Ammo.btTransform();
+        this.transform.setIdentity();
+        this.transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y,
+            mesh.position.z));
+        this.transform.setRotation(new Ammo.btQuaternion(mesh.quaternion.x, mesh.quaternion.y,
+            mesh.quaternion.z, mesh.quaternion.w));
+
+        this.motionState = new Ammo.btDefaultMotionState(this.transform);
+
+        this.shape = new Ammo.btSphereShape(mesh.geometry.parameters.radius);
+        this.shape.setMargin(0.05);
+
+        this.inertia = new Ammo.btVector3(0,0,0);
+        if (mass > 0) {
+            this.shape.calculateLocalInertia(mass, this.inertia);
+        }
+
+        this.info = new Ammo.btRigidBodyConstructionInfo(
+            mass, this.motionState, this.shape, this.inertia
+        )
+
+        this.body = new Ammo.btRigidBody(this.info);
+    }
 /*
     createRigidBodyForModel(model, mass) {
         let pos = model.position;
@@ -179,6 +205,22 @@ class Physics {
     }
     
 
+    ThrowSphere(sphere, mass, direction) {
+        const bulletVelocityMultiplier = 300;
+        let rigidbody = new Rigidbody();
+        rigidbody.createSphereRigidBody(sphere, mass);
+        rigidbody.body.setLinearVelocity(new Ammo.btVector3(direction.x * bulletVelocityMultiplier,
+            direction.y * bulletVelocityMultiplier, direction.z * bulletVelocityMultiplier));
+
+        this.physicsWorld.addRigidBody(rigidbody.body);
+        sphere.userData.rb = rigidbody;
+
+        this.rigidbodies.push({
+            mesh: sphere,
+            rigidBody: rigidbody
+        })
+    }
+
     createModelRigidBody(model, mass) {
 
         let rigidBody = new Rigidbody();
@@ -191,6 +233,7 @@ class Physics {
             rigidBody: rigidBody
         })
     }
+
 
     applyInstantForce(index, x,y,z) {
         let force = new Ammo.btVector3(x,y,z);
@@ -220,6 +263,8 @@ class Physics {
             this.rigidbodies[i].mesh.quaternion.copy(quat3);
         }
     }
+
+
 }
 
 export {Physics}

@@ -294,7 +294,7 @@ class Game {
       rainTimer.x = this.clock.getElapsedTime();
     }
 
-    this.physics.createBoxRigidBody(mesh, mass);
+    this.physics.createKinematicCube(mesh);
     this.objectMover.addRayCastObject(mesh);
     //this.scene.add(mesh);
   }
@@ -451,9 +451,31 @@ class Game {
     //this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
+
+
+
     this.createText();
     this.createParticleSystemInstances(scale);
   }
+
+  shootBullet() {
+    const radius = 0.1;
+    const geometry = new THREE.SphereGeometry(radius, 16, 16);
+    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    const sphere = new THREE.Mesh(geometry, material);
+
+    const direction = new THREE.Vector3(0, 0, 0);
+    this.camera.getWorldDirection(direction);
+
+    //this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0));
+
+    sphere.position.copy(this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0)));
+    sphere.position.add(direction.multiplyScalar(radius * 2));
+
+    this.scene.add(sphere);
+    this.physics.ThrowSphere(sphere, 1, direction);
+  }
+
   createTextGroup(font, mat){
     let textGroup = new THREE.Group();
     let chars = [];
@@ -628,12 +650,17 @@ class Game {
     if (this.keyStates['KeyX'] || this.keyStates['ShiftRight']) {
       this.renderCamera.rotation.z -= speedDelta / 10.0;
     }
+
+
   }
 
   animate() {
     let d = this.clock.getDelta();
-    this.physics.applyInstantForceAtAPoint(1, d*100, 0, d* 100, 0.0, 0.0, 1.0);
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
+
+    if (this.player.tps.shooting && this.player.tps.canShoot) {
+      this.shootBullet();
+    }
 
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.11);
