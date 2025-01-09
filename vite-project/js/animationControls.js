@@ -104,10 +104,10 @@ export class AnimationControls{
             this.setCurrentAnimation('LeftRun');
         } else if (this.movingBackwardRight()) {
             //console.log("BackRightRun");
-            this.character.velocity = new THREE.Vector3(0.7/20,0,1/20);
+           
             this.setCurrentAnimation('LeftStrafe' , -1);
         } else if (this.movingBackwardLeft()) {
-            this.character.velocity = new THREE.Vector3(0.7/20,0,1/20);
+           
             //console.log("BackLeftRun");
             this.setCurrentAnimation('RightStrafe' , -1);
         } 

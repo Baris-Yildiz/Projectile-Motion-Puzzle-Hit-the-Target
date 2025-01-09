@@ -114,6 +114,24 @@ class Physics {
         );
 
         this.physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
+        this.createGround();
+    }
+    createGround() {
+       
+        const groundNormal = new Ammo.btVector3(0, 1, 0); 
+        const groundHeight = 0; 
+        const groundShape = new Ammo.btStaticPlaneShape(groundNormal, groundHeight);
+        const groundTransform = new Ammo.btTransform();
+        groundTransform.setIdentity();
+        groundTransform.setOrigin(new Ammo.btVector3(0, 0, 0)); 
+        const mass = 0;
+        const inertia = new Ammo.btVector3(0, 0, 0); 
+        const motionState = new Ammo.btDefaultMotionState(groundTransform);
+        const groundInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, groundShape, inertia);
+        
+        const groundBody = new Ammo.btRigidBody(groundInfo);
+
+        this.physicsWorld.addRigidBody(groundBody);
     }
 
     createBoxRigidBody(mesh, mass) {

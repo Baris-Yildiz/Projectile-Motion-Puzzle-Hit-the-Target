@@ -58,7 +58,7 @@ class Game {
     this.camera.position.set(0, 0, 1000);
     this.camera.userData.playerCamera = 'not player';
     this.renderCamera = this.camera;
-    this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas });
+    this.renderer = new THREE.WebGLRenderer({ aliasing:true, canvas:this.canvas , powerPreference:'high-performance'});
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -86,7 +86,7 @@ class Game {
     this.shadedPlane = new ShadedPlane(window.innerWidth, window.innerHeight, 0.03, 50);
     this.loader = new GLTFLoader();
     //loader, characterPath, gunPath, canvas, camera, offSet, aimOffSet, velocity, lookAtOffset, shadedPlane
-    this.player = new PlayerLoader(this.loader, this.char2Path, this.gunPath, this.canvas, this.renderCamera,
+    this.player = new PlayerLoader(this.loader, this.char1Path, this.gunPath, this.canvas, this.renderCamera,
       new THREE.Vector3(0, 1.5, -5/3), //offSet
       new THREE.Vector3(-0.3, 1.5, -1.2/4), //aimOffSet
       new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
@@ -196,7 +196,8 @@ class Game {
         document.body.requestPointerLock();
         
       }else{
-        //this.objectMover.onMouseClick(event);
+        this.scene.add(this.objectMover.transformControls.getHelper());
+        this.objectMover.onMouseClick(event);
       }
       
     });
@@ -658,7 +659,7 @@ class Game {
       this.particleEmitters[i].updateParticleTime(this.clock.getElapsedTime());
     }
     if(this.playerState){
-      this.player.characterMixer.update(d);
+      this.player.characterMixer.update(1/144);
       this.player.animationControls.movementUpdate();
       this.player.tps.update(this.scene);
       this.player.tps.movementUpdate();
@@ -670,10 +671,10 @@ class Game {
 
     //console.log(this.renderCamera);
     this.shadedPlane.update(this.clock.getElapsedTime());
-    this.renderer.render(this.scene, this.renderCamera);
+    //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
-    this.zombieAIs.forEach(zombieAI => zombieAI.update());
+    //this.zombieAIs.forEach(zombieAI => zombieAI.update());
     this.physics.updatePhysics(1/144);
 
     requestAnimationFrame(this.animate.bind(this));
