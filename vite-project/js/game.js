@@ -92,6 +92,7 @@ class Game {
       new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
       new THREE.Vector3(0, 25 / 10, 250 / 20), //lookAtOffset
       this.shadedPlane);
+    this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
     this.scene.add(this.shadedPlane.mesh);
 
@@ -167,7 +168,7 @@ class Game {
       }
       else{
         this.keyStates[event.code] = true;
-        //this.objectMover.transformModeControls(event);
+        this.objectMover.transformModeControls(event);
       }
       
     });
@@ -192,11 +193,9 @@ class Game {
       if(uiState) return;
       
       if(!moveState){
-        this.scene.remove(this.objectMover.transformControls.getHelper());
         document.body.requestPointerLock();
         
       }else{
-        this.scene.add(this.objectMover.transformControls.getHelper());
         this.objectMover.onMouseClick(event);
       }
       
@@ -281,7 +280,7 @@ class Game {
                 }
               })
 
-              //this.objectMover.addRayCastObject(obj.model);
+            this.objectMover.addRayCastObject(obj.model);
             }
             resolve();
           });
@@ -449,7 +448,7 @@ class Game {
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE);
 
     //this.physics.addWireframeToPhysicsObjects();
-    //this.scene.add(this.objectMover.rayCastableObjects);
+    this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
     this.createText();
     this.createParticleSystemInstances(scale);

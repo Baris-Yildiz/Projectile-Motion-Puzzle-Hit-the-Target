@@ -58,8 +58,10 @@ export class ObjectMover {
                 document.exitPointerLock();
                 break;
             case 'l':
-                this.transformControls.setSpace('local');
                 moveState = true;
+                this.scene.add(this.transformControls.getHelper());
+                this.transformControls.setSpace('local');
+                
                 document.getElementById('moveState').style.display = "block";
                 document.getElementById('moveState').innerText = "local";
                 this.setControls(true);
@@ -74,6 +76,7 @@ export class ObjectMover {
                 document.getElementById('moveState').style.display = "none";
                 document.body.requestPointerLock();
                 this.setControls(false);
+                this.scene.remove(this.transformControls.getHelper());
                 break;
         }
     }
