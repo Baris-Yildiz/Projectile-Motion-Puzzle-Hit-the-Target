@@ -101,11 +101,6 @@ class Game {
     await this.createSceneObjects();
     this.setupEnemyAI();
     this.initEventListeners();
-    this.player.character.traverse((child) => {
-      if (child.isMesh) {
-        console.log("Found a mesh:", child);
-      }});
-
     this.animate();
     this.soundManager.playBackgroundMusic();
   }
@@ -119,7 +114,7 @@ class Game {
           new THREE.BoxGeometry(.5, .5, .5),
           new THREE.MeshBasicMaterial({color: 0xff0000}),
       );
-      zombie.position.set(-20 , 0.5, 0);
+      zombie.position.set(-10 , 0.5, 0);
       zombies.push(zombie);
       this.scene.add(zombie);
     }
@@ -131,12 +126,12 @@ class Game {
     this.scene.add(player);
 
     let allMeshes = [];
-    for (let i = 0; i < this.animatableObjects.length; i++) {
-      for (let j = 0; j < this.animatableObjects[i].meshes.length; j++) {
-        allMeshes.push(this.animatableObjects[i].meshes[j]);
-      }
-    }
-
+    // for (let i = 0; i < this.animatableObjects.length; i++) {
+    //   for (let j = 0; j < this.animatableObjects[i].meshes.length; j++) {
+    //     allMeshes.push(this.animatableObjects[i].meshes[j]);
+    //   }
+    // }
+    console.log(this.zombieAIs[0]);
 
 
     let copyZombies = zombies.slice();
@@ -147,6 +142,7 @@ class Game {
       this.zombieAIs.push(zombieAI);
       copyZombies = zombies.slice();
     }
+    console.log(this.zombieAIs[0]);
   }
 
   // Initialize event listeners for controls and window resize
@@ -674,7 +670,10 @@ class Game {
     //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
-    //this.zombieAIs.forEach(zombieAI => zombieAI.update());
+    // for (let i = 0; i < this.zombieAIs.length; i++) {
+    //   this.zombieAIs[i].zombie.position.addScaledVector(this.zombieAIs[i].getVelocity(), 100*deltaTime);
+    // }
+    
     this.physics.updatePhysics(1/144);
 
     requestAnimationFrame(this.animate.bind(this));
