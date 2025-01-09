@@ -1,4 +1,4 @@
-import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
+import {THREE , GLTFLoader , FontLoader , Ammo} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
 //import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
@@ -92,6 +92,7 @@ class Game {
       new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
       new THREE.Vector3(0, 25 / 10, 250 / 20), //lookAtOffset
       this.shadedPlane);
+    this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
     this.scene.add(this.shadedPlane.mesh);
 
@@ -163,7 +164,7 @@ class Game {
       }
       else{
         this.keyStates[event.code] = true;
-        //this.objectMover.transformModeControls(event);
+        this.objectMover.transformModeControls(event);
       }
       
     });
@@ -188,11 +189,9 @@ class Game {
       if(uiState) return;
       
       if(!moveState){
-        this.scene.remove(this.objectMover.transformControls.getHelper());
         document.body.requestPointerLock();
         
       }else{
-        this.scene.add(this.objectMover.transformControls.getHelper());
         this.objectMover.onMouseClick(event);
       }
       
@@ -277,7 +276,7 @@ class Game {
                 }
               })
 
-              //this.objectMover.addRayCastObject(obj.model);
+            this.objectMover.addRayCastObject(obj.model);
             }
             resolve();
           });
@@ -292,7 +291,8 @@ class Game {
     }
 
     this.physics.createBoxRigidBody(mesh, mass);
-    this.scene.add(mesh);
+    this.objectMover.addRayCastObject(mesh);
+    //this.scene.add(mesh);
   }
 
   async createSceneObjects() {
@@ -445,7 +445,7 @@ class Game {
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE);
 
     //this.physics.addWireframeToPhysicsObjects();
-    //this.scene.add(this.objectMover.rayCastableObjects);
+    this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
     this.createText();
     this.createParticleSystemInstances(scale);
@@ -670,11 +670,10 @@ class Game {
     //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
-    // for (let i = 0; i < this.zombieAIs.length; i++) {
-    //   this.zombieAIs[i].zombie.position.addScaledVector(this.zombieAIs[i].getVelocity(), 100*deltaTime);
-    // }
-    
+    //this.zombieAIs.forEach(zombieAI => zombieAI.update());
+  
     this.physics.updatePhysics(1/144);
+   
 
     requestAnimationFrame(this.animate.bind(this));
 
