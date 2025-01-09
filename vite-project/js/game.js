@@ -36,16 +36,7 @@ class Game {
     this.clock = new THREE.Clock();
 
     this.scene = new THREE.Scene();
-    /*const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      'resources/skybox/posx.jpg',
-      'resources/skybox/negx.jpg',
-      'resources/skybox/posy.jpg',
-      'resources/skybox/negy.jpg',
-      'resources/skybox/posz.jpg',
-      'resources/skybox/negz.jpg',
-    ]);
-    this.scene.background = texture;*/ //new THREE.Color(0x000000);
+    
     this.scene.background = new THREE.Color(0xffffff);
     //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
     //this.characterCamera.position.set(0, 0, 800);
@@ -67,17 +58,14 @@ class Game {
     this.postProcessing = new PostProcessing(this);
     this.particleEmitters = [];
     //this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
-
+    //this.firstPersonCamera = new FirstPersonCamera(this.camera,{});
+      
+ 
     this.animatableObjects = [];
     this.skybox = new Skybox(this);
 
     this.zombieAIs = [];
 
-    this.STEPS_PER_FRAME = 5;
-    this.cameraMoveSpeed = 25;
-    this.playerVelocity = new THREE.Vector3();
-    this.playerDirection = new THREE.Vector3();
-    this.keyStates = {};
 
     this.settings.setEnvironmentQuality(Quality.HIGH);
 
@@ -239,31 +227,6 @@ class Game {
   }
 
 
-  updatePlayer(deltaTime) {
-    let damping = Math.exp(-4 * deltaTime) - 1;
-    this.playerVelocity.addScaledVector(this.playerVelocity, damping);
-
-    const deltaPosition = this.playerVelocity.clone().multiplyScalar(deltaTime);
-    this.renderCamera.position.add(deltaPosition);
-
-  }
-
-  // Calculate forward direction for movement
-  getForwardVector() {
-    this.renderCamera.getWorldDirection(this.playerDirection);
-    this.playerDirection.y = 0;
-    this.playerDirection.normalize();
-    return this.playerDirection;
-  }
-
-  // Calculate side direction for movement
-  getSideVector() {
-    this.renderCamera.getWorldDirection(this.playerDirection);
-    this.playerDirection.y = 0;
-    this.playerDirection.normalize();
-    this.playerDirection.cross(this.renderCamera.up);
-    return this.playerDirection;
-  }
 
   loadAnimatedObject(path, position, rotation, scale,
                      movable = false) {
@@ -591,48 +554,12 @@ class Game {
     this.particleEmitters.push(smokeEmitter);
   }
 
-  controls(deltaTime) {
-    const speedDelta = deltaTime * this.cameraMoveSpeed;
-
-    if (this.keyStates['KeyW']) {
-      this.playerVelocity.add(this.getForwardVector().multiplyScalar(speedDelta));
-      this.soundManager.playWalkingSound();
-    }
-    if (this.keyStates['KeyS']) {
-      this.playerVelocity.add(this.getForwardVector().multiplyScalar(-speedDelta));
-      this.soundManager.playWalkingSound();
-
-    }
-    if (this.keyStates['KeyA']) {
-      this.playerVelocity.add(this.getSideVector().multiplyScalar(-speedDelta));
-      this.soundManager.playWalkingSound();
-
-    }
-    if (this.keyStates['KeyD']) {
-      this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
-      this.soundManager.playWalkingSound();
-
-    }
-
-    if (this.keyStates['Space']) {
-      this.playerVelocity.y += speedDelta;
-    }
-    if (this.keyStates['ShiftLeft'] || this.keyStates['ShiftRight']) {
-      this.playerVelocity.y -= speedDelta;
-    }
-
-    if (this.keyStates['KeyZ']) {
-      this.renderCamera.rotation.z += speedDelta / 10.0;
-    }
-    if (this.keyStates['KeyX'] || this.keyStates['ShiftRight']) {
-      this.renderCamera.rotation.z -= speedDelta / 10.0;
-    }
-  }
+  
 
   animate() {
     let d = this.clock.getDelta();
     this.physics.applyInstantForceAtAPoint(1, d*100, 0, d* 100, 0.0, 0.0, 1.0);
-    const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
+    //const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
 
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.11);
@@ -640,12 +567,7 @@ class Game {
         -0.0002288740643072648, 
         1.7371262680459113e-18);
     }
-    if(!this.playerState && !this.nameState){
-      for (let i = 0; i < this.STEPS_PER_FRAME; i++) {
-        this.controls(d);
-        this.updatePlayer(d);
-      }
-    }
+    
     if(this.charMixers !== undefined && !this.playerState){
       for(let i = 0; i < this.charMixers.length; i++){
         this.charMixers[i].update(d);
