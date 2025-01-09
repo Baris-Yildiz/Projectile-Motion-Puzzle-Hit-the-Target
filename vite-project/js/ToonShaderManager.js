@@ -15,70 +15,8 @@ export class ToonShaderManager {
                 opacity: { value: 1.0 },
                 baseColorMap: { value: null }
             },
-            vertexShader: `
-                #include <common>
-                #ifdef USE_SKINNING
-                    #include <skinning_pars_vertex>
-                #endif
-                
-                varying vec3 vNormal;
-                varying vec3 vViewPosition;
-                varying vec2 vUv;
-                
-                void main() {
-                    vUv = uv;
-                    
-                    #ifdef USE_SKINNING
-                        #include <skinbase_vertex>
-                        #include <beginnormal_vertex>
-                        #include <skinnormal_vertex>
-                        vNormal = normalize(normalMatrix * objectNormal);
-                        #include <begin_vertex>
-                        #include <skinning_vertex>
-                        vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
-                    #else
-                        vNormal = normalize(normalMatrix * normal);
-                        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    #endif
-                    
-                    vViewPosition = -mvPosition.xyz;
-                    gl_Position = projectionMatrix * mvPosition;
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 diffuse;
-                uniform vec3 lightPosition;
-                uniform float opacity;
-                uniform sampler2D baseColorMap;
-                
-                varying vec3 vNormal;
-                varying vec3 vViewPosition;
-                varying vec2 vUv;
-                
-                void main() {
-                    vec4 texColor = texture2D(baseColorMap, vUv);
-                    vec3 baseColor = texColor.rgb * diffuse;
-                    
-                    vec3 normal = normalize(vNormal);
-                    vec3 lightDir = normalize(lightPosition);
-                    
-                    float intensity = dot(normal, lightDir);
-                    
-                    if (intensity > 0.95) intensity = 1.0;
-                    else if (intensity > 0.75) intensity = 0.8;
-                    else if (intensity > 0.5) intensity = 0.6;
-                    else if (intensity > 0.25) intensity = 0.4;
-                    else intensity = 0.2;
-                    
-                    vec3 color = baseColor * intensity;
-                    
-                    float rim = 1.0 - max(dot(normalize(vViewPosition), normal), 0.0);
-                    rim = pow(rim, 3.0);
-                    color = mix(color, baseColor, rim * 0.3);
-                    
-                    gl_FragColor = vec4(color, texColor.a * opacity);
-                }
-            `
+            vertexShader: toonVertexShader,
+            fragmentShader: toonFragmentShader
         };
     }
 

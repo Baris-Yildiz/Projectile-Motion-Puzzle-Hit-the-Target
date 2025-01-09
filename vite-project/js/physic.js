@@ -186,6 +186,7 @@ class Physic {
 
             const motionState = body.getMotionState();
 
+
             if (motionState) {
                 const transform = new Ammo.btTransform();
                 motionState.getWorldTransform(transform);
