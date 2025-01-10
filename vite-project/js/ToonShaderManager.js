@@ -30,7 +30,8 @@ export class ToonShaderManager {
                     diffuse: { value: materialColor.clone() },
                     lightPosition: { value: new THREE.Vector3(0, 1, 0) },
                     opacity: { value: originalMaterial?.opacity ?? 1.0 },
-                    baseColorMap: { value: originalMaterial?.map ?? null }
+                    baseColorMap: { value: originalMaterial?.map ?? null },
+                    iTime: {value: 0.0}
                 }
             ]);
 
@@ -143,6 +144,23 @@ export class ToonShaderManager {
                 materials.forEach(material => {
                     if (material?.isToonShader && material.uniforms?.lightPosition) {
                         material.uniforms.lightPosition.value.copy(position);
+                    }
+                });
+            }
+        });
+    }
+
+    updateTime(scene, timeVal) {
+        if (!this.isToonEnabled || !scene || !timeVal) return;
+
+        scene.traverse((object) => {
+            if (!object.isMesh || this.shouldSkipObject(object)) return;
+
+            if (object.material) {
+                const materials = Array.isArray(object.material) ? object.material : [object.material];
+                materials.forEach(material => {
+                    if (material?.isToonShader && material.uniforms?.iTime) {
+                        material.uniforms.iTime.value = timeVal;
                     }
                 });
             }

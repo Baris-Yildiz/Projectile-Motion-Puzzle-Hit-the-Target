@@ -736,6 +736,7 @@ class Game {
     }
     if (this.toonShaderManager.isToonEnabled) {
       this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
+      this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
     }
     
 
