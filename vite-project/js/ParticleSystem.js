@@ -59,6 +59,7 @@ class Particle {
         this.geometry = geo;
         this.material = material;
         this.object = new THREE.Mesh(this.geometry, this.material);
+        this.object.userData.isParticle = true;
 
     }
     setLife(value) {

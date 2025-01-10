@@ -71,7 +71,9 @@ function createBoxCollider(width, height, depth, pos) {
     );
     pos.y += height/2;
     mesh.position.copy(pos);
-    mesh.visible = false;
+    mesh.material.visible = false;
+    mesh.userData.isCollider = true;
+
     return mesh;
 }
 
