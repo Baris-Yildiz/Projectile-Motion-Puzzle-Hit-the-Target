@@ -9,7 +9,7 @@ const Quality = Object.freeze({
 class Settings {
     constructor(game) {
         this.sfx = 50;
-        this.music = 0;
+        this.music = 50;
         this.fov = 70;
 
         this.textureQuality = Quality.MEDIUM;
