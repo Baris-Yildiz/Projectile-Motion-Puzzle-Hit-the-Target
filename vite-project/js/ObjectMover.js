@@ -31,7 +31,7 @@ export class ObjectMover {
             this.selectedObject = intersects[0].object;
             let rb = intersects[0].object.userData.rb;
             console.log(rb);
-            if(rb.info){
+            if(rb && rb.info){
                 this.movedObjects.push({mesh: rb.mesh, mass: rb.mass});
                 this.game.physics.removeRigidBody(rb);
             }

@@ -36,16 +36,7 @@ class Game {
     this.clock = new THREE.Clock();
 
     this.scene = new THREE.Scene();
-    /*const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      'resources/skybox/posx.jpg',
-      'resources/skybox/negx.jpg',
-      'resources/skybox/posy.jpg',
-      'resources/skybox/negy.jpg',
-      'resources/skybox/posz.jpg',
-      'resources/skybox/negz.jpg',
-    ]);
-    this.scene.background = texture;*/ //new THREE.Color(0x000000);
+    
     this.scene.background = new THREE.Color(0xffffff);
     //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
     //this.characterCamera.position.set(0, 0, 800);
@@ -95,8 +86,75 @@ class Game {
     this.objectMover = new ObjectMover(this,this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
     this.scene.add(this.shadedPlane.mesh);
-
+    
+    this.createFlashlight();
   }
+
+
+  createFlashlight() {
+    const bodyGeometry = new THREE.CylinderGeometry(0.08, 0.06, 0.2, 32);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x404040,  
+        emissive: 0xffff00,
+        emissiveIntensity: 0.5
+    });
+    this.lightSource = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    
+    this.lightSource.rotation.x = Math.PI / 2;
+    this.lightSource.position.set(0, 1, 0);  
+    this.scene.add(this.lightSource);
+
+    
+    this.spotlight = new THREE.SpotLight(0xffffff, 1);
+    this.spotlight.angle = Math.PI / 6;
+    this.spotlight.penumbra = 0.1;
+    this.spotlight.decay = 1.5;
+    this.spotlight.distance = 30;
+    this.spotlight.castShadow = true;
+    this.spotlight.intensity = 10;
+    
+    this.spotlight.position.copy(this.lightSource.position);
+    this.scene.add(this.spotlight);
+
+    this.spotlightHelper = new THREE.SpotLightHelper(this.spotlight);
+    this.scene.add(this.spotlightHelper);
+    
+    this.objectMover.addRayCastObject(this.lightSource);
+
+    this.lightSource.userData.spotlight = this.spotlight;
+    this.lightSource.userData.helper = this.spotlightHelper;
+    document.addEventListener('keydown', (event) => {
+      if (event.key.toLowerCase() === 'o') {
+        this.spotlight.visible = !this.spotlight.visible;
+        this.spotlightHelper.visible = !this.spotlightHelper.visible;
+        this.lightSource.material.emissiveIntensity = this.spotlight.visible ? 0.5 : 0;
+      }
+      if (event.key.toLowerCase() === 'j') {
+        this.spotlight.intensity = Math.max(0, this.spotlight.intensity - 5);
+      }
+      if (event.key.toLowerCase() === 'k') {
+        this.spotlight.intensity += 5;
+      }
+    });
+    
+}
+
+flashUpdate() {
+    if (this.lightSource && this.spotlight) {
+        this.spotlight.position.copy(this.lightSource.position);
+        
+        const direction = new THREE.Vector3(0, 1, 0);
+        direction.applyQuaternion(this.lightSource.quaternion);
+        
+        const targetPosition = this.lightSource.position.clone();
+        targetPosition.add(direction.multiplyScalar(10));
+        this.spotlight.target.position.copy(targetPosition);
+        
+        this.spotlightHelper.update();
+    }
+}
+
+
 
   async startGame() {
     await this.createSceneObjects();
@@ -164,6 +222,7 @@ class Game {
         this.playerState = !this.nameState;
         this.player.resetPlayer();
       }
+      
       if(this.playerState){
         this.player.tps.onKeyDown(event);
       }
@@ -712,7 +771,7 @@ class Game {
       this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
     }
     
-
+    this.flashUpdate();
     //console.log(this.renderCamera);
     this.shadedPlane.update(this.clock.getElapsedTime());
     //this.renderer.render(this.scene, this.renderCamera);
