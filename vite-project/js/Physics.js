@@ -157,6 +157,8 @@ class Physics {
         this.initPhysics();
         this.tempTransform = new Ammo.btTransform(0,0,0);
         this.rigidbodies = [];
+        this.colliders = [];
+        this.bullets = [];
     }
 
     initPhysics() {
@@ -217,12 +219,6 @@ class Physics {
         rigidBody.info = null;
         rigidBody = null;
     }
-/*
-    resetBoxRigidBody(rigidBody) {
-        //let {mesh, mass} = this.removeRigidBody(rigidBody);
-        this.createBoxRigidBody(rigidBody.mesh, rigidBody.mass);
-        //this.physicsWorld.addRigidBody(rigidBody.body);
-    }*/
 
     createBoxRigidBody(mesh, mass) {
         let rigidBody = new Rigidbody();
@@ -234,18 +230,30 @@ class Physics {
             mesh: mesh,
             rigidBody: rigidBody
         })
+
+        this.colliders.push(
+            {
+                mesh: mesh,
+                rigidBody: rigidBody
+            }
+        );
     }
+
     createKinematicCube(mesh) {
         const rigidBody = new Rigidbody();
         rigidBody.createKinematicBoxRigidBody(mesh);
         this.physicsWorld.addRigidBody(rigidBody.body);
         mesh.userData.rb = rigidBody;
-    
-        this.rigidbodies.push({
+
+        const pair = {
             mesh: mesh,
             rigidBody: rigidBody
-        });
+        };
+
+        this.rigidbodies.push(pair);
+        this.colliders.push(pair);
     }
+
     
 
     ThrowSphere(sphere, mass, direction) {
@@ -258,23 +266,9 @@ class Physics {
         this.physicsWorld.addRigidBody(rigidbody.body);
         sphere.userData.rb = rigidbody;
 
-        this.rigidbodies.push({
-            mesh: sphere,
-            rigidBody: rigidbody
-        })
-    }
-
-    createModelRigidBody(model, mass) {
-
-        let rigidBody = new Rigidbody();
-        rigidBody.createRigidBodyForModel(model, mass)
-        this.physicsWorld.addRigidBody(rigidBody.body);
-        model.userData.rb = rigidBody;
-
-        this.rigidbodies.push({
-            mesh: model,
-            rigidBody: rigidBody
-        })
+        const pair = {mesh: sphere, rigidBody: rigidbody};
+        this.rigidbodies.push(pair);
+        this.bullets.push(pair);
     }
 
 

@@ -118,33 +118,32 @@ class Game {
     for (let i = 0; i < zombieCount; i++) {
       let zombie =  new THREE.Mesh(
           new THREE.BoxGeometry(.5, .5, .5),
-          new THREE.MeshBasicMaterial({color: 0xff0000}),
+          new THREE.MeshBasicMaterial({color: 0x00ff00}),
       );
-      zombie.position.set(-10 , 0.5, 0);
+      zombie.position.set(-20 , 0.5, 0);
       zombies.push(zombie);
       this.scene.add(zombie);
     }
-
+/*
     const player = new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5,),
         new THREE.MeshBasicMaterial({color: 0x00ff00}));
     player.position.set(0, 0.5, 0);
 
-    this.scene.add(player);
+    this.scene.add(player);*/
 
     let allMeshes = [];
-    // for (let i = 0; i < this.animatableObjects.length; i++) {
-    //   for (let j = 0; j < this.animatableObjects[i].meshes.length; j++) {
-    //     allMeshes.push(this.animatableObjects[i].meshes[j]);
-    //   }
-    // }
-    console.log(this.zombieAIs[0]);
+
+    for (let i = 0; i < this.physics.colliders.length; i++) {
+      allMeshes.push(this.physics.colliders[i].mesh);
+    }
+    console.log(allMeshes);
 
 
     let copyZombies = zombies.slice();
     for (let i = 0; i < zombieCount; i++) {
       copyZombies.splice(i, 1);
       let otherZombies = copyZombies;
-      let zombieAI = new PathfindingAI(zombies[i], player, allMeshes, otherZombies);
+      let zombieAI = new PathfindingAI(zombies[i], this.player.parent, allMeshes, otherZombies);
       this.zombieAIs.push(zombieAI);
       copyZombies = zombies.slice();
     }
@@ -276,19 +275,27 @@ class Game {
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
 
-            this.loadBasicObject(createBoxCollider(colliderScale[0],
+            const collider =createBoxCollider(colliderScale[0],
                 colliderScale[1],colliderScale[2],
-                new THREE.Vector3(position[0], position[1], position[2])  ));
+                new THREE.Vector3(position[0], position[1], position[2]));
+
 
             if (movable) {
               obj.model.traverse((child) => {
                 if (child.isMesh) {
                   child.material.color.set(MOVABLE_TINT_COLOR);
+                  collider.attach(child);
                 }
               })
 
-            this.objectMover.addRayCastObject(obj.model);
+              this.physics.createBoxRigidBody(collider, 1.0);
+              this.objectMover.addRayCastObject(collider);
+            } else {
+              this.physics.createKinematicCube(collider);
+              this.scene.add(collider);
             }
+
+
             resolve();
           });
     })
@@ -306,7 +313,7 @@ class Game {
 
     }
 
-    this.physics.createBoxRigidBody(mesh, mass);
+    this.physics.createKinematicCube(mesh);
     this.objectMover.addRayCastObject(mesh);
     //this.scene.add(mesh);
   }
@@ -468,8 +475,6 @@ class Game {
     //this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
     //this.scene.clear();
-
-
 
     this.createText();
     this.createParticleSystemInstances(scale);
@@ -719,10 +724,10 @@ class Game {
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
     
-    //ornek
-    // this.zombieAIs.forEach(zombieAI => {
-    //   zombieAI.zombie.position.addScaledVector(zombieAI.getVelocity(), deltaTime)*100;
-    // });
+
+    this.zombieAIs.forEach(zombieAI => {
+      zombieAI.zombie.position.addScaledVector(zombieAI.getVelocity(), d * 100) ;
+    });
   
     this.physics.updatePhysics(1/144);
    

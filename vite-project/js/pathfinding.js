@@ -146,8 +146,8 @@ class PathfindingAI {
         const avoidanceVector = new THREE.Vector3();
         
         for (const obstacle of this.obstacles) {
-            const width = obstacle.geometry.boundingBox.max.x - obstacle.geometry.boundingBox.min.x;
-            const depth = obstacle.geometry.boundingBox.max.z - obstacle.geometry.boundingBox.min.z;
+            const width = obstacle.geometry.parameters.width;
+            const depth = obstacle.geometry.parameters.depth;
 
             const building = {
                 minX: obstacle.position.x - width/2,
