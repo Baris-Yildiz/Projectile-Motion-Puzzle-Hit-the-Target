@@ -12,7 +12,9 @@ let gameRef;
 let gameUI;
 let uiState;
 let moveState = false;
+let scoreText ;
 
+let score = 0;
 
 function onSettingsSliderValueChanged(id) {
     let labels = document.getElementsByTagName('label');

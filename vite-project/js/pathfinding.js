@@ -90,13 +90,13 @@ class PathfindingAI {
         const targetDirection = new THREE.Vector3()
             .subVectors(this.player.position, this.zombie.position)
             .normalize();
-
+        
         const avoidanceVector = this.calculateTotalAvoidanceVector();
         
         return new THREE.Vector3()
             .addVectors(
                 targetDirection.multiplyScalar(1.0),
-                avoidanceVector.multiplyScalar(0.5)
+                new THREE.Vector3(0, 0, 0)
             )
             .normalize()
             .multiplyScalar(this.speed);
@@ -109,11 +109,12 @@ class PathfindingAI {
         if (distance > this.detectionRange) {
             return false;
         }
-
+        return true;
+        /*
         this.raycaster.set(this.zombie.position, toPlayer.normalize());
         const intersects = this.raycaster.intersectObjects(this.obstacles);
         
-        return intersects.length === 0 || intersects[0].distance > distance;
+        return intersects.length === 0 || intersects[0].distance > distance;*/
     }
 
     // Returns current velocity vector that can be used for position updates
@@ -121,22 +122,28 @@ class PathfindingAI {
         const currentTime = Date.now();
         
         if (this.canSeePlayer()) {
+            //console.log("can see player");
             this.hasSpottedPlayer = true;
             this.lastTimePlayerSeen = currentTime;
             this.isWandering = false;
             return this.calculateChasingVelocity();
         } else {
+            //console.log("can not see player");
             if (this.hasSpottedPlayer) {
+                //console.log("has spotted player");
                 const timeSinceLastSeen = currentTime - this.lastTimePlayerSeen;
                 if (timeSinceLastSeen > this.chaseTimeout) {
+                    //console.log("time since last seen > chase timeout");
                     this.hasSpottedPlayer = false;
                     this.isWandering = true;
                     this.wanderTarget = this.getRandomWanderTarget();
                     return this.calculateWanderingVelocity();
                 } else {
+                    //console.log("time since last seen < chase timeout");
                     return this.calculateChasingVelocity();
                 }
             } else {
+                //console.log("has not spotted player");
                 return this.calculateWanderingVelocity();
             }
         }

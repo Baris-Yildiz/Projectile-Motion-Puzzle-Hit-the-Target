@@ -29,6 +29,14 @@ class Game {
   nameState = false;
   charMixers = undefined;
   chars = undefined;
+  enemies = [];
+  enemyPositions = [new THREE.Vector3(-17, 10, 19)
+    , new THREE.Vector3(-17, 2, -16)
+    , new THREE.Vector3(17, 2, -15)
+    , new THREE.Vector3(17, 2, 17)
+  ];
+  enemyCount = 4;
+  
   constructor() {
     this.settings = new Settings(this);
     initUI(this);
@@ -86,6 +94,10 @@ class Game {
       this.shadedPlane);
     this.objectMover = new ObjectMover(this,this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
+    this.physics.createKinematicCube(this.player.parent);
+
+    //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
+    //this.player.playerCollider.userData.rb.setFactors(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.scene.add(this.shadedPlane.mesh);
     
     this.createFlashlight();
@@ -171,57 +183,34 @@ flashUpdate() {
   }
 
   setupEnemyAI() {
-    let zombies = [];
-    let zombieCount = 10;
-
-    let box1 = new THREE.Mesh(
-      new THREE.BoxGeometry(2, 2, 2),
-      new THREE.MeshBasicMaterial({color: 0x00ffff})
-    );
-    box1.position.set(-20 , 6, 0);
-    this.testObject = box1;
-  
-    this.physics.createBoxRigidBody(box1, 20);
-      //this.testObject.userData.rb.setVelocity(new THREE.Vector3(10, 0, 0));
-      //box1.userData.rb.body.setGravity(new THREE.Vector3(0, 0, 0));
-    this.objectMover.addRayCastObject(box1);
-
-
     
-
-    for (let i = 0; i < zombieCount; i++) {
-      let zombie =  new THREE.Mesh(
-          new THREE.BoxGeometry(.5, .5, .5),
-          new THREE.MeshBasicMaterial({color: 0x00ff00}),
+    let obstacles = [];
+    for(let i = 0; i < this.physics.colliders.length; i++){
+      obstacles.push(this.physics.colliders[i].mesh);
+    }
+    console.log(obstacles);
+    
+    for(let i = 0; i < this.enemyCount; i++){
+      let enemy = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 3, 3),
+        new THREE.MeshBasicMaterial({color: 0xffff00})
       );
-      zombie.position.set(-20 , 0.5, 0);
-      zombies.push(zombie);
-      this.scene.add(zombie);
+      enemy.position.copy(this.enemyPositions[i]);
+      this.enemies.push(enemy);
+      console.log(enemy.position);
+      this.objectMover.addRayCastObject(enemy);
+      this.physics.createBoxRigidBody(enemy, 1.0);
+      enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
     }
-/*
-    const player = new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5,),
-        new THREE.MeshBasicMaterial({color: 0x00ff00}));
-    player.position.set(0, 0.5, 0);
-
-    this.scene.add(player);*/
-
-    let allMeshes = [];
-
-    for (let i = 0; i < this.physics.colliders.length; i++) {
-      allMeshes.push(this.physics.colliders[i].mesh);
-    }
-    console.log(allMeshes);
-
-
-    let copyZombies = zombies.slice();
-    for (let i = 0; i < zombieCount; i++) {
-      copyZombies.splice(i, 1);
-      let otherZombies = copyZombies;
-      let zombieAI = new PathfindingAI(zombies[i], this.player.parent, allMeshes, otherZombies);
+    for(let i = 0; i < this.enemyCount; i++){
+      let otherEnemies = this.enemies.slice();
+      otherEnemies.splice(i, 1);
+      //console.log(otherEnemies);
+      let zombieAI = new PathfindingAI(this.enemies[i], this.player.parent, obstacles, []);
       this.zombieAIs.push(zombieAI);
-      copyZombies = zombies.slice();
     }
-    console.log(this.zombieAIs[0]);
+   
+    
   }
 
   // Initialize event listeners for controls and window resize
@@ -305,7 +294,8 @@ flashUpdate() {
       } else if (event.code === 'KeyU') {
         console.log(this.postProcessing.raining)
         this.postProcessing.raining = !this.postProcessing.raining;
-      } else if (event.code === 'KeyQ') {
+      }
+      else if (event.code === 'KeyQ') {
         if (this.toonShaderManager.isToonEnabled) {
           this.toonShaderManager.toggleToonShader();
         }
@@ -395,10 +385,8 @@ flashUpdate() {
       }
 
     }
-
     this.physics.createKinematicCube(mesh);
     this.objectMover.addRayCastObject(mesh);
-    //this.scene.add(mesh);
   }
 
   async createSceneObjects() {
@@ -419,13 +407,14 @@ flashUpdate() {
     let ground = createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
     this.loadBasicObject(ground);
-
+      /*
     let cube = createBoxCollider(1,1,1, new THREE.Vector3(0, 2, 0));
     this.loadBasicObject(cube);
 
     let cube2 = createBox(1, 1, 1,
         new THREE.Vector3(0, 4, 0), 0xffff00);
     this.loadBasicObject(cube2, 1);
+    */
 
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
@@ -555,10 +544,7 @@ flashUpdate() {
         [0.0, scale / 0.25 * 0.4 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, false, [5,1.5,5]);
 
-    //this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
-    //this.scene.clear();
-
     this.createText();
     this.createParticleSystemInstances(scale);
   }
@@ -568,17 +554,12 @@ flashUpdate() {
     const geometry = new THREE.SphereGeometry(radius, 16, 16);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
     const sphere = new THREE.Mesh(geometry, material);
-
     const direction = new THREE.Vector3(0, 0, 0);
-    this.camera.getWorldDirection(direction);
-    
-    //this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0));
-    
+    this.camera.getWorldDirection(direction);  
     sphere.position.copy(this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0)));
     sphere.position.add(direction.multiplyScalar(radius * 2));
-
     this.scene.add(sphere);
-    this.physics.ThrowSphere(sphere, 1, direction);
+    this.physics.ThrowSphere(sphere, 100, direction);
     setTimeout(() => {
       this.physics.removeRigidBody(sphere.userData.rb);
       this.scene.remove(sphere);
@@ -717,7 +698,7 @@ flashUpdate() {
     }
 
     const smokeEmitter = new ParticleEmitter(smokeParticles);
-    smokeEmitter.setParticleOffset(new THREE.Vector3(-10.5 * scale / 0.25, scale, scale));
+    smokeEmitter.setParticleOffset(new THREE.Vector3(-11 * scale / 0.25, 0, scale));
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);
@@ -766,6 +747,7 @@ flashUpdate() {
   animate() {
     let d = this.clock.getDelta();
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
+    
 
     if (this.player.tps.shooting && this.player.tps.canShoot) {
       this.shootBullet(1000);
@@ -801,6 +783,9 @@ flashUpdate() {
       this.player.animationControls.movementUpdate();
       this.player.tps.update(this.scene);
       this.player.tps.movementUpdate();
+      this.player.parent.userData.rb.moveKinematic(this.player.parent.position, this.player.parent.quaternion);
+      //this.player.playerCollider.userData.rb.setVelocity(this.player.tps.lastVelocity.clone().multiplyScalar(20));
+
     }
     if (this.toonShaderManager.isToonEnabled) {
       this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
@@ -818,10 +803,13 @@ flashUpdate() {
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
     
-
+    
+    
     this.zombieAIs.forEach(zombieAI => {
-      zombieAI.zombie.position.addScaledVector(zombieAI.getVelocity(), d * 100) ;
+        let vel = zombieAI.getVelocity();
+        zombieAI.zombie.userData.rb.setVelocity(vel.multiplyScalar(200));
     });
+    
   
     this.physics.updatePhysics(1/144);
    
@@ -838,6 +826,7 @@ export default game;
 function initializeScene() {
   game.startGame();
   document.getElementById('playButton').style.display = 'none';
+  scoreText = document.getElementById("scoreDisplay");
 
   const progressContainer = document.getElementById('progressContainer');
   const progressBar = document.getElementById('progressBar');

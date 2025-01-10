@@ -7,12 +7,13 @@ export class PlayerLoader {
     characterAnimations = {};
     characterMixer = undefined;
     characterSkeleton = undefined;
-    parent = new THREE.Object3D();
+    parent = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2, 0.5), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     aimTarget = undefined;
     tps = undefined;
     animationControls = undefined;
     leftShoulder = undefined;
     rightShoulder = undefined;
+    playerCollider = undefined;
 
     constructor(loader, characterPath, gunPath, canvas, camera, offSet, aimOffSet, velocity, lookAtOffset, shadedPlane) {
         this.loader = loader;
@@ -26,6 +27,8 @@ export class PlayerLoader {
         this.aimOffSet = aimOffSet;
         this.shadedPlane = shadedPlane;
         this.parent.position.set(0, 0, 0);
+        this.playerCollider = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1, 0.4), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        this.playerCollider.position.set(0, 1, 0);
         this.createAimTarget();
         this.loadPlayer();
     }
@@ -94,14 +97,8 @@ export class PlayerLoader {
                 });
 
                 this.camera.lookAt(this.character.position);
-                //console.log(this.character);
                 this.characterMixer = new THREE.AnimationMixer(this.character);
-                //console.log(this.characterMixer);
                 this.characterSkeleton = this.character.getObjectByProperty('type', 'SkinnedMesh').skeleton;
-                //console.log(this.characterSkeleton);
-                //console.log(this.characterSkeleton);
-                //console.log(gltf.animations);
-
                 for (let i = 0; i < gltf.animations.length; i++) {
                     let name = gltf.animations[i].name.replace('_Armature', '');
                     this.addAnimation(this.characterAnimations, name, this.characterMixer.clipAction(gltf.animations[i]));
@@ -109,6 +106,7 @@ export class PlayerLoader {
 
                 this.parent.attach(this.character);
                 this.parent.attach(this.aimTarget);
+                //this.parent.attach(this.playerCollider);
                 this.tps = new ThirdPersonCamera(this.canvas, this.camera, this.parent, this.offSet, this.aimOffSet, this.velocity, this.lookAtOffset, this.characterSkeleton, this.shadedPlane, this.leftShoulder, this.rightShoulder);
                 this.animationControls = new AnimationControls(this.tps, this.characterMixer, this.characterAnimations, this.characterSkeleton);
 

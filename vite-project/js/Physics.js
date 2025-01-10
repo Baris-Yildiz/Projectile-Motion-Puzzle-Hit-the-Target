@@ -10,6 +10,9 @@ class Rigidbody {
     mesh = null;
     mass = null;
     shapeString = null;
+    gotHit = false;
+    hitCount = 0;
+    maxHitCount = 100;
     constructor() {
     }
     createKinematicBoxRigidBody(mesh) {
@@ -28,12 +31,26 @@ class Rigidbody {
         this.info = new Ammo.btRigidBodyConstructionInfo(0, this.motionState, this.shape, new Ammo.btVector3(0, 0, 0));
         this.body = new Ammo.btRigidBody(this.info);
 
-        this.body.setCollisionFlags(this.body.getCollisionFlags() | Ammo.btCollisionObject.CF_KINEMATIC_OBJECT);
+        this.body.setCollisionFlags(this.body.getCollisionFlags() || Ammo.btCollisionObject.CF_KINEMATIC_OBJECT);
         this.body.setActivationState(Ammo.DISABLE_DEACTIVATION);
+        //console.log(this.body.isKinematicObject());
+        //const isKinematic = (this.body.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
+        //console.log("Is Kinematic:", isKinematic);
     
         Ammo.destroy(btSize);
     }
-    
+    setFactors(vec1, vec2){
+        this.body.setLinearFactor(new Ammo.btVector3(vec1.x, vec1.y, vec1.z));
+        this.body.setAngularFactor(new Ammo.btVector3(vec2.x, vec2.y, vec2.z));
+    }
+    moveKinematic(position , rotation){
+        const transform = new Ammo.btTransform();
+        this.body.getWorldTransform(transform);
+        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        transform.setRotation(new Ammo.btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+        this.body.setWorldTransform(transform);
+        Ammo.destroy(transform);
+    }
 
     createBoxRigidBody(mesh, mass) {
         this.mesh = mesh;
@@ -61,6 +78,7 @@ class Rigidbody {
         )
 
         this.body = new Ammo.btRigidBody(this.info);
+        
 
         Ammo.destroy(btSize);
     }
@@ -93,7 +111,12 @@ class Rigidbody {
         this.body = new Ammo.btRigidBody(this.info);
     }
     setVelocity(velocity){
-        this.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
+        //console.log(this.hitCount);
+        if(this.hitCount <= this.maxHitCount){
+            let scaler = 1 - (this.hitCount / this.maxHitCount);
+            //console.log(scaler);
+            this.body.setLinearVelocity(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
+        } 
     }
 /*
     createRigidBodyForModel(model, mass) {
@@ -293,35 +316,72 @@ class Physics {
     detectCollision() {
         let dispatcher = this.physicsWorld.getDispatcher();
         let numManifolds = dispatcher.getNumManifolds();
-        console.log(numManifolds);
         for (let i = 0; i < numManifolds; i++) {
             let contactManifold = dispatcher.getManifoldByIndexInternal(i);
             let rigidBodyA = contactManifold.getBody0();
             let rigidBodyB = contactManifold.getBody1();
-            if(rigidBodyA.isKinematicObject() || rigidBodyB.isKinematicObject()){
+            const isKinematic1 = (rigidBodyA.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
+            const isKinematic2 = (rigidBodyB.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
+            if(isKinematic1 || isKinematic2){
                 continue;
             }
-    
+            let rb1  = undefined;
+            let rb2 = undefined;
+            for(let i = 0; i < this.rigidbodies.length; i++){
+                if(this.rigidbodies[i].rigidBody.body.ptr === rigidBodyA.ptr){
+                    rb1 = this.rigidbodies[i].rigidBody;
+                }
+                if(this.rigidbodies[i].rigidBody.body.ptr === rigidBodyB.ptr){
+                    rb2 = this.rigidbodies[i].rigidBody;
+                }
+                if(rb1 && rb2){
+                    break;
+                }
+            } 
+            if(rb1 && rb2 && (rb1.shapeString === "Sphere" || rb2.shapeString === "Sphere")){
+                //console.log("sphere collision");
+                let numContacts = contactManifold.getNumContacts();
+                for (let j = 0; j < numContacts; j++) {
+                    let contactPoint = contactManifold.getContactPoint(j);
+                    let distance = contactPoint.getDistance();
+                    if (distance < 0.0) {
+                        score++;
+                        //console.log("Collision detected!");
+                        if(rb1.shapeString === "Box"){
+                            rb1.hitCount++;
+                            scoreText.innerText = 'Score: ' +  score;
+                        }
+                        else if(rb2.shapeString === "Box"){
+                            rb2.hitCount++;
+                        }
+
+                    }
+                }
+            }
+            /*           
             for (let i = 0; i < this.rigidbodies.length; i++) {
                 let rbA = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyA.ptr;
                 let rbB = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyB.ptr;
                 let rbAShape = this.rigidbodies[i].rigidBody.shapeString;
                 let rbBShape = this.rigidbodies[i].rigidBody.shapeString;
-    
+               
                 if ((rbA && rbAShape === "Sphere") || (rbB && rbBShape === "Sphere")) {
                     let numContacts = contactManifold.getNumContacts();
+                    console.log(rigidBodyA.ptr + " " + rigidBodyB.ptr);
+
                    
                     for (let j = 0; j < numContacts; j++) {
                         let contactPoint = contactManifold.getContactPoint(j);
                         let distance = contactPoint.getDistance();
-                        console.log(`Contact Point ${j} Distance: ${distance}`);
+                       // console.log(`Contact Point ${j} Distance: ${distance}`);
                         if (distance < 0.0) {
-                            console.log("Collision detected!");
+                            //console.log("Collision detected!");
+                            this.rigidbodies[i].rigidBody.gotHit = true;
                         }
                     }
                     break;
                 }
-            }
+            }*/
         }
     }
     
@@ -330,6 +390,10 @@ class Physics {
         this.physicsWorld.stepSimulation(delta, 10);
 
         for (let i = 0; i < this.rigidbodies.length; i++) {
+            let isKinematic = (this.rigidbodies[i].rigidBody.body.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
+            if(isKinematic){
+                continue;
+            }
             this.rigidbodies[i].rigidBody.motionState.getWorldTransform(this.tempTransform);
             const pos = this.tempTransform.getOrigin();
             const quat = this.tempTransform.getRotation();

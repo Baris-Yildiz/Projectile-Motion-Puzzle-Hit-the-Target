@@ -23,6 +23,7 @@ export class ThirdPersonCamera{
     original = new THREE.Vector3(0,0,0);
     aimOriginal = new THREE.Vector3(0,0,0);
     controlOffSet = new THREE.Vector3(0,0,0);
+    lastVelocity = new THREE.Vector3(0,0,0);
     constructor(canvas,camera ,target ,offSet,aimOffSet, velocity , lookAtOffset , skeleton , shadedPlane, leftShoulder, rightShoulder){
         this.shadedPlane = shadedPlane;
         this.canvas = canvas;
@@ -129,21 +130,27 @@ export class ThirdPersonCamera{
     }
     movementUpdate(){
         if(this.moving){
+            this.lastVelocity = new THREE.Vector3(0,0,0);
             let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.target.quaternion);
             forward.y = 0;
             const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.target.quaternion);
             if(this.movementArray[0]){
+                this.lastVelocity.add(forward.clone().multiplyScalar(-this.velocity.z));
                 this.target.position.sub(forward.multiplyScalar(this.velocity.z));
             }
             else if(this.movementArray[1]){
+                this.lastVelocity.add(forward.clone().multiplyScalar(this.velocity.z));
                 this.target.position.add(forward.multiplyScalar(this.velocity.z));
             }
             if(this.movementArray[2]){
+                this.lastVelocity.add(right.clone().multiplyScalar(this.velocity.x));
                 this.target.position.add(right.multiplyScalar(this.velocity.x));
             }
             else if(this.movementArray[3]){
+                this.lastVelocity.add(right.clone().multiplyScalar(-this.velocity.x));
                 this.target.position.sub(right.multiplyScalar(this.velocity.x));
-            }       
+            }   
+            console.log(this.lastVelocity);    
         }
     
     }
