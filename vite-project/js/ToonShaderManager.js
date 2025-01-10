@@ -124,7 +124,7 @@ export class ToonShaderManager {
         this.isToonEnabled = !this.isToonEnabled;
         
         scene.traverse((object) => {
-            if (this.isToonEnabled) {
+            if (this.isToonEnabled && !object.userData.isParticle && !object.userData.isCollider) {
                 this.applyToonShader(object);
             } else {
                 this.restoreOriginalMaterial(object);

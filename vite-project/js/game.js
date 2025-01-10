@@ -649,7 +649,7 @@ class Game {
     }
 
     const smokeEmitter = new ParticleEmitter(smokeParticles);
-    smokeEmitter.setParticleOffset(new THREE.Vector3(-11 * scale / 0.25, 0, scale));
+    smokeEmitter.setParticleOffset(new THREE.Vector3(-10.5 * scale / 0.25, scale, scale));
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);
