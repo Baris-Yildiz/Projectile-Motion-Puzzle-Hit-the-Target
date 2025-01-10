@@ -718,7 +718,11 @@ class Game {
     //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
-    this.zombieAIs.forEach(zombieAI => zombieAI.update());
+    
+    //ornek
+    // this.zombieAIs.forEach(zombieAI => {
+    //   zombieAI.zombie.position.addScaledVector(zombieAI.getVelocity(), deltaTime)*100;
+    // });
   
     this.physics.updatePhysics(1/144);
    
