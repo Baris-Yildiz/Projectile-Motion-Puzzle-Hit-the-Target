@@ -223,8 +223,10 @@ class Game {
     });
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyT') {
-        
           this.toonShaderManager.toggleToonShader(this.scene);
+      } else if (event.code === 'KeyU') {
+        console.log(this.postProcessing.raining)
+        this.postProcessing.raining = !this.postProcessing.raining;
       }
   });
     window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -295,7 +297,12 @@ class Game {
   loadBasicObject(mesh, mass= 0) {
 
     mesh.material.onBeforeRender = () => {
-      rainTimer.x = this.clock.getElapsedTime();
+      if (this.postProcessing.raining) {
+        rainTimer.x = this.clock.getElapsedTime();
+      } else {
+        rainTimer.x = 0;
+      }
+
     }
 
     this.physics.createBoxRigidBody(mesh, mass);
@@ -709,7 +716,7 @@ class Game {
     this.shadedPlane.update(this.clock.getElapsedTime());
     //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
-    this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
+    this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
     this.zombieAIs.forEach(zombieAI => zombieAI.update());
   
     this.physics.updatePhysics(1/144);

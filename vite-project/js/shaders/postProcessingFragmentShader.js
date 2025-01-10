@@ -5,6 +5,7 @@ const postProcessingFragmentShader = `
             uniform sampler2D tDiffuse;
             uniform float brightness;
             uniform float applicationTime;
+            uniform bool isRaining;
             
             float random(float x, float y) {
                 return fract((sin(x+.01*y) * 12.9898) * 43758.5453);
@@ -30,6 +31,7 @@ const postProcessingFragmentShader = `
             }
             
             void addRain() {
+                if (!isRaining) return;
                 float rainDropsPerCol = 5.;
                 float rainDropColAmount = 30.;
                 float t = applicationTime;
