@@ -290,27 +290,41 @@ class Physics {
         Ammo.destroy(force);
         Ammo.destroy(point);
     }
-    detectCollision(){
+    detectCollision() {
         let dispatcher = this.physicsWorld.getDispatcher();
         let numManifolds = dispatcher.getNumManifolds();
-        for ( let i = 0; i < numManifolds; i ++ ) {
-            let contactManifold = dispatcher.getManifoldByIndexInternal( i );
+        console.log(numManifolds);
+        for (let i = 0; i < numManifolds; i++) {
+            let contactManifold = dispatcher.getManifoldByIndexInternal(i);
             let rigidBodyA = contactManifold.getBody0();
             let rigidBodyB = contactManifold.getBody1();
-            for(let i = 0; i < this.rigidbodies.length; i++){
+            if(rigidBodyA.isKinematicObject() || rigidBodyB.isKinematicObject()){
+                continue;
+            }
+    
+            for (let i = 0; i < this.rigidbodies.length; i++) {
                 let rbA = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyA.ptr;
                 let rbB = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyB.ptr;
                 let rbAShape = this.rigidbodies[i].rigidBody.shapeString;
                 let rbBShape = this.rigidbodies[i].rigidBody.shapeString;
-                if((rbA && rbAShape === "Sphere") || (rbB && rbBShape === "Sphere")){
-                    console.log("Collision detected!");
-                    //this.removeRigidBody(this.rigidbodies[i]);
-                    //this.scene.remove(this.rigidbodies[i].mesh);
-                    break;      
+    
+                if ((rbA && rbAShape === "Sphere") || (rbB && rbBShape === "Sphere")) {
+                    let numContacts = contactManifold.getNumContacts();
+                   
+                    for (let j = 0; j < numContacts; j++) {
+                        let contactPoint = contactManifold.getContactPoint(j);
+                        let distance = contactPoint.getDistance();
+                        console.log(`Contact Point ${j} Distance: ${distance}`);
+                        if (distance < 0.0) {
+                            console.log("Collision detected!");
+                        }
+                    }
+                    break;
                 }
             }
         }
     }
+    
 
     updatePhysics (delta) {
         this.physicsWorld.stepSimulation(delta, 10);
