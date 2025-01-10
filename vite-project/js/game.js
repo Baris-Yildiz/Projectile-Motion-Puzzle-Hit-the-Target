@@ -294,6 +294,8 @@ flashUpdate() {
       } else if (event.code === 'KeyU') {
         console.log(this.postProcessing.raining)
         this.postProcessing.raining = !this.postProcessing.raining;
+        if (this.postProcessing.raining){this.soundManager.playRainSound();}
+        else{this.soundManager.stopRainSound();}
       }
       else if (event.code === 'KeyQ') {
         if (this.toonShaderManager.isToonEnabled) {

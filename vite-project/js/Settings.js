@@ -31,6 +31,7 @@ class Settings {
     setMusic(value) {
         this.music = value;
         this.game.soundManager.setBackgroundMusicVolume(value);
+        this.game.soundManager.playRainSound();
     }
 
     setFov(value) {

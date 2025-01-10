@@ -1,7 +1,8 @@
 class SoundManager{
     constructor(game){
         this.game = game;
-        this.backgroundMusic = new Audio("resources/sound/background_music.mp3");
+        this.backgroundMusic = new Audio("resources/sound/background_sound.mp3");
+        this.rainSound = new Audio("resources/sound/rain_15s.mp3");
         this.sfxList = [];
         this.sfxList.push(new Audio("resources/sound/menu_click.mp3"));
         this.sfxList.push(new Audio("resources/sound/auto_rifle.mp3"));
@@ -35,6 +36,17 @@ class SoundManager{
         this.sfxList[2].play().catch(error => {
             console.error('Walking sound playback failed:', error);
         });
+    }
+    playRainSound(){
+        this.rainSound.volume = this.game.settings.sfx/100;
+        this.rainSound.loop = true;
+        this.rainSound.play().catch(error => {
+           console.error('Rain sound playback failed:', error);
+        });
+    }
+    stopRainSound(){
+        this.rainSound.volume = 0;
+        this.rainSound.loop = false;
     }
 }
 export default SoundManager;
