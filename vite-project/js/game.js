@@ -7,7 +7,7 @@ import TextureMaps from "./TextureBumpMapping.js"
 import {Particle, ParticleEmitter} from "./ParticleSystem.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
-import {createBox, rainTimer} from "./SceneHelpers.js";
+import {createBox, rainTimer, createBoxCollider} from "./SceneHelpers.js";
 import PathfindingAI from "./pathfinding.js"
 import SoundManager from "./SoundManager.js";
 import { PlayerLoader } from './CharacterLoader.js';
@@ -104,7 +104,7 @@ class Game {
     this.initEventListeners();
     this.player.character.traverse((child) => {
       if (child.isMesh) {
-        console.log("Found a mesh:", child);
+        //console.log("Found a mesh:", child);
       }});
 
     this.animate();
@@ -266,12 +266,16 @@ class Game {
   }
 
   loadAnimatedObject(path, position, rotation, scale,
-                     movable = false) {
+                     movable = false, colliderScale = [1,1,1]) {
     return new Promise((resolve, reject) => {
       const MOVABLE_TINT_COLOR = 0xaaffaa;
           let obj = new AnimatedObject(this.scene, path, position, rotation, scale);
           obj.Load().then(() => {
             this.animatableObjects.push(obj);
+
+            this.loadBasicObject(createBoxCollider(colliderScale[0],
+                colliderScale[1],colliderScale[2],
+                new THREE.Vector3(position[0], position[1], position[2])  ));
 
             if (movable) {
               obj.model.traverse((child) => {
@@ -318,9 +322,8 @@ class Game {
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
     this.loadBasicObject(ground);
 
-    let cube = createBox(1, 1, 1,
-        new THREE.Vector3(0, 2, 0), 0xff0000);
-    this.loadBasicObject(cube, 1);
+    let cube = createBoxCollider(1,1,1, new THREE.Vector3(0, 2, 0));
+    this.loadBasicObject(cube);
 
     let cube2 = createBox(1, 1, 1,
         new THREE.Vector3(0, 4, 0), 0xffff00);
@@ -329,7 +332,8 @@ class Game {
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35],
-        true);
+        true, [5,1,5]);
+
 
     let grassTextures = [
         'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_BaseColor.jpg',
@@ -387,7 +391,8 @@ class Game {
     await this.loadAnimatedObject('resources/assets/glbAssets/concrete_barrier_tlnwdhjfa_low.glb',
             [PLAYGROUND_SIZE / 2 + PAVEMENT_SIZE, scale / 0.25 * 0.01,
               -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-            [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], true);
+            [0.0, Math.PI / 4.0, 0.0], [1, 1, 1], true,
+        [1.5, 1, 1.5]);
 
     for (let i = 0; i < 6; i++) {
       await this.loadAnimatedObject('resources/assets/Barricade/SM_vgledec_tier_3.gltf',
@@ -404,49 +409,53 @@ class Game {
     await this.loadAnimatedObject('resources/assets/glbAssets/12_basketball__football_court.glb',
         [0.0, 0.4 * scale / 0.25 , -PLAYGROUND_SIZE / 5.0],
         [0, 0, 0],
-        BASKETBALL_COURT_SCALE);
+        BASKETBALL_COURT_SCALE, false, [5,5,3]);
 
     await this.loadAnimatedObject('resources/assets/OldCar1/scene.gltf',
         [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
         [0, Math.PI, 0],
-        OLD_CAR_SCALE);
+        OLD_CAR_SCALE, false, [3,2,6]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings1.glb',
         [0.0, 0.01,
           -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE], [0, - Math.PI / 2.0, 0],
-        BUILDINGS_SCALE);
+        BUILDINGS_SCALE, false, [25, 20, 1]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings2.glb',
         [0.0, 0.01,
           PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE], [0, Math.PI / 2.0, 0],
-        BUILDINGS_SCALE);
+        BUILDINGS_SCALE, false, [25, 20, 1]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings3.glb',
         [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE);
+          0.01, scale * 40.0], [0, Math.PI, 0], BUILDINGS_SCALE, false,
+        [1, 20, 50]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings3.glb',
         [PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + ROAD_SIZE,
-          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE);
+          0.01, -scale * 62.0], [0, Math.PI, 0], BUILDINGS_SCALE, false,
+        [1, 20, 50]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings3.glb',
         [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE);
+          0.01, scale * 10.0], [0, 0, 0], BUILDINGS_SCALE, false,
+        [1, 20, 50]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/buildings3.glb',
         [-PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - ROAD_SIZE,
-          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE);
+          0.01, -scale * 95.0], [0, 0, 0], BUILDINGS_SCALE, false,
+        [1, 20, 50]);
 
     await this.loadAnimatedObject(
         'resources/assets/glbAssets/dirty_lada_lowpoly_from_scan.glb',
         [0.0, scale / 0.25 * 0.4 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
-        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE);
+        [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, false, [5,1.5,5]);
 
     //this.physics.addWireframeToPhysicsObjects();
     this.scene.add(this.objectMover.rayCastableObjects);
@@ -461,7 +470,7 @@ class Game {
   shootBullet() {
     const radius = 0.1;
     const geometry = new THREE.SphereGeometry(radius, 16, 16);
-    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
     const sphere = new THREE.Mesh(geometry, material);
 
     const direction = new THREE.Vector3(0, 0, 0);
@@ -701,7 +710,7 @@ class Game {
     //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessingTime(this.clock.getElapsedTime());
-    //this.zombieAIs.forEach(zombieAI => zombieAI.update());
+    this.zombieAIs.forEach(zombieAI => zombieAI.update());
   
     this.physics.updatePhysics(1/144);
    

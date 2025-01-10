@@ -19,7 +19,8 @@ class Rigidbody {
     
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
     
-        const btSize = new Ammo.btVector3(mesh.scale.x * 0.5, mesh.scale.y * 0.5, mesh.scale.z * 0.5);
+        const btSize = new Ammo.btVector3(mesh.geometry.parameters.width * 0.5,
+            mesh.geometry.parameters.height * 0.5, mesh.geometry.parameters.depth * 0.5);
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
     
@@ -44,8 +45,8 @@ class Rigidbody {
             mesh.quaternion.z, mesh.quaternion.w));
 
         this.motionState = new Ammo.btDefaultMotionState(this.transform);
-        const btSize = new Ammo.btVector3(mesh.scale.x * 0.5,
-            mesh.scale.y * 0.5, mesh.scale.z * 0.5);
+        const btSize = new Ammo.btVector3(mesh.geometry.parameters.width * 0.5,
+            mesh.geometry.parameters.height * 0.5, mesh.geometry.parameters.depth * 0.5);
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
 
