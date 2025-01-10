@@ -115,6 +115,21 @@ class Game {
     let zombies = [];
     let zombieCount = 10;
 
+    let box1 = new THREE.Mesh(
+      new THREE.BoxGeometry(2, 2, 2),
+      new THREE.MeshBasicMaterial({color: 0x00ffff})
+    );
+    box1.position.set(-20 , 6, 0);
+    this.testObject = box1;
+  
+    this.physics.createBoxRigidBody(box1, 20);
+      //this.testObject.userData.rb.setVelocity(new THREE.Vector3(10, 0, 0));
+      //box1.userData.rb.body.setGravity(new THREE.Vector3(0, 0, 0));
+    this.objectMover.addRayCastObject(box1);
+
+
+    
+
     for (let i = 0; i < zombieCount; i++) {
       let zombie =  new THREE.Mesh(
           new THREE.BoxGeometry(.5, .5, .5),
@@ -480,7 +495,7 @@ class Game {
     this.createParticleSystemInstances(scale);
   }
 
-  shootBullet() {
+  shootBullet(time) {
     const radius = 0.1;
     const geometry = new THREE.SphereGeometry(radius, 16, 16);
     const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
@@ -496,6 +511,10 @@ class Game {
 
     this.scene.add(sphere);
     this.physics.ThrowSphere(sphere, 1, direction);
+    setTimeout(() => {
+      this.physics.removeRigidBody(sphere.userData.rb);
+      this.scene.remove(sphere);
+    }, time);
   }
 
   createTextGroup(font, mat){
@@ -681,7 +700,9 @@ class Game {
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
 
     if (this.player.tps.shooting && this.player.tps.canShoot) {
-      this.shootBullet();
+      this.shootBullet(1000);
+
+      this.soundManager.playGunSound();
     }
 
     if(this.nameState){

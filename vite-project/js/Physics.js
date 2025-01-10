@@ -9,6 +9,7 @@ class Rigidbody {
     inertia = null;
     mesh = null;
     mass = null;
+    shapeString = null;
     constructor() {
     }
     createKinematicBoxRigidBody(mesh) {
@@ -23,7 +24,7 @@ class Rigidbody {
             mesh.geometry.parameters.height * 0.5, mesh.geometry.parameters.depth * 0.5);
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
-    
+        this.shapeString = "Box";
         this.info = new Ammo.btRigidBodyConstructionInfo(0, this.motionState, this.shape, new Ammo.btVector3(0, 0, 0));
         this.body = new Ammo.btRigidBody(this.info);
 
@@ -49,7 +50,7 @@ class Rigidbody {
             mesh.geometry.parameters.height * 0.5, mesh.geometry.parameters.depth * 0.5);
         this.shape = new Ammo.btBoxShape(btSize);
         this.shape.setMargin(0.05);
-
+        this.shapeString = "Box";
         this.inertia = new Ammo.btVector3(0,0,0);
         if (mass > 0) {
             this.shape.calculateLocalInertia(mass, this.inertia);
@@ -78,6 +79,7 @@ class Rigidbody {
 
         this.shape = new Ammo.btSphereShape(mesh.geometry.parameters.radius);
         this.shape.setMargin(0.05);
+        this.shapeString = "Sphere";
 
         this.inertia = new Ammo.btVector3(0,0,0);
         if (mass > 0) {
@@ -89,6 +91,9 @@ class Rigidbody {
         )
 
         this.body = new Ammo.btRigidBody(this.info);
+    }
+    setVelocity(velocity){
+        this.body.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
     }
 /*
     createRigidBodyForModel(model, mass) {
@@ -285,6 +290,27 @@ class Physics {
         Ammo.destroy(force);
         Ammo.destroy(point);
     }
+    detectCollision(){
+        let dispatcher = this.physicsWorld.getDispatcher();
+        let numManifolds = dispatcher.getNumManifolds();
+        for ( let i = 0; i < numManifolds; i ++ ) {
+            let contactManifold = dispatcher.getManifoldByIndexInternal( i );
+            let rigidBodyA = contactManifold.getBody0();
+            let rigidBodyB = contactManifold.getBody1();
+            for(let i = 0; i < this.rigidbodies.length; i++){
+                let rbA = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyA.ptr;
+                let rbB = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyB.ptr;
+                let rbAShape = this.rigidbodies[i].rigidBody.shapeString;
+                let rbBShape = this.rigidbodies[i].rigidBody.shapeString;
+                if((rbA && rbAShape === "Sphere") || (rbB && rbBShape === "Sphere")){
+                    console.log("Collision detected!");
+                    //this.removeRigidBody(this.rigidbodies[i]);
+                    //this.scene.remove(this.rigidbodies[i].mesh);
+                    break;      
+                }
+            }
+        }
+    }
 
     updatePhysics (delta) {
         this.physicsWorld.stepSimulation(delta, 10);
@@ -299,7 +325,9 @@ class Physics {
             this.rigidbodies[i].mesh.position.copy(pos3);
             this.rigidbodies[i].mesh.quaternion.copy(quat3);
         }
+        this.detectCollision();
     }
+
 
 
 }
