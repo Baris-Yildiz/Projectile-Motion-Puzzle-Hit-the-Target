@@ -92,7 +92,7 @@ class Game {
       new THREE.Vector3(1 / 20, 0, 1 / 20), //velocity
       new THREE.Vector3(0, 25 / 10, 250 / 20), //lookAtOffset
       this.shadedPlane);
-    this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
+    this.objectMover = new ObjectMover(this,this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
     this.scene.add(this.shadedPlane.mesh);
 
@@ -294,7 +294,7 @@ class Game {
       rainTimer.x = this.clock.getElapsedTime();
     }
 
-    this.physics.createKinematicCube(mesh);
+    this.physics.createBoxRigidBody(mesh, mass);
     this.objectMover.addRayCastObject(mesh);
     //this.scene.add(mesh);
   }
@@ -466,9 +466,9 @@ class Game {
 
     const direction = new THREE.Vector3(0, 0, 0);
     this.camera.getWorldDirection(direction);
-
+    
     //this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0));
-
+    
     sphere.position.copy(this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0)));
     sphere.position.add(direction.multiplyScalar(radius * 2));
 

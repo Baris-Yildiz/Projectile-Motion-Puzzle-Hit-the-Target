@@ -1,6 +1,14 @@
 import {Ammo, THREE} from "./LibImports.js";
 
 class Rigidbody {
+    transform = null;
+    motionState = null;
+    shape = null;
+    info = null;
+    body = null;
+    inertia = null;
+    mesh = null;
+    mass = null;
     constructor() {
     }
     createKinematicBoxRigidBody(mesh) {
@@ -26,6 +34,8 @@ class Rigidbody {
     
 
     createBoxRigidBody(mesh, mass) {
+        this.mesh = mesh;
+        this.mass = mass;
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
         this.transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y,
@@ -54,7 +64,8 @@ class Rigidbody {
     }
 
     createSphereRigidBody(mesh, mass) {
-
+        this.mesh = mesh;
+        this.mass = mass;
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
         this.transform.setOrigin(new Ammo.btVector3(mesh.position.x, mesh.position.y,
@@ -159,6 +170,7 @@ class Physics {
             solver,
             collisionConfiguration
         );
+        
 
         this.physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
         this.createGround();
@@ -180,6 +192,36 @@ class Physics {
 
         this.physicsWorld.addRigidBody(groundBody);
     }
+    removeRigidBody(rigidBody) {
+        if(!rigidBody.body || !rigidBody) return;
+        let mesh = rigidBody.mesh;
+        let mass = rigidBody.mass;
+        this.rigidbodies.forEach((rb, index) => {
+            if (rb.rigidBody === rigidBody) {
+                this.rigidbodies.splice(index, 1);
+            }
+        });
+        this.physicsWorld.removeRigidBody(rigidBody.body);
+        if (rigidBody.motionState) Ammo.destroy(rigidBody.motionState);
+        if (rigidBody.shape) Ammo.destroy(rigidBody.shape);
+        if (rigidBody.inertia) Ammo.destroy(rigidBody.inertia);
+        if (rigidBody.transform) Ammo.destroy(rigidBody.transform);
+        if(rigidBody.info) Ammo.destroy(rigidBody.info);
+        Ammo.destroy(rigidBody.body);
+        rigidBody.motionState = null;
+        rigidBody.shape = null;
+        rigidBody.inertia = null;
+        rigidBody.transform = null;
+        rigidBody.body = null;
+        rigidBody.info = null;
+        rigidBody = null;
+    }
+/*
+    resetBoxRigidBody(rigidBody) {
+        //let {mesh, mass} = this.removeRigidBody(rigidBody);
+        this.createBoxRigidBody(rigidBody.mesh, rigidBody.mass);
+        //this.physicsWorld.addRigidBody(rigidBody.body);
+    }*/
 
     createBoxRigidBody(mesh, mass) {
         let rigidBody = new Rigidbody();
