@@ -744,8 +744,8 @@ function initializeScene() {
   const progressBar = document.getElementById('progressBar');
   progressContainer.style.display = 'block';
 
-  const totalTime = 885; 
-  const intervalTime = 55; 
+  const totalTime = 3000;
+  const intervalTime = 50;
   let elapsed = 0;
 
   const interval = setInterval(() => {
