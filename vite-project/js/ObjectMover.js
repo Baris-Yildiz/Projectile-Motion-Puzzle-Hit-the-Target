@@ -2,7 +2,10 @@ import {THREE} from "./LibImports.js"
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 export class ObjectMover {
-    constructor(scene , camera , renderer) {
+    movedObjects = [];
+    selectedObject = null;
+    constructor(game,scene , camera , renderer) {
+        this.game = game;
         this.scene = scene;
         this.camera = camera
         this.renderer = renderer;
@@ -24,12 +27,21 @@ export class ObjectMover {
         this.raycaster.setFromCamera(this.mouse, this.camera);
         const intersects = this.raycaster.intersectObjects(this.rayCastableObjects.children , true);
         //eğer denk gelen obje varsa objeye translation/rotation oklarını ekliyor
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && this.selectedObject !== intersects[0].object) {
+            this.selectedObject = intersects[0].object;
+            let rb = intersects[0].object.userData.rb;
+            console.log(rb);
+            if(rb.info){
+                this.movedObjects.push({mesh: rb.mesh, mass: rb.mass});
+                this.game.physics.removeRigidBody(rb);
+            }
+        
             this.transformControls.detach();
             this.transformControls.attach(intersects[0].object)
         }
-        else{
+        else if(intersects.length === 0 && this.selectedObject){
             this.transformControls.detach();
+            this.selectedObject = null;
         }
     }
     hideControls(){
@@ -73,6 +85,12 @@ export class ObjectMover {
                 break;
             case 'n':
                 moveState = false;
+                this.movedObjects.forEach(rb => {
+                    console.log(rb);
+
+                    this.game.physics.createBoxRigidBody(rb.mesh ,rb.mass);
+                });
+                this.movedObjects = [];
                 document.getElementById('moveState').style.display = "none";
                 document.body.requestPointerLock();
                 this.setControls(false);

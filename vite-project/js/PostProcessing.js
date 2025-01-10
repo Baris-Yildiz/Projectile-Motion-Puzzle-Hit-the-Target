@@ -13,7 +13,11 @@ class PostProcessing{
         this.composer = null;
         this.renderPass = null;
         this.shaderPass = null;
+        this.raining = true;
+
         this.setupPostProcessing();
+
+
     }
 
     setupPostProcessing() {
@@ -25,7 +29,8 @@ class PostProcessing{
                 uniforms: {
                     tDiffuse: { value: null },
                     brightness: { value: 1.0 },
-                    applicationTime: {value: 0.0}
+                    applicationTime: {value: 0.0},
+                    isRaining:{value: this.raining}
                 },
             }
         );
@@ -39,8 +44,9 @@ class PostProcessing{
         this.composer.addPass(this.shaderPass);
     }
 
-    updatePostProcessingTime(t) {
+    updatePostProcessing(t) {
         this.game.postProcessing.shaderPass.uniforms.applicationTime.value = t;
+        this.game.postProcessing.shaderPass.uniforms.isRaining.value = this.raining;
     }
 
     render() {

@@ -98,7 +98,7 @@ export class PlayerLoader {
                 this.characterMixer = new THREE.AnimationMixer(this.character);
                 //console.log(this.characterMixer);
                 this.characterSkeleton = this.character.getObjectByProperty('type', 'SkinnedMesh').skeleton;
-                console.log(this.characterSkeleton);
+                //console.log(this.characterSkeleton);
                 //console.log(this.characterSkeleton);
                 //console.log(gltf.animations);
 

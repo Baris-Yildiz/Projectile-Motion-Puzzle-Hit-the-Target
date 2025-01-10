@@ -76,7 +76,7 @@ export class ThirdPersonCamera{
         this.lastMousePosition.copy(this.mousePosition);
         this.phi -= event.movementX * 0.0005;
         this.theta += event.movementY * 0.0005;
-        this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 8, Math.PI / 8);
+        this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 4, Math.PI / 4);
         this.target.children[1].position.y = Math.sin(this.theta)*300;
         let thetaQ = new THREE.Quaternion().setFromAxisAngle(this.side , 0);
         let phiQ = new THREE.Quaternion().setFromAxisAngle(this.up , this.phi);
@@ -94,8 +94,8 @@ export class ThirdPersonCamera{
         this.raycaster.set(this.camera.position, targetPosition.clone().sub(this.camera.position).normalize());
         const intersects = this.raycaster.intersectObjects(scene.children, true);
         if (intersects.length > 0 && intersects[0].object !== this.target.children[1] && intersects[0].object  !== this.shadedPlane.mesh) {
-            console.log(intersects[0].object);
-            console.log(`Clicked on target at position: ${targetPosition.x}, ${targetPosition.y}, ${targetPosition.z}`);
+            //console.log(intersects[0].object);
+            //console.log(`Clicked on target at position: ${targetPosition.x}, ${targetPosition.y}, ${targetPosition.z}`);
             //let cube = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0x00ff00}));
             //cube.position.copy(intersects[0].point);
             //scene.add(cube);

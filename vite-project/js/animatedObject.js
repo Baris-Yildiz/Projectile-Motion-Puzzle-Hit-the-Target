@@ -12,6 +12,7 @@ class AnimatedObject {
         this.position = position;
         this.scale = scale;
         this.meshes = [];
+        this.boundingBox = null;
         //this.addLights();
     }
 
@@ -65,13 +66,15 @@ class AnimatedObject {
         this.model.position.set(positions[0], positions[1], positions[2]);
         this.model.rotation.set(rotations[0], rotations[1], rotations[2]);
         this.model.scale.set(scale[0], scale[1], scale[2]);
+        this.boundingBox = new THREE.Box3().setFromObject(this.model);
 
         this.model.traverse(
             (child) => {
             if (child.isMesh) {
                 this.meshes.push(child);
-                child.geometry.boundingBox.min *= scale;
-                child.geometry.boundingBox.max *= scale;
+
+                child.geometry.boundingBox.min.multiply(scale);
+                child.geometry.boundingBox.max.multiply(scale);
                 child.castShadow = true;
             }
         });

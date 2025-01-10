@@ -64,4 +64,15 @@ function loadRainShader(material, width, height) {
         );};
 }
 
-export {createBox, rainTimer};
+function createBoxCollider(width, height, depth, pos) {
+    let mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(width,height,depth, 1, 1, 1),
+        new THREE.MeshStandardMaterial({color: 0xff0000})
+    );
+    pos.y += height/2;
+    mesh.position.copy(pos);
+    mesh.visible = false;
+    return mesh;
+}
+
+export {createBox, rainTimer, createBoxCollider};
