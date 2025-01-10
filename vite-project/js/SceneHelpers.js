@@ -32,7 +32,7 @@ function createBox(width, height, depth, pos, color, textureFiles) {
         material
     );
 
-    loadRainShader(material, width, height);
+    loadShaders(material, width, height);
 
     mesh.position.copy(pos);
     mesh.receiveShadow = true;
@@ -41,9 +41,10 @@ function createBox(width, height, depth, pos, color, textureFiles) {
     return mesh;
 }
 
-function loadRainShader(material, width, height) {
+function loadShaders(material, width, height) {
     //rain puddle shader
     material.onBeforeCompile = (shader) => {
+
         shader.uniforms.iTime = { value: rainTimer };
         shader.uniforms.iUVRes = {value: new THREE.Vector2(width, height) };
 

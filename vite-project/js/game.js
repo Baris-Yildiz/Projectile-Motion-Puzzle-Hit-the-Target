@@ -15,6 +15,7 @@ import {ShadedPlane} from './shaderTest.js';
 import {TextAdder} from './TextAdder.js';
 import {Physics} from "./Physics.js";
 import {ToonShaderManager} from "./ToonShaderManager.js";
+import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
 
 
 class Game {
@@ -42,7 +43,7 @@ class Game {
     //this.characterCamera.position.set(0, 0, 800);
     //this.characterCamera.userData.playerCamera = 'player';
     this.toonShaderManager = new ToonShaderManager();
-    
+    this.redBlackShaderManager = new RedBlackShaderManager();
    
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
@@ -297,10 +298,18 @@ flashUpdate() {
     });
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyT') {
+          if (this.redBlackShaderManager.isRedBlackEnabled) {
+            this.redBlackShaderManager.toggleRedBlackShader(this.scene);
+          }
           this.toonShaderManager.toggleToonShader(this.scene);
       } else if (event.code === 'KeyU') {
         console.log(this.postProcessing.raining)
         this.postProcessing.raining = !this.postProcessing.raining;
+      } else if (event.code === 'KeyQ') {
+        if (this.toonShaderManager.isToonEnabled) {
+          this.toonShaderManager.toggleToonShader();
+        }
+        this.redBlackShaderManager.toggleRedBlackShader(this.scene);
       }
   });
     window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -796,6 +805,10 @@ flashUpdate() {
     if (this.toonShaderManager.isToonEnabled) {
       this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
       this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
+    }
+
+    if (this.redBlackShaderManager.isRedBlackEnabled) {
+      this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
     }
     
     this.flashUpdate();
