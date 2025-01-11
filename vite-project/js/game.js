@@ -16,6 +16,7 @@ import {TextAdder} from './TextAdder.js';
 import {Physics} from "./Physics.js";
 import {ToonShaderManager} from "./ToonShaderManager.js";
 import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
+import {BulletManager} from "./BulletManager.js";
 
 
 class Game {
@@ -96,6 +97,7 @@ class Game {
     this.scene.add(this.player.parent);
     this.physics.createKinematicCube(this.player.parent);
 
+    this.bulletManager = new BulletManager(this);
     //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
     //this.player.playerCollider.userData.rb.setFactors(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.scene.add(this.shadedPlane.mesh);
@@ -405,6 +407,7 @@ flashUpdate() {
     const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
     const ROAD_SIZE = 20 * scale;
     const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
+    const BULLET_SCALE = [0,0,0].fill(scale * 0.25);
 
     let ground = createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
@@ -500,7 +503,7 @@ flashUpdate() {
         [0, 0, 0],
         BASKETBALL_COURT_SCALE, false, [5,5,3]);
 
-    await this.loadAnimatedObject('resources/assets/OldCar1/scene.gltf',
+    await this.loadAnimatedObject('resources/assets/glbAssets/old_rusty_car2.glb',
         [-PAVEMENT_SIZE - PLAYGROUND_SIZE/2 - scale * 5.0, 0.1, 0.0],
         [0, Math.PI, 0],
         OLD_CAR_SCALE, false, [3,2,6]);
@@ -546,27 +549,19 @@ flashUpdate() {
         [0.0, scale / 0.25 * 0.4 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 4.0, Math.PI / 2.0], OLD_CAR2_SCALE, false, [5,1.5,5]);
 
+    let bullet = new AnimatedObject(this.scene,
+        'resources/assets/glbAssets/9mm_bullet.glb',
+        [0.,0.,0.], [0.,0.,0.], BULLET_SCALE);
+    await bullet.Load().then(() => {
+      this.bulletManager.setBullet(bullet.model);
+    });
+
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
     this.createParticleSystemInstances(scale);
   }
 
-  shootBullet(time) {
-    const radius = 0.1;
-    const geometry = new THREE.SphereGeometry(radius, 16, 16);
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const sphere = new THREE.Mesh(geometry, material);
-    const direction = new THREE.Vector3(0, 0, 0);
-    this.camera.getWorldDirection(direction);  
-    sphere.position.copy(this.shadedPlane.mesh.getWorldPosition(new THREE.Vector3(0, 0, 0)));
-    sphere.position.add(direction.multiplyScalar(radius * 2));
-    this.scene.add(sphere);
-    this.physics.ThrowSphere(sphere, 100, direction);
-    setTimeout(() => {
-      this.physics.removeRigidBody(sphere.userData.rb);
-      this.scene.remove(sphere);
-    }, time);
-  }
+
 
   createTextGroup(font, mat){
     let textGroup = new THREE.Group();
@@ -752,7 +747,7 @@ flashUpdate() {
     
 
     if (this.player.tps.shooting && this.player.tps.canShoot) {
-      this.shootBullet(1000);
+      this.bulletManager.shootBullet(2000);
 
       this.soundManager.playGunSound();
     }
