@@ -15,6 +15,8 @@ let moveState = false;
 let scoreText ;
 
 let score = 0;
+let PICKUP_ARRIVE_SCORE = 100;
+let scoreNeededForNextPickup = 100;
 
 function onSettingsSliderValueChanged(id) {
     let labels = document.getElementsByTagName('label');
