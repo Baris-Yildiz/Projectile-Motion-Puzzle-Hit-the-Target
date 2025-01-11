@@ -63,7 +63,7 @@ export class ZombieSpawnManager {
         enemy.position.copy(position);
         
         this.game.enemies.push(enemy);
-        this.game.objectMover.addRayCastObject(enemy);
+        this.game.scene.add(enemy);
         this.game.physics.createBoxRigidBody(enemy, 1.0);
         enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
 
@@ -77,7 +77,9 @@ export class ZombieSpawnManager {
     update() {
         const currentTime = Date.now();
         if (currentTime - this.lastSpawnTime >= this.SPAWN_INTERVAL) {
-            this.spawnZombie();
+            while(this.game.enemies.length < this.MAX_ENEMY_COUNT){
+                this.spawnZombie();
+            }
             this.lastSpawnTime = currentTime;
         }
     }

@@ -1,4 +1,4 @@
-const redBlackFragmentShader = `
+const randomFragmentShader = `
                 const float PI = 3.1415;
                 uniform float iTime;
                 varying vec2 vUv;
@@ -9,32 +9,29 @@ const redBlackFragmentShader = `
                     return vec2(cos(angle) * uv.x - sin(angle) * uv.y, sin(angle) * uv.x + cos(angle) * uv.y);
                 }
                 void main() {
-                    vec2 center = vec2(0.5, 0.5);
+                    
                     vec2 uv = vUv;
                     uv  = 4.*uv;
                     vec2 curr = floor(uv);
                     vec2 fuv = fract(uv);
+    
                     vec3 color = vec3(0.0,0.0,0.0);
-                    for(int i = 0; i <= 2; i++){
-                        for(int j = 0; j <= 2; j++){
+                    for(int i = 0; i <= 3 ; i++){
+                        for(int j = 0; j <= 3 ; j++){
+                            if(float(i) == curr.x && float(j) == curr.y){
+                                continue;
+                            }
                             vec2 index = vec2(float(i),float(j));
                             vec2 adj = (curr + index + fuv);
-                            vec3 neighborColor =  0.3+sin(iTime * adj.x) * vec3(fract(adj) ,0.);
-                            float weight = 1.0 / length(index)/sqrt(2.);
-                            color += neighborColor*weight;
+                            vec2 neighborColor =vec2((cos(iTime)+1./2.)*fuv.x+(sin(iTime)+1./2.)*fuv.y) *mix(curr+fuv , adj, 1./abs(length(curr-index)));
+                            color += vec3(neighborColor , 0.);
                         }
                     }
-                    color = vec3(rotate(color.xy, PI/rand(curr)*5.) , abs(cos(iTime)));
-                    color /= 9.0;
-                    //float dist = length(vec3(fuv,0.) - color);
-                    //dist -= mod(iTime, 1.);
-                    //color *= -dist; 
-                    
-                    //dist -= mod(iTime, 1.);
-                    
-                    //float r = abs(dist * sin(iTime * 2. * PI) * cos(iTime * PI));
-                    //r += 0.1;
-    
+                    color = vec3(rotate(color.xy, PI/rand(curr)) , 0.2);
+                    color /= 4.0; 
+                    if(color.x < 0.1 && color.y <0.1){
+                        color = fuv.xyx;
+                    }
                     gl_FragColor = vec4(color, 1.0);
                 }
             `;

@@ -14,6 +14,8 @@ class Rigidbody {
     hitCount = 0;
     maxHitCount = 100;
     pickup = false;
+    player = false;
+    dead = false;
     constructor() {
     }
     createKinematicBoxRigidBody(mesh) {
@@ -110,7 +112,8 @@ class Rigidbody {
         )
 
         this.body = new Ammo.btRigidBody(this.info);
-        this.body.setLinearFactor(1,0,1);
+        //console.log(this.body);
+        //this.body.setLinearFactor(1,0,1);
     }
     setVelocity(velocity){
         //console.log(this.hitCount);
@@ -120,6 +123,9 @@ class Rigidbody {
             //console.log(scaler);
             //this.body.setLinearVelocity(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
         } 
+        else{
+            this.dead = true;
+        }
     }
 /*
     createRigidBodyForModel(model, mass) {
@@ -184,7 +190,8 @@ class Rigidbody {
 }
 
 class Physics {
-    constructor() {
+    constructor(game) {
+        this.game = game;
         this.initPhysics();
         this.tempTransform = new Ammo.btTransform(0,0,0);
         this.rigidbodies = [];
@@ -323,6 +330,7 @@ class Physics {
             let contactManifold = dispatcher.getManifoldByIndexInternal(i);
             let rigidBodyA = contactManifold.getBody0();
             let rigidBodyB = contactManifold.getBody1();
+            
             const isKinematic1 = (rigidBodyA.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
             const isKinematic2 = (rigidBodyB.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
             if(isKinematic1 || isKinematic2){
@@ -362,11 +370,12 @@ class Physics {
                             bulletMass+=10;
                             bulletVelocity+=50;
                             shootFrequency-=50;
-                            THREE.MathUtils.clamp(shootFrequency, 150, 250);
-                            THREE.MathUtils.clamp(bulletVelocity, 100, 400);
-                            THREE.MathUtils.clamp(bulletMass,10 , 400);
+                            shootFrequency =  THREE.MathUtils.clamp(shootFrequency, 150, 250);
+                            bulletVelocity = THREE.MathUtils.clamp(bulletVelocity, 100, 400);
+                            bulletMass = THREE.MathUtils.clamp(bulletMass,10 , 400);
                             rb1.pickup = false;
                             rb2.pickup = false;
+                            this.game.pickupManager.destroyPickupParticle();
                         }
                         scoreText.innerText = 'Score: ' +  score;
 
@@ -405,9 +414,11 @@ class Physics {
         this.physicsWorld.stepSimulation(delta, 10);
 
         for (let i = 0; i < this.rigidbodies.length; i++) {
-            let isKinematic = (this.rigidbodies[i].rigidBody.body.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
-            if(isKinematic){
+            if(this.rigidbodies[i].rigidBody.player){
                 continue;
+            }
+            if(this.rigidbodies[i].shapeString){
+                this.rigidbodies[i].rigidBody.body.applyCentralForce(new Ammo.btVector3(0,10,0));
             }
             this.rigidbodies[i].rigidBody.motionState.getWorldTransform(this.tempTransform);
             const pos = this.tempTransform.getOrigin();

@@ -17,8 +17,8 @@ let scoreText ;
 let score = 0;
 let PICKUP_ARRIVE_SCORE = 100;
 let scoreNeededForNextPickup = 100;
-let bulletMass = 100;
-let bulletVelocity = 100;
+let bulletMass = 0.5;
+let bulletVelocity = 200;
 let shootFrequency = 250;
 
 function onSettingsSliderValueChanged(id) {

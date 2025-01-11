@@ -80,7 +80,7 @@ class Game {
 
     this.settings.setEnvironmentQuality(Quality.MEDIUM);
 
-    this.physics = new Physics();
+    this.physics = new Physics(this);
     this.soundManager = new SoundManager(this);
     this.shadedPlane = new ShadedPlane(window.innerWidth, window.innerHeight, 0.03, 50);
     this.loader = new GLTFLoader();
@@ -94,6 +94,7 @@ class Game {
     this.objectMover = new ObjectMover(this,this.scene, this.renderCamera, this.renderer);
     this.scene.add(this.player.parent);
     this.physics.createKinematicCube(this.player.parent);
+    this.player.parent.userData.rb.player = true;
 
     this.bulletManager = new BulletManager(this);
     //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
@@ -184,7 +185,34 @@ flashUpdate() {
   }
 
   setupEnemyAI() {
+    /*
+    let obstacles = [];
+    for(let i = 0; i < this.physics.colliders.length; i++){
+      obstacles.push(this.physics.colliders[i].mesh);
+    }
+
     
+    for(let i = 0; i < this.enemyCount; i++){
+      let enemy = new THREE.Mesh(
+        new THREE.BoxGeometry(3, 3, 3),
+        new THREE.MeshBasicMaterial({color: 0xffff00})
+      );
+      enemy.position.copy(this.enemyPositions[i]);
+      this.enemies.push(enemy);
+      enemy.userData.onWaitList = false;
+
+      this.scene.add(enemy);
+      this.physics.createBoxRigidBody(enemy, 1.0);
+      enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
+    }
+    for(let i = 0; i < this.enemyCount; i++){
+      let otherEnemies = this.enemies.slice();
+      otherEnemies.splice(i, 1);
+      //console.log(otherEnemies);
+      let zombieAI = new PathfindingAI(this.enemies[i], this.player.parent, obstacles, []);
+      this.zombieAIs.push(zombieAI);
+    }*/
+   
     
   }
 
@@ -223,7 +251,7 @@ flashUpdate() {
       //console.log("pointer move")
       if(this.playerState){
         //console.log("player pointer is moving");
-        console.log(this.settings.horizontalSensitivity, this.settings.verticalSensitivity);
+        
         this.player.tps.onMouseMoveTest(event , this.settings.horizontalSensitivity, this.settings.verticalSensitivity);
       }
     });
@@ -746,13 +774,13 @@ flashUpdate() {
   animate() {
     let d = this.clock.getDelta();
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
-    if(score - this.previousScore >= 100){
+    if(score - this.previousScore >= 100 && !this.pickupManager.activePickupMesh){
       this.previousScore = score;
-      this.pickupManager.createPickupObject(new THREE.Vector3(THREE.MathUtils.randInt(-15, 15), 4, THREE.MathUtils.randInt(-15, 15)));
-      //this.pickupManager.destroyPickupParticle();
+      this.pickupManager.createPickupObject(new THREE.Vector3(THREE.MathUtils.randInt(-15, 15), 3, THREE.MathUtils.randInt(-15, 15)));
     }
 
     if ( this.playerState && this.player.tps.shooting && this.player.tps.canShoot) {
+      
       this.bulletManager.shootBullet(20000);
 
       this.soundManager.playGunSound();
@@ -809,8 +837,22 @@ flashUpdate() {
     
     this.zombieSpawnManager.update();
     this.zombieAIs.forEach(zombieAI => {
+      if(zombieAI.zombie.userData.rb.dead && !zombieAI.zombie.userData.onWaitList){
+        console.log("dead");
+        zombieAI.zombie.userData.onWaitList = true;
+        setTimeout(() => {
+          let zombie = zombieAI.zombie;
+          this.enemies.splice(this.enemies.indexOf(zombie), 1);
+          this.zombieAIs.splice(this.zombieAIs.indexOf(zombieAI), 1);
+          this.physics.removeRigidBody(zombie.userData.rb);
+          this.scene.remove(zombie);
+        }, 1000);
+      }
+      else if(!zombieAI.zombie.userData.rb.dead){
         let vel = zombieAI.getVelocity();
         zombieAI.zombie.userData.rb.setVelocity(vel.multiplyScalar(200));
+      }
+        
     });
     
   

@@ -101,6 +101,7 @@ class PickupManager {
         setTimeout(() => {
             this.game.physics.removeRigidBody(this.activePickupMesh.userData.rb);
             this.game.scene.remove(this.activePickupMesh);
+            this.activePickupMesh = null;
         }, 5000);
     }
 }
