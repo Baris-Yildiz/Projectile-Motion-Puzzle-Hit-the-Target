@@ -17,6 +17,7 @@ import {Physics} from "./Physics.js";
 import {ToonShaderManager} from "./ToonShaderManager.js";
 import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
 import {BulletManager} from "./BulletManager.js";
+import {PickupManager} from "./PickupManager.js";
 
 
 class Game {
@@ -101,7 +102,7 @@ class Game {
     //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
     //this.player.playerCollider.userData.rb.setFactors(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.scene.add(this.shadedPlane.mesh);
-    
+    this.pickupManager = new PickupManager(this);
     this.createFlashlight();
   }
 
@@ -576,6 +577,8 @@ flashUpdate() {
         [0.0, 0.1 , PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + scale * 10.0 ],
         [0.0, 0., 0.], TRASH_SCALE, true, [2,2,2]);
 
+    this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
+
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
     this.createParticleSystemInstances(scale);
@@ -672,59 +675,7 @@ flashUpdate() {
     });
   }
 
-  createPickupParticleEffect() {
-    let pickupParticleCount = 10;
-    let pickupParticles = [];
 
-
-    const glowTexture = new THREE.TextureLoader().load("resources/textures/glow3.png");
-    glowTexture.wrapS = THREE.RepeatWrapping;
-    glowTexture.wrapT = THREE.RepeatWrapping;
-
-    for (let i = 0; i < pickupParticleCount; i++) {
-      let geometry = new THREE.PlaneGeometry(1, 1);
-      let colorComp = 1.0 - (Math.random() / 2.0);
-      let color = new THREE.Vector4(0., colorComp, colorComp, 1.0);
-      let scale = 1.;
-
-      let velocity = new THREE.Vector3(
-          2* Math.random() - 1,
-          2* Math.random() - 1,
-          2* Math.random() - 1 );
-
-      let life = Math.random() + 0.5;
-      let position = new THREE.Vector3(Math.random(), Math.random(), Math.random());
-
-      let material = new THREE.ShaderMaterial({
-        glslVersion:THREE.GLSL3,
-        vertexShader: pickupVertexShader,
-        fragmentShader: pickupFragmentShader,
-        side: THREE.DoubleSide,
-        transparent: true,
-        uniforms: {
-          init_vel: {
-            value: velocity
-          },
-          g: {value: 10},
-          t:{value:0},
-          u_color: {value: color},
-          u_life : {value: life},
-          u_scale: {value: scale},
-          rand: {value:0},
-          glowTexture: {value: glowTexture},
-        }
-      });
-
-      let particle = new Particle(geometry, velocity, color, life,scale, position, material);
-      pickupParticles.push(particle);
-    }
-
-    const pickupParticleEmitter = new ParticleEmitter(pickupParticles);
-    pickupParticleEmitter.setParticleOffset(new THREE.Vector3(0, 1, 0));
-    pickupParticleEmitter.startEmitting(this.scene);
-
-    this.particleEmitters.push(pickupParticleEmitter);
-  }
 
   createParticleSystemInstances(scale) {
     let numberOfParticles = 250;
@@ -775,7 +726,7 @@ flashUpdate() {
 
     this.particleEmitters.push(smokeEmitter);
 
-    this.createPickupParticleEffect();
+    //this.createPickupParticleEffect();
   }
 
   controls(deltaTime) {
