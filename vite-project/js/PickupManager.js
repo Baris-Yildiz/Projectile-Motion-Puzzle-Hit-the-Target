@@ -21,9 +21,9 @@ export class PickupManager {
             this.activePickupMesh,
             1.
         );
-
+        this.activePickupMesh.userData.rb.pickup = true;
         this.activePickupMesh.userData.rb.setFactors(
-            new THREE.Vector3(1,0,1),
+            new THREE.Vector3(0,0,0),
             new THREE.Vector3(1,1,1)
         )
 

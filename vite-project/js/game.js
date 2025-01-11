@@ -38,6 +38,7 @@ class Game {
     , new THREE.Vector3(17, 2, 17)
   ];
   enemyCount = 4;
+  previousScore = 0;
   
   constructor() {
     this.settings = new Settings(this);
@@ -577,8 +578,8 @@ flashUpdate() {
         [0.0, 0.1 , PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + scale * 10.0 ],
         [0.0, 0., 0.], TRASH_SCALE, true, [2,2,2]);
 
-    this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
-    this.pickupManager.destroyPickupParticle();
+   // this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
+   // this.pickupManager.destroyPickupParticle();
 
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
@@ -773,10 +774,14 @@ flashUpdate() {
   animate() {
     let d = this.clock.getDelta();
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
-    
+    if(score - this.previousScore >= 100){
+      this.previousScore = score;
+      this.pickupManager.createPickupObject(new THREE.Vector3(THREE.MathUtils.randInt(-15, 15), 4, THREE.MathUtils.randInt(-15, 15)));
+      //this.pickupManager.destroyPickupParticle();
+    }
 
-    if (this.player.tps.shooting && this.player.tps.canShoot) {
-      this.bulletManager.shootBullet(2000);
+    if ( this.playerState && this.player.tps.shooting && this.player.tps.canShoot) {
+      this.bulletManager.shootBullet(20000);
 
       this.soundManager.playGunSound();
     }

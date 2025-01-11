@@ -32,7 +32,7 @@ export class BulletManager {
         cloneBullet.position.add(direction.multiplyScalar(
             cloneBullet.geometry.parameters.radius* 2));
         this.game.scene.add(cloneBullet);
-        this.game.physics.ThrowSphere(cloneBullet, 100, direction);
+        this.game.physics.ThrowSphere(cloneBullet, bulletMass, direction);
         setTimeout(() => {
             this.game.physics.removeRigidBody(cloneBullet.userData.rb);
             this.game.scene.remove(cloneBullet);

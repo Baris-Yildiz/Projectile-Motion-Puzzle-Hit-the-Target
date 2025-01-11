@@ -126,7 +126,7 @@ export class ThirdPersonCamera{
         //console.log(this.target.children[1].getWorldPosition(new THREE.Vector3()));
         this.camera.lookAt(this.target.children[1].getWorldPosition(new THREE.Vector3()));
         this.camera.updateMatrix();
-        this.raycast(scene , 200);
+        this.raycast(scene , shootFrequency);
     }
     movementUpdate(){
         if(this.moving){

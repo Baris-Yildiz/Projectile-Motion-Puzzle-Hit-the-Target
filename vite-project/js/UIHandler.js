@@ -15,6 +15,9 @@ let moveState = false;
 let scoreText ;
 
 let score = 0;
+let bulletMass = 100;
+let bulletVelocity = 100;
+let shootFrequency = 250;
 
 function onSettingsSliderValueChanged(id) {
     let labels = document.getElementsByTagName('label');

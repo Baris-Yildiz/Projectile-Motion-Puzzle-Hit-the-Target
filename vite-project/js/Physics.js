@@ -13,6 +13,7 @@ class Rigidbody {
     gotHit = false;
     hitCount = 0;
     maxHitCount = 100;
+    pickup = false;
     constructor() {
     }
     createKinematicBoxRigidBody(mesh) {
@@ -109,13 +110,15 @@ class Rigidbody {
         )
 
         this.body = new Ammo.btRigidBody(this.info);
+        this.body.setLinearFactor(1,0,1);
     }
     setVelocity(velocity){
         //console.log(this.hitCount);
         if(this.hitCount <= this.maxHitCount){
             let scaler = 1 - (this.hitCount / this.maxHitCount);
+            this.body.applyForce(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
             //console.log(scaler);
-            this.body.setLinearVelocity(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
+            //this.body.setLinearVelocity(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
         } 
     }
 /*
@@ -285,7 +288,7 @@ class Physics {
     
 
     ThrowSphere(sphere, mass, direction) {
-        const bulletVelocityMultiplier = 300;
+        const bulletVelocityMultiplier = bulletVelocity;
         let rigidbody = new Rigidbody();
         rigidbody.createSphereRigidBody(sphere, mass);
         rigidbody.body.setLinearVelocity(new Ammo.btVector3(direction.x * bulletVelocityMultiplier,
@@ -346,14 +349,18 @@ class Physics {
                     let distance = contactPoint.getDistance();
                     if (distance < 0.0) {
                         score++;
-                        //console.log("Collision detected!");
                         if(rb1.shapeString === "Box"){
                             rb1.hitCount++;
-                            scoreText.innerText = 'Score: ' +  score;
                         }
                         else if(rb2.shapeString === "Box"){
                             rb2.hitCount++;
                         }
+                        if(rb1.pickup || rb2.pickup){
+                            score -= 100;
+                            rb1.pickup = false;
+                            rb2.pickup = false;
+                        }
+                        scoreText.innerText = 'Score: ' +  score;
 
                     }
                 }
