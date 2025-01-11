@@ -9,7 +9,6 @@ export class ZombieSpawnManager {
         this.SPAWN_INTERVAL = 15000; //simdilik 15s
         this.SPAWN_RADIUS = 17; 
         this.lastSpawnTime = Date.now();
-        this.MAX_SPAWN_ATTEMPTS = 10;
         this.MAX_ENEMY_COUNT = 5;
         this.game.obstacles = []; //obstacle ise yaramiyor gibi
         for(let i = 0; i < this.game.physics.colliders.length; i++){
@@ -46,30 +45,15 @@ export class ZombieSpawnManager {
         return false; 
     }
 
-    findValidSpawnPosition() {
-        let attempts = 0;
-        let position;
-
-        while (attempts < this.MAX_SPAWN_ATTEMPTS) {
-            position = this.getRandomPosition();
-            if (!this.checkCollision(position)) {
-                return position; 
-            }
-            attempts++;
-        }
-
-        return null; 
-    }
+    
 
     spawnZombie() {
         if (this.game.enemies.length >= this.MAX_ENEMY_COUNT) {
             return;
         }
-
-        const position = this.findValidSpawnPosition();
-        if (!position) {
-            console.warn('Could not find valid spawn position for zombie');
-            return;
+        let position = this.getRandomPosition();
+        while(this.checkCollision(position)){
+            position = this.getRandomPosition();
         }
         
         let enemy = new THREE.Mesh(
