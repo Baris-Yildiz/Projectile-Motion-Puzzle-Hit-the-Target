@@ -81,7 +81,7 @@ class Game {
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};
 
-    this.settings.setEnvironmentQuality(Quality.HIGH);
+    this.settings.setEnvironmentQuality(Quality.MEDIUM);
 
     this.physics = new Physics();
     this.soundManager = new SoundManager(this);
@@ -390,8 +390,10 @@ flashUpdate() {
       }
 
     }
+
     this.physics.createKinematicCube(mesh);
-    this.objectMover.addRayCastObject(mesh);
+    this.scene.add(mesh);
+    //this.objectMover.addRayCastObject(mesh);
   }
 
   async createSceneObjects() {

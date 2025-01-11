@@ -13,7 +13,7 @@ class PostProcessing{
         this.composer = null;
         this.renderPass = null;
         this.shaderPass = null;
-        this.raining = true;
+        this.raining = false;
 
         this.setupPostProcessing();
     }
