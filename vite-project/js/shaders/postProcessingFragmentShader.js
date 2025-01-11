@@ -6,6 +6,7 @@ const postProcessingFragmentShader = `
             uniform float brightness;
             uniform float applicationTime;
             uniform bool isRaining;
+            uniform bool isInRedBlackMode;
             
             float random(float x, float y) {
                 return fract((sin(x+.01*y) * 12.9898) * 43758.5453);
@@ -22,6 +23,7 @@ const postProcessingFragmentShader = `
             }
             
             void addRedVignette() {
+                if (!isInRedBlackMode) return;
                 vec2 center = vec2(0.5, 0.5);
                 
                 float distToCenter = length( fTexCoords - center );

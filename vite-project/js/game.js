@@ -190,7 +190,7 @@ flashUpdate() {
     for(let i = 0; i < this.physics.colliders.length; i++){
       obstacles.push(this.physics.colliders[i].mesh);
     }
-    console.log(obstacles);
+
     
     for(let i = 0; i < this.enemyCount; i++){
       let enemy = new THREE.Mesh(
@@ -199,7 +199,7 @@ flashUpdate() {
       );
       enemy.position.copy(this.enemyPositions[i]);
       this.enemies.push(enemy);
-      console.log(enemy.position);
+
       this.objectMover.addRayCastObject(enemy);
       this.physics.createBoxRigidBody(enemy, 1.0);
       enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
@@ -294,7 +294,7 @@ flashUpdate() {
           }
           this.toonShaderManager.toggleToonShader(this.scene);
       } else if (event.code === 'KeyU') {
-        console.log(this.postProcessing.raining)
+
         this.postProcessing.raining = !this.postProcessing.raining;
         if (this.postProcessing.raining){this.soundManager.playRainSound();}
         else{this.soundManager.stopRainSound();}
@@ -407,7 +407,10 @@ flashUpdate() {
     const BARRICADE_SCALE = [0,0,0].fill(scale * .75 /0.25);
     const ROAD_SIZE = 20 * scale;
     const BUILDINGS_SCALE = [0,0,0].fill(scale * 3.0);
-    const BULLET_SCALE = [0,0,0].fill(scale * 0.25);
+    const BULLET_SCALE = [0,0,0].fill(scale * 0.15);
+    const AMBULANCE_SCALE = [0,0,0].fill(1 * scale /0.4);
+    const CONE_SCALE = [0,0,0].fill(2*scale /0.4);
+    const TRASH_SCALE = [0,0,0].fill(3*scale /0.8);
 
     let ground = createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
@@ -556,6 +559,23 @@ flashUpdate() {
       this.bulletManager.setBullet(bullet.model);
     });
 
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/source.glb',
+        [PAVEMENT_SIZE + PLAYGROUND_SIZE/2 + scale * 5.0, 0.1, 0.0],
+        [0.0, Math.PI / 2.0, 0.0], AMBULANCE_SCALE, false, [9,4,4]);
+
+    for (let i = 0; i < 3; i++) {
+      await this.loadAnimatedObject(
+          'resources/assets/glbAssets/traffic_cone_uhcgdgufa_low.glb',
+          [PAVEMENT_SIZE + PLAYGROUND_SIZE/2 + scale * (i+3.0), 0.1, PLAYGROUND_SIZE + scale * i],
+          [0.0, 0.0, 0.0], CONE_SCALE, true, [2,2,2]);
+    }
+
+    await this.loadAnimatedObject(
+        'resources/assets/glbAssets/trash_bag_vcblbchga_low.glb',
+        [0.0, 0.1 , PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + scale * 10.0 ],
+        [0.0, 0., 0.], TRASH_SCALE, true, [2,2,2]);
+
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
     this.createParticleSystemInstances(scale);
@@ -652,6 +672,60 @@ flashUpdate() {
     });
   }
 
+  createPickupParticleEffect() {
+    let pickupParticleCount = 10;
+    let pickupParticles = [];
+
+
+    const glowTexture = new THREE.TextureLoader().load("resources/textures/glow3.png");
+    glowTexture.wrapS = THREE.RepeatWrapping;
+    glowTexture.wrapT = THREE.RepeatWrapping;
+
+    for (let i = 0; i < pickupParticleCount; i++) {
+      let geometry = new THREE.PlaneGeometry(1, 1);
+      let colorComp = 1.0 - (Math.random() / 2.0);
+      let color = new THREE.Vector4(0., colorComp, colorComp, 1.0);
+      let scale = 1.;
+
+      let velocity = new THREE.Vector3(
+          2* Math.random() - 1,
+          2* Math.random() - 1,
+          2* Math.random() - 1 );
+
+      let life = Math.random() + 0.5;
+      let position = new THREE.Vector3(Math.random(), Math.random(), Math.random());
+
+      let material = new THREE.ShaderMaterial({
+        glslVersion:THREE.GLSL3,
+        vertexShader: pickupVertexShader,
+        fragmentShader: pickupFragmentShader,
+        side: THREE.DoubleSide,
+        transparent: true,
+        uniforms: {
+          init_vel: {
+            value: velocity
+          },
+          g: {value: 10},
+          t:{value:0},
+          u_color: {value: color},
+          u_life : {value: life},
+          u_scale: {value: scale},
+          rand: {value:0},
+          glowTexture: {value: glowTexture},
+        }
+      });
+
+      let particle = new Particle(geometry, velocity, color, life,scale, position, material);
+      pickupParticles.push(particle);
+    }
+
+    const pickupParticleEmitter = new ParticleEmitter(pickupParticles);
+    pickupParticleEmitter.setParticleOffset(new THREE.Vector3(0, 1, 0));
+    pickupParticleEmitter.startEmitting(this.scene);
+
+    this.particleEmitters.push(pickupParticleEmitter);
+  }
+
   createParticleSystemInstances(scale) {
     let numberOfParticles = 250;
     let smokeParticles = [];
@@ -691,14 +765,17 @@ flashUpdate() {
       });
 
       let particle = new Particle(geometry, velocity, color, life,scale, position, material);
+
       smokeParticles.push(particle);
     }
 
     const smokeEmitter = new ParticleEmitter(smokeParticles);
-    smokeEmitter.setParticleOffset(new THREE.Vector3(-11 * scale / 0.25, 0, scale));
+    smokeEmitter.setParticleOffset(new THREE.Vector3(-10.5 * scale / 0.25, 1, scale));
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);
+
+    this.createPickupParticleEffect();
   }
 
   controls(deltaTime) {
@@ -769,7 +846,7 @@ flashUpdate() {
         this.charMixers[i].update(d);
       }
     }
-    
+
 
     this.skybox.sunAnimate(this.clock.getElapsedTime());
     for (let i = 0; i < this.particleEmitters.length; i++) {

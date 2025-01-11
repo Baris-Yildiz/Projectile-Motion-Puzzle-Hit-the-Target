@@ -8,6 +8,7 @@ export class BulletManager {
             new THREE.SphereGeometry(0.1, 16, 16),
             new THREE.MeshStandardMaterial({color: 0xffffff})
         );
+        this.bulletCollider.material.visible = false;
     }
 
     setBullet(model) {
