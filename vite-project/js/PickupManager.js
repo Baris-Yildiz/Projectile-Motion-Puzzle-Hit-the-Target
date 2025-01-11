@@ -8,25 +8,27 @@ export class PickupManager {
             new THREE.BoxGeometry(1,1,1),
             new THREE.MeshStandardMaterial({color: 0x0000ff})
         );
+
+        this.activePickupMesh = null;
+        this.activePickupParticleEmitter = null;
     }
 
     createPickupObject(position) {
-        console.log(this.pickupMesh);
-        const pickupMesh = this.pickupMesh.clone();
-        pickupMesh.position.copy(position);
+        this.activePickupMesh = this.pickupMesh.clone();
+        this.activePickupMesh.position.copy(position);
 
         this.game.physics.createBoxRigidBody(
-            pickupMesh,
+            this.activePickupMesh,
             1.
         );
 
-        pickupMesh.userData.rb.setFactors(
+        this.activePickupMesh.userData.rb.setFactors(
             new THREE.Vector3(1,0,1),
             new THREE.Vector3(1,1,1)
         )
 
-        this.createPickupParticleEffect(pickupMesh.position);
-        this.game.scene.add(pickupMesh);
+        this.createPickupParticleEffect(this.activePickupMesh.position);
+        this.game.scene.add(this.activePickupMesh);
     }
 
     createPickupParticleEffect(position) {
@@ -75,14 +77,25 @@ export class PickupManager {
             pickupParticles.push(particle);
         }
 
-        const pickupParticleEmitter = new ParticleEmitter(pickupParticles);
-        pickupParticleEmitter.setParticleOffset(position);
-        pickupParticleEmitter.startEmitting(this.game.scene);
+        this.activePickupParticleEmitter = new ParticleEmitter(pickupParticles);
+        this.activePickupParticleEmitter.setParticleOffset(position);
+        this.activePickupParticleEmitter.startEmitting(this.game.scene);
 
-        this.game.particleEmitters.push(pickupParticleEmitter);
+        this.game.particleEmitters.push(this.activePickupParticleEmitter);
     }
 
     destroyPickupParticle() {
-        
+        for (let i = 0; i < this.game.particleEmitters.length; i++) {
+            if (this.game.particleEmitters[i] === this.activePickupParticleEmitter) {
+                this.game.particleEmitters[i].destroyEmitter(this.game.scene);
+                this.game.particleEmitters.splice(i, 1);
+                break;
+            }
+        }
+
+        setTimeout(() => {
+            this.game.physics.removeRigidBody(this.activePickupMesh.userData.rb);
+            this.game.scene.remove(this.activePickupMesh);
+        }, 5000);
     }
 }

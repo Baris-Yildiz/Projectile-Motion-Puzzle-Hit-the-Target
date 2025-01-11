@@ -578,6 +578,7 @@ flashUpdate() {
         [0.0, 0., 0.], TRASH_SCALE, true, [2,2,2]);
 
     this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
+    this.pickupManager.destroyPickupParticle();
 
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
@@ -837,7 +838,6 @@ flashUpdate() {
     
   
     this.physics.updatePhysics(1/144);
-   
 
     requestAnimationFrame(this.animate.bind(this));
 

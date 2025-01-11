@@ -24,6 +24,12 @@ class ParticleEmitter {
             this.particles[i].updateTime(time % this.particles[i].life);
         }
     }
+
+    destroyEmitter(scene) {
+        for (let i = 0; i < this.particles.length; i++) {
+            scene.remove(this.particles[i].object);
+        }
+    }
 }
 class Particle {
     constructor(geometry = new THREE.PlaneGeometry(1,1),
