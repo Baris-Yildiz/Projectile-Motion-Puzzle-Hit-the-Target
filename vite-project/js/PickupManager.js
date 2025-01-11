@@ -1,7 +1,9 @@
 import {THREE} from "./LibImports.js";
 import {Particle, ParticleEmitter} from "./ParticleSystem.js";
 
-export class PickupManager {
+
+
+class PickupManager {
     constructor(game) {
         this.game = game;
         this.pickupMesh = new THREE.Mesh(
@@ -28,6 +30,8 @@ export class PickupManager {
         )
 
         this.createPickupParticleEffect(this.activePickupMesh.position);
+        scoreNeededForNextPickup = PICKUP_ARRIVE_SCORE;
+
         this.game.scene.add(this.activePickupMesh);
     }
 
@@ -84,6 +88,7 @@ export class PickupManager {
         this.game.particleEmitters.push(this.activePickupParticleEmitter);
     }
 
+
     destroyPickupParticle() {
         for (let i = 0; i < this.game.particleEmitters.length; i++) {
             if (this.game.particleEmitters[i] === this.activePickupParticleEmitter) {
@@ -99,3 +104,5 @@ export class PickupManager {
         }, 5000);
     }
 }
+
+export {PickupManager}

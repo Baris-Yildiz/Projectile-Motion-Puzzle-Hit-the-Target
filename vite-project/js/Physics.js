@@ -351,6 +351,8 @@ class Physics {
                         score++;
                         if(rb1.shapeString === "Box"){
                             rb1.hitCount++;
+                            scoreText.innerText = 'Score: ' +  score;
+                            scoreNeededForNextPickup--;
                         }
                         else if(rb2.shapeString === "Box"){
                             rb2.hitCount++;
