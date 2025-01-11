@@ -359,6 +359,12 @@ class Physics {
                         }
                         if(rb1.pickup || rb2.pickup){
                             score -= 100;
+                            bulletMass+=10;
+                            bulletVelocity+=50;
+                            shootFrequency-=50;
+                            THREE.MathUtils.clamp(shootFrequency, 150, 250);
+                            THREE.MathUtils.clamp(bulletVelocity, 100, 400);
+                            THREE.MathUtils.clamp(bulletMass,10 , 400);
                             rb1.pickup = false;
                             rb2.pickup = false;
                         }

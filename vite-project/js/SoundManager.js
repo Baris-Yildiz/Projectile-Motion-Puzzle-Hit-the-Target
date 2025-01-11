@@ -28,6 +28,7 @@ class SoundManager{
     }
     playGunSound(){
         this.sfxList[1].volume = this.game.settings.sfx;
+        this.sfxList[1].playbackRate = 250/shootFrequency;
         this.sfxList[1].play().catch(error => {
             console.error('Gun sound playback failed:', error);
         });

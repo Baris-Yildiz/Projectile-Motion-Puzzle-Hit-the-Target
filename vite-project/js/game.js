@@ -252,7 +252,8 @@ flashUpdate() {
       //console.log("pointer move")
       if(this.playerState){
         //console.log("player pointer is moving");
-        this.player.tps.onMouseMoveTest(event);
+        console.log(this.settings.horizontalSensitivity, this.settings.verticalSensitivity);
+        this.player.tps.onMouseMoveTest(event , this.settings.horizontalSensitivity, this.settings.verticalSensitivity);
       }
     });
 
@@ -843,10 +844,11 @@ flashUpdate() {
     
   
     this.physics.updatePhysics(1/144);
-
+    /*
     if (scoreNeededForNextPickup <= 0) {
       this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
     }
+    */
 
     requestAnimationFrame(this.animate.bind(this));
 

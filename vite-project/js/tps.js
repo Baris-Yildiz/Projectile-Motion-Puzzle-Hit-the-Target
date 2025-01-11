@@ -70,13 +70,15 @@ export class ThirdPersonCamera{
         }
     }
     */
-    onMouseMoveTest(event){
+    onMouseMoveTest(event,xSensitivity = 1,ySensitivity = 1){
         //console.log("mouse move inside tps");
         this.mousePosition.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
         this.lastMousePosition.copy(this.mousePosition);
-        this.phi -= event.movementX * 0.0005;
-        this.theta += event.movementY * 0.0005;
+        //this.phi -= event.movementX * 0.0005;
+        //this.theta += event.movementY * 0.0005;
+        this.phi -= event.movementX * xSensitivity * 0.0005;
+        this.theta += event.movementY * ySensitivity * 0.0005;
         this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 4, Math.PI / 4);
         this.target.children[1].position.y = Math.sin(this.theta)*300;
         let thetaQ = new THREE.Quaternion().setFromAxisAngle(this.side , 0);
@@ -150,14 +152,15 @@ export class ThirdPersonCamera{
                 this.lastVelocity.add(right.clone().multiplyScalar(-this.velocity.x));
                 this.target.position.sub(right.multiplyScalar(this.velocity.x));
             }   
-            console.log(this.lastVelocity);    
+            //console.log(this.lastVelocity);    
         }
     
     }
     cameraShake(original , aimOriginal , maxShakeRange) {
-        const x = THREE.MathUtils.randFloatSpread(this.shakeIntensity);
-        const y = THREE.MathUtils.randFloatSpread(this.shakeIntensity);
-        const z = THREE.MathUtils.randFloatSpread(this.shakeIntensity);
+        const x = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
+        const y = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
+        const z = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
+        maxShakeRange = maxShakeRange*bulletMass/100;
         const randomOffset = new THREE.Vector3(x, y, z);
         const newOffset = this.offSet.clone().add(randomOffset);
         const aimNewOffset = this.aimOffSet.clone().add(randomOffset);
