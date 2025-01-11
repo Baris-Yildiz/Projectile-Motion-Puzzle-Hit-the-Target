@@ -303,7 +303,7 @@ flashUpdate() {
       }
       else if (event.code === 'KeyQ') {
         if (this.toonShaderManager.isToonEnabled) {
-          this.toonShaderManager.toggleToonShader();
+          this.toonShaderManager.toggleToonShader(this.scene);
         }
         this.redBlackShaderManager.toggleRedBlackShader(this.scene);
       }
