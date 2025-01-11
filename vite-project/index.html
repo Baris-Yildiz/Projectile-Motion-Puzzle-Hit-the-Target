@@ -125,11 +125,6 @@
 
               <div>
                 <p class="pageHeader">Video Settings</p>
-                <div>
-                  <input oninput="onSettingsSliderValueChanged('Texture Quality')" type="range"
-                         id="Texture Quality" class="settingsSlider" min="0" max="2" value="1">
-                  <label for="Texture Quality" class="pageText">Texture Quality: MEDIUM</label>
-                </div>
 
                 <div>
                   <input oninput="onSettingsSliderValueChanged('Environment Quality')" type="range"
@@ -206,13 +201,21 @@
             </div>
 
             <div class="keybinding">
-              <div class="key">T</div>
-              <p class="pageHeader">Toggle Toon Shader</p>
+              <div class="keys">
+                <div class="key">T</div>
+                <div class="key">U</div>
+                <div class="key">Q</div>
+              </div>
+              <p class="pageHeader">Toggle Toon / Rain / Red-Black Shaders</p>
             </div>
 
             <div class="keybinding">
-              <div class="key">U</div>
-              <p class="pageHeader">Toggle Rain</p>
+              <div class="keys">
+                <div class="key">J</div>
+                <div class="key">K</div>
+                <div class="key">O</div>
+              </div>
+              <p class="pageHeader">Decrease Intensity / Increase Intensity / Toggle Flashlight</p>
             </div>
 
             <div class="keybinding">

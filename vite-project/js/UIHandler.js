@@ -26,8 +26,9 @@ function onSettingsSliderValueChanged(id) {
     let slider = document.getElementById(id);
     for( let i = 0; i < labels.length; i++ ) {
         if (labels[i].htmlFor === id){
-            if (id === "Texture Quality" || id === "Environment Quality") {
+            if (id === "Environment Quality") {
                 labels[i].innerText = id + ": " + quality[slider.value];
+                gameRef.settings.setEnvironmentQuality(slider.value);
             } else {
                 labels[i].innerText = id + ": " + slider.value;
                 switch (id) {

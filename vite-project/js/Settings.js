@@ -8,11 +8,10 @@ const Quality = Object.freeze({
 
 class Settings {
     constructor(game) {
-        this.sfx = 50;
-        this.music = 50;
+        this.sfx = .5;
+        this.music = .5;
         this.fov = 70;
 
-        this.textureQuality = Quality.MEDIUM;
         this.environmentQuality = Quality.MEDIUM;
         this.brightness = 50;
 
@@ -31,7 +30,6 @@ class Settings {
     setMusic(value) {
         this.music = value;
         this.game.soundManager.setBackgroundMusicVolume(value);
-        this.game.soundManager.playRainSound();
     }
 
     setFov(value) {
@@ -48,7 +46,7 @@ class Settings {
     }
 
     setEnvironmentQuality(value) {
-        this.environmentQuality = value;
+        this.environmentQuality = Number.parseInt(value);
         let turbidity;
         let rayleigh;
         let mieCoef;
