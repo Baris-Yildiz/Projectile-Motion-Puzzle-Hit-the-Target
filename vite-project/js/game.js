@@ -18,6 +18,7 @@ import {ToonShaderManager} from "./ToonShaderManager.js";
 import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
 import {BulletManager} from "./BulletManager.js";
 import {PickupManager} from "./PickupManager.js";
+import {ZombieSpawnManager} from "./ZombieSpawnManager.js";
 
 
 class Game {
@@ -31,14 +32,9 @@ class Game {
   nameState = false;
   charMixers = undefined;
   chars = undefined;
-  enemies = [];
-  enemyPositions = [new THREE.Vector3(-17, 10, 19)
-    , new THREE.Vector3(-17, 2, -16)
-    , new THREE.Vector3(17, 2, -15)
-    , new THREE.Vector3(17, 2, 17)
-  ];
-  enemyCount = 4;
+  enemies = [];  
   previousScore = 0;
+  
   
   constructor() {
     this.settings = new Settings(this);
@@ -105,6 +101,7 @@ class Game {
     this.scene.add(this.shadedPlane.mesh);
     this.pickupManager = new PickupManager(this);
     this.createFlashlight();
+    this.zombieSpawnManager = new ZombieSpawnManager(this);
   }
 
 
@@ -188,32 +185,6 @@ flashUpdate() {
 
   setupEnemyAI() {
     
-    let obstacles = [];
-    for(let i = 0; i < this.physics.colliders.length; i++){
-      obstacles.push(this.physics.colliders[i].mesh);
-    }
-
-    
-    for(let i = 0; i < this.enemyCount; i++){
-      let enemy = new THREE.Mesh(
-        new THREE.BoxGeometry(3, 3, 3),
-        new THREE.MeshBasicMaterial({color: 0xffff00})
-      );
-      enemy.position.copy(this.enemyPositions[i]);
-      this.enemies.push(enemy);
-
-      this.objectMover.addRayCastObject(enemy);
-      this.physics.createBoxRigidBody(enemy, 1.0);
-      enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
-    }
-    for(let i = 0; i < this.enemyCount; i++){
-      let otherEnemies = this.enemies.slice();
-      otherEnemies.splice(i, 1);
-      //console.log(otherEnemies);
-      let zombieAI = new PathfindingAI(this.enemies[i], this.player.parent, obstacles, []);
-      this.zombieAIs.push(zombieAI);
-    }
-   
     
   }
 
@@ -836,7 +807,7 @@ flashUpdate() {
     this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
     
     
-    
+    this.zombieSpawnManager.update();
     this.zombieAIs.forEach(zombieAI => {
         let vel = zombieAI.getVelocity();
         zombieAI.zombie.userData.rb.setVelocity(vel.multiplyScalar(200));
