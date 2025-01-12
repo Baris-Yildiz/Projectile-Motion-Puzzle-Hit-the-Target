@@ -27,8 +27,7 @@ export class PlayerLoader {
         this.aimOffSet = aimOffSet;
         this.shadedPlane = shadedPlane;
         this.parent.position.set(0, 0, 0);
-        this.playerCollider = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1, 0.4), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-        this.playerCollider.position.set(0, 1, 0);
+       
         this.createAimTarget();
         this.loadPlayer();
     }
@@ -103,6 +102,8 @@ export class PlayerLoader {
                     let name = gltf.animations[i].name.replace('_Armature', '');
                     this.addAnimation(this.characterAnimations, name, this.characterMixer.clipAction(gltf.animations[i]));
                 }
+                this.parent.material.visible = false;
+                this.parent.name = "playerCollider";
 
                 this.parent.attach(this.character);
                 this.parent.attach(this.aimTarget);

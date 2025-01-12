@@ -90,6 +90,7 @@ export class ToonShaderManager {
             object.name.includes('helper') ||
             object.name.includes('gizmo') ||
             object.name.includes('picker') ||
+            object.name.includes('playerCollider') ||
             object.name.includes('plane');
             
         return isTransformControl;

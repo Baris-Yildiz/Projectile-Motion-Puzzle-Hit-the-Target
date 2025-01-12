@@ -829,7 +829,7 @@ flashUpdate() {
 
     if ( this.playerState && this.player.tps.shooting && this.player.tps.canShoot) {
       
-      this.bulletManager.shootBullet(20000);
+      this.bulletManager.shootBullet(2000);
 
       this.soundManager.playGunSound();
     }

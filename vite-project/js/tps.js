@@ -157,10 +157,10 @@ export class ThirdPersonCamera{
     
     }
     cameraShake(original , aimOriginal , maxShakeRange) {
-        const x = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
-        const y = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
-        const z = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/100);
-        maxShakeRange = maxShakeRange*bulletMass/100;
+        const x = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/10);
+        const y = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/10);
+        const z = THREE.MathUtils.randFloatSpread(this.shakeIntensity*bulletMass/10);
+        maxShakeRange = maxShakeRange*bulletMass/10;
         const randomOffset = new THREE.Vector3(x, y, z);
         const newOffset = this.offSet.clone().add(randomOffset);
         const aimNewOffset = this.aimOffSet.clone().add(randomOffset);

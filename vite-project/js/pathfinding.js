@@ -10,7 +10,7 @@ class PathfindingAI {
         this.otherZombies = otherZombies;
         this.speed = 0.05;
         this.wanderSpeed = 0.02;
-        this.detectionRange = 20;
+        this.detectionRange = 200;
         this.avoidanceRange = 4;
         this.zombieAvoidanceRange = 3;
         this.preferredDistance = 3;
@@ -104,7 +104,7 @@ class PathfindingAI {
 
     canSeePlayer() {
         const toPlayer = new THREE.Vector3().subVectors(this.player.position, this.zombie.position);
-        const distance = toPlayer.length();
+        const distance = Math.abs(toPlayer.length());
 
         if (distance > this.detectionRange) {
             return false;
