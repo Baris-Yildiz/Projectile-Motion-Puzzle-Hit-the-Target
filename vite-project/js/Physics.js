@@ -215,6 +215,7 @@ class Physics {
 
         this.physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
         this.createGround();
+        this.createWalls();
     }
     createGround() {
        
@@ -232,6 +233,39 @@ class Physics {
         const groundBody = new Ammo.btRigidBody(groundInfo);
 
         this.physicsWorld.addRigidBody(groundBody);
+    }
+    createWalls() {
+        const walls = [
+            { normal: new Ammo.btVector3(1, 0, 0), position: new Ammo.btVector3(-23, 0, 0), color: 0xff0000 }, //Right wall (Red)
+            { normal: new Ammo.btVector3(-1, 0, 0), position: new Ammo.btVector3(23, 0, 0), color: 0x00ff00 }, //Left wall (Green)
+            { normal: new Ammo.btVector3(0, 0, 1), position: new Ammo.btVector3(0, 0, -24), color: 0x0000ff }, //Back wall (Blue)
+            { normal: new Ammo.btVector3(0, 0, -1), position: new Ammo.btVector3(0, 0, 24), color: 0xffff00 }  //Front wall (Yellow)
+        ];
+
+        for (const wall of walls) {
+            const wallShape = new Ammo.btStaticPlaneShape(wall.normal, 0);
+            const wallTransform = new Ammo.btTransform();
+            wallTransform.setIdentity();
+            wallTransform.setOrigin(wall.position);
+            const motionState = new Ammo.btDefaultMotionState(wallTransform);
+            const wallInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, wallShape, new Ammo.btVector3(0, 0, 0));
+            const wallBody = new Ammo.btRigidBody(wallInfo);
+            this.physicsWorld.addRigidBody(wallBody);
+
+            //For Visuality
+
+            const material = new THREE.MeshBasicMaterial({ color: wall.color, side: THREE.DoubleSide });
+            const geometry = new THREE.PlaneGeometry(50, 10);
+            const mesh = new THREE.Mesh(geometry, material);
+
+            mesh.position.set(wall.position.x(), wall.position.y(), wall.position.z());
+
+            if (wall.normal.x() !== 0) {
+                mesh.rotation.y = Math.PI / 2;
+            }
+
+            this.game.scene.add(mesh);
+        }
     }
     removeRigidBody(rigidBody) {
         if(!rigidBody.body || !rigidBody) return;
