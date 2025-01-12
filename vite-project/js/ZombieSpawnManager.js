@@ -58,7 +58,7 @@ export class ZombieSpawnManager {
         
         let enemy = new THREE.Mesh(
             new THREE.BoxGeometry(3, 3, 3),
-            new THREE.MeshBasicMaterial({color: 0xffff00})
+            this.game.cubeMaterial
         );
         enemy.position.copy(position);
         

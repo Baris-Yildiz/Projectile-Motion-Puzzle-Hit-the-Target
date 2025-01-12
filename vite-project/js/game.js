@@ -34,6 +34,7 @@ class Game {
   chars = undefined;
   enemies = [];  
   previousScore = 0;
+  cubeMaterial = undefined;
   
   
   constructor() {
@@ -97,12 +98,48 @@ class Game {
     this.player.parent.userData.rb.player = true;
 
     this.bulletManager = new BulletManager(this);
+    this.loadCubeMaterial();
     //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
     //this.player.playerCollider.userData.rb.setFactors(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.scene.add(this.shadedPlane.mesh);
     this.pickupManager = new PickupManager(this);
     this.createFlashlight();
     this.zombieSpawnManager = new ZombieSpawnManager(this);
+  }
+
+  loadCubeMaterial(){
+    let textureLoader = new THREE.TextureLoader();
+    let albedo = textureLoader.load('resources/textures/test/albedo1.jpg');
+    albedo.wrapS = THREE.RepeatWrapping;
+    albedo.wrapT = THREE.RepeatWrapping;
+    albedo.repeat.set(10,10);
+    //albedo.colorSpace = THREE.SRGBColorSpace;
+    
+    let ao = textureLoader.load('resources/textures/test/ao1.jpg');
+    ao.wrapS = THREE.RepeatWrapping;
+    ao.wrapT = THREE.RepeatWrapping;
+    ao.repeat.set(10,10);
+    //ao.colorSpace = THREE.SRGBColorSpace;
+    let normal = textureLoader.load('resources/textures/test/normal1.jpg');
+    normal.wrapS = THREE.RepeatWrapping;
+    normal.wrapT = THREE.RepeatWrapping;
+    normal.repeat.set(10,10);
+    //normal.colorSpace = THREE.SRGBColorSpace;
+    let roughness = textureLoader.load('resources/textures/test/roughness1.jpg');
+    roughness.wrapS = THREE.RepeatWrapping;
+    roughness.wrapT = THREE.RepeatWrapping;
+    roughness.repeat.set(10,10);
+    //roughness.colorSpace = THREE.SRGBColorSpace;
+    let metalness = textureLoader.load('resources/textures/test/metallic1.jpg');
+    metalness.wrapS = THREE.RepeatWrapping;
+    metalness.wrapT = THREE.RepeatWrapping;
+    metalness.repeat.set(10,10);
+    //metalness.colorSpace = THREE.SRGBColorSpace;
+    //let color = textureLoader.load('resources/assets/textures/test/color.tif');
+    //let height = textureLoader.load('resources/assets/textures/test/height.tif');
+    let material = new THREE.MeshStandardMaterial({  map: albedo, aoMap: ao, normalMap: normal, roughnessMap: roughness, metalnessMap: metalness});
+    this.cubeMaterial = material;
+    console.log(this.cubeMaterial);
   }
 
 
