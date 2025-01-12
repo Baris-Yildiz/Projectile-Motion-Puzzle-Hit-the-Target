@@ -473,7 +473,10 @@ flashUpdate() {
 
     let grassTextures = [
         'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_BaseColor.jpg',
-        'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_Bump.jpg'
+        'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_Bump.jpg',
+        'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_AO.jpg',
+      'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_Normal.jpg',
+      'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_Roughness.jpg'
     ];
 
     this.loadBasicObject(createBox(PLAYGROUND_SIZE, 0.01, PLAYGROUND_SIZE,
@@ -489,11 +492,19 @@ flashUpdate() {
 
     let pavementTextures = [
       'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_BaseColor.jpg'
-      , 'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Bump.jpg'];
+      , 'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Bump.jpg',
+      'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_AO.jpg',
+      'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Normal.jpg',
+      'resources/textures/worn_pavement_uddhdb1fw_1k/Worn_Pavement_uddhdb1fw_1K_Roughness.jpg'
+    ];
 
     let roadTextures = [
       'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_BaseColor.jpg'
-      , 'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_Bump.jpg'];
+      , 'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_Bump.jpg',
+      'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_AO.jpg',
+      'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_Normal.jpg',
+      'resources/textures/asphalt_road_th5mbefcw_1k/Asphalt_Road_th5mbefcw_1K_Roughness.jpg'
+    ];
 
     for (let i = 0; i < 4; i++) {
 

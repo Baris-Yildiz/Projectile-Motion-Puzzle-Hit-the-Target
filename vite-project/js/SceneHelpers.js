@@ -21,6 +21,9 @@ function createBox(width, height, depth, pos, color, textureFiles) {
             map: textures[0],
             bumpMap: textures[1],
             bumpScale: 1.3,
+            aoMap: textures[2],
+            normalMap: textures[3],
+            roughnessMap: textures[4],
             color: color,
             transparent: true,
         });
