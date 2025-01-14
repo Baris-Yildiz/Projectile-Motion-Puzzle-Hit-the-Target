@@ -265,6 +265,7 @@ class Physics {
             }
 
             this.game.scene.add(mesh);
+            mesh.userData.sceneWall = true;
         }
     }
     removeRigidBody(rigidBody) {

@@ -90,7 +90,8 @@ export class RedBlackShaderManager {
             object.name.includes('gizmo') ||
             object.name.includes('picker') ||
             object.name.includes('plane') ||
-            object.name.includes('playerCollider');
+            object.name.includes('playerCollider') ||
+            object.userData.sceneWall;
 
         return isTransformControl;
     }

@@ -75,6 +75,8 @@ export class ZombieSpawnManager {
 
         if (this.game.toonShaderManager.isToonEnabled) {
             this.game.toonShaderManager.applyToonShader(enemy);
+        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+            this.game.redBlackShaderManager.applyRedBlackShader(enemy);
         }
 
     }

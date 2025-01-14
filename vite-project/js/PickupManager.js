@@ -37,6 +37,8 @@ class PickupManager {
 
         if (this.game.toonShaderManager.isToonEnabled) {
             this.game.toonShaderManager.applyToonShader(this.activePickupMesh);
+        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+            this.game.redBlackShaderManager.applyRedBlackShader(this.activePickupMesh);
         }
     }
 
