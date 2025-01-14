@@ -60,6 +60,7 @@ export class ZombieSpawnManager {
             new THREE.BoxGeometry(3, 3, 3),
             this.game.cubeMaterial
         );
+
         enemy.position.copy(position);
         
         this.game.enemies.push(enemy);
@@ -71,6 +72,12 @@ export class ZombieSpawnManager {
         otherEnemies.splice(this.game.enemies.length - 1, 1);
         let zombieAI = new PathfindingAI(enemy, this.game.player.parent, this.game.physics.colliders.map(c => c.mesh), []);
         this.game.zombieAIs.push(zombieAI);
+
+        if (this.game.toonShaderManager.isToonEnabled) {
+            this.game.toonShaderManager.applyToonShader(enemy);
+        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+            this.game.redBlackShaderManager.applyRedBlackShader(enemy);
+        }
 
     }
 

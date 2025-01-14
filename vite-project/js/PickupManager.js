@@ -17,6 +17,7 @@ class PickupManager {
 
     createPickupObject(position) {
         this.activePickupMesh = this.pickupMesh.clone();
+
         this.activePickupMesh.position.copy(position);
 
         this.game.physics.createBoxRigidBody(
@@ -33,6 +34,12 @@ class PickupManager {
         scoreNeededForNextPickup = PICKUP_ARRIVE_SCORE;
 
         this.game.scene.add(this.activePickupMesh);
+
+        if (this.game.toonShaderManager.isToonEnabled) {
+            this.game.toonShaderManager.applyToonShader(this.activePickupMesh);
+        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+            this.game.redBlackShaderManager.applyRedBlackShader(this.activePickupMesh);
+        }
     }
 
     createPickupParticleEffect(position) {

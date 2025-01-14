@@ -90,7 +90,10 @@ export class RedBlackShaderManager {
             object.name.includes('gizmo') ||
             object.name.includes('picker') ||
             object.name.includes('plane') ||
-            object.name.includes('playerCollider');
+            object.name.includes('playerCollider') ||
+            object.userData.sceneWall ||
+            object.userData.isParticle ||
+            object.userData.isCollider;
 
         return isTransformControl;
     }
@@ -125,7 +128,7 @@ export class RedBlackShaderManager {
         this.isRedBlackEnabled = !this.isRedBlackEnabled;
 
         scene.traverse((object) => {
-            if (this.isRedBlackEnabled && !object.userData.isParticle && !object.userData.isCollider) {
+            if (this.isRedBlackEnabled) {
                 this.applyRedBlackShader(object);
             } else {
                 this.restoreOriginalMaterial(object);

@@ -91,13 +91,18 @@ export class ToonShaderManager {
             object.name.includes('gizmo') ||
             object.name.includes('picker') ||
             object.name.includes('playerCollider') ||
-            object.name.includes('plane');
+            object.name.includes('plane') ||
+            object.userData.sceneWall ||
+            object.userData.isParticle ||
+            object.userData.isCollider;
             
         return isTransformControl;
     }
 
     applyToonShader(object) {
+
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
+
         if (object.material?.isToonShader) return;
 
         if (!this.toonMaterials.has(object.uuid)) {
@@ -108,6 +113,7 @@ export class ToonShaderManager {
             object.material = object.material.map(mat => this.createToonMaterial(mat));
         } else {
             object.material = this.createToonMaterial(object.material);
+
         }
     }
 
@@ -126,7 +132,7 @@ export class ToonShaderManager {
         this.isToonEnabled = !this.isToonEnabled;
         
         scene.traverse((object) => {
-            if (this.isToonEnabled && !object.userData.isParticle && !object.userData.isCollider) {
+            if (this.isToonEnabled) {
                 this.applyToonShader(object);
             } else {
                 this.restoreOriginalMaterial(object);
