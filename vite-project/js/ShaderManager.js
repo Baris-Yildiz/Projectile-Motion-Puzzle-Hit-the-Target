@@ -5,7 +5,7 @@ import * as THREE from 'three';
 export class ShaderManager {
     constructor() {
         this.shaderState = 0;
-        this.toonMaterials = new Map();
+        this.oldMaterials = new Map();
         this.isToonEnabled = false;
         
         this.currentShader = {
@@ -100,8 +100,8 @@ export class ShaderManager {
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
         //if (object.material?.isToonShader) return;
 
-        if (!this.toonMaterials.has(object.uuid)) {
-            this.toonMaterials.set(object.uuid, object.material);
+        if (!this.oldMaterials.has(object.uuid)) {
+            this.oldMaterials.set(object.uuid, object.material);
         }
 
         if (Array.isArray(object.material)) {
@@ -114,9 +114,9 @@ export class ShaderManager {
     restoreOriginalMaterial(object) {
         if (!object.isMesh || this.shouldSkipObject(object)) return;
 
-        if (this.toonMaterials.has(object.uuid)) {
-            object.material = this.toonMaterials.get(object.uuid);
-            this.toonMaterials.delete(object.uuid);
+        if (this.oldMaterials.has(object.uuid)) {
+            object.material = this.oldMaterials.get(object.uuid);
+            this.oldMaterials.delete(object.uuid);
         }
     }
 

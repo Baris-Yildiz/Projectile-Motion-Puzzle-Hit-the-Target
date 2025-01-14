@@ -35,11 +35,15 @@ class PickupManager {
 
         this.game.scene.add(this.activePickupMesh);
 
-        if (this.game.toonShaderManager.isToonEnabled) {
-            this.game.toonShaderManager.applyToonShader(this.activePickupMesh);
-        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
-            this.game.redBlackShaderManager.applyRedBlackShader(this.activePickupMesh);
+        // if (this.game.toonShaderManager.isToonEnabled) {
+        //     this.game.toonShaderManager.applyToonShader(this.activePickupMesh);
+        // } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+        //     this.game.redBlackShaderManager.applyRedBlackShader(this.activePickupMesh);
+        // }
+        if(this.game.shaderManager.shaderState != 0){
+            this.game.shaderManager.applyShader(this.activePickupMesh);
         }
+        
     }
 
     createPickupParticleEffect(position) {
