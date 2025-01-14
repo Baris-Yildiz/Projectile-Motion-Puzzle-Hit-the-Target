@@ -97,7 +97,9 @@ export class ToonShaderManager {
     }
 
     applyToonShader(object) {
+
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
+
         if (object.material?.isToonShader) return;
 
         if (!this.toonMaterials.has(object.uuid)) {
@@ -108,6 +110,7 @@ export class ToonShaderManager {
             object.material = object.material.map(mat => this.createToonMaterial(mat));
         } else {
             object.material = this.createToonMaterial(object.material);
+
         }
     }
 
