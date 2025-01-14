@@ -54,7 +54,7 @@ export class ObjectMover {
         switch (e.key.toLowerCase()) {
             case 'r':
                 this.transformControls.setMode('rotate');
-                moveState = true;
+                //moveState = true;
                 document.getElementById('moveState').style.display = "block";
                 document.getElementById('moveState').innerText = "rotate";
                 this.setControls(true);
@@ -63,7 +63,7 @@ export class ObjectMover {
             case 'c':
                 this.transformControls.setMode('translate');
                 this.transformControls.setSpace('world');
-                moveState = true;
+                //moveState = true;
                 document.getElementById('moveState').style.display = "block";
                 document.getElementById('moveState').innerText = "translate";
                 this.setControls(true);
@@ -91,6 +91,8 @@ export class ObjectMover {
                     this.game.physics.createBoxRigidBody(rb.mesh ,rb.mass);
                 });
                 this.movedObjects = [];
+                this.transformControls.detach();
+                this.selectedObject = null;
                 document.getElementById('moveState').style.display = "none";
                 document.body.requestPointerLock();
                 this.setControls(false);

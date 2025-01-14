@@ -786,21 +786,21 @@ flashUpdate() {
 
     if (this.keyStates['KeyW']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(speedDelta));
-      this.soundManager.playWalkingSound();
+      //this.soundManager.playWalkingSound();
     }
     if (this.keyStates['KeyS']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(-speedDelta));
-      this.soundManager.playWalkingSound();
+      //this.soundManager.playWalkingSound();
 
     }
     if (this.keyStates['KeyA']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(-speedDelta));
-      this.soundManager.playWalkingSound();
+      //this.soundManager.playWalkingSound();
 
     }
     if (this.keyStates['KeyD']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
-      this.soundManager.playWalkingSound();
+      //this.soundManager.playWalkingSound();
 
     }
 
@@ -826,15 +826,10 @@ flashUpdate() {
     const deltaTime = Math.min(0.05, d) / this.STEPS_PER_FRAME;
     if(score - this.previousScore >= 100 && !this.pickupManager.activePickupMesh){
       this.previousScore = score;
-      this.pickupManager.createPickupObject(new THREE.Vector3(THREE.MathUtils.randInt(-15, 15), 3, THREE.MathUtils.randInt(-15, 15)));
+      this.pickupManager.createPickupObject(new THREE.Vector3(0, 3, 0));
     }
 
-    if ( this.playerState && this.player.tps.shooting && this.player.tps.canShoot) {
-      
-      this.bulletManager.shootBullet(2000);
-
-      this.soundManager.playGunSound();
-    }
+    
 
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.11);
@@ -859,33 +854,21 @@ flashUpdate() {
     for (let i = 0; i < this.particleEmitters.length; i++) {
       this.particleEmitters[i].updateParticleTime(this.clock.getElapsedTime());
     }
-    if(this.playerState){
+    if(this.playerState && !uiState){
+      if ( this.player.tps.shooting && this.player.tps.canShoot) {
+        this.bulletManager.shootBullet(2000);
+        this.soundManager.playGunSound();
+      }
+      if(this.player.tps.moving){
+        this.soundManager.playWalkingSound();
+        
+      }
       this.player.characterMixer.update(1/144);
       this.player.animationControls.movementUpdate();
       this.player.tps.update(this.scene);
       this.player.tps.movementUpdate();
       this.player.parent.userData.rb.moveKinematic(this.player.parent.position, this.player.parent.quaternion);
-      //this.player.playerCollider.userData.rb.setVelocity(this.player.tps.lastVelocity.clone().multiplyScalar(20));
-
-    }
-    // if (this.toonShaderManager.isToonEnabled) {
-    //   this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
-    //   this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    // }
-
-    // if (this.redBlackShaderManager.isRedBlackEnabled) {
-    //   this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    // }
-    this.shaderManager.update(this.scene,this.skybox.sunlight.position, this.clock.getElapsedTime());
-    
-    this.flashUpdate();
-    //console.log(this.renderCamera);
-    this.shadedPlane.update(this.clock.getElapsedTime());
-    //this.renderer.render(this.scene, this.renderCamera);
-    this.postProcessing.composer.render();
-    this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
-    
-    
+      
     this.zombieSpawnManager.update();
     this.zombieAIs.forEach(zombieAI => {
       if(zombieAI.zombie.userData.rb.dead && !zombieAI.zombie.userData.onWaitList){
@@ -908,6 +891,26 @@ flashUpdate() {
     
   
     this.physics.updatePhysics(1/144);
+      //this.player.playerCollider.userData.rb.setVelocity(this.player.tps.lastVelocity.clone().multiplyScalar(20));
+
+    }
+    // if (this.toonShaderManager.isToonEnabled) {
+    //   this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
+    //   this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
+    // }
+
+    // if (this.redBlackShaderManager.isRedBlackEnabled) {
+    //   this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
+    // }
+    this.shaderManager.update(this.scene,this.skybox.sunlight.position, this.clock.getElapsedTime());
+    
+    this.flashUpdate();
+    //console.log(this.renderCamera);
+    this.shadedPlane.update(this.clock.getElapsedTime());
+    //this.renderer.render(this.scene, this.renderCamera);
+    this.postProcessing.composer.render();
+    this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
+    
     /*
     if (scoreNeededForNextPickup <= 0) {
       this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));

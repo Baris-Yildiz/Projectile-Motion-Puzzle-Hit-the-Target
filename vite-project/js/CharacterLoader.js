@@ -38,6 +38,7 @@ export class PlayerLoader {
         this.aimTarget.position.set(-120, 35, 800);
         this.aimTarget.material.depthTest = false; 
         this.aimTarget.material.depthWrite = false;
+        this.aimTarget.name = "playerCollider";
         this.aimTarget.renderOrder = 9999;
     }
 

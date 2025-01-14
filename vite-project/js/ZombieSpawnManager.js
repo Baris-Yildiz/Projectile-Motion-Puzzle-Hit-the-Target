@@ -79,7 +79,7 @@ export class ZombieSpawnManager {
         //     this.game.redBlackShaderManager.applyRedBlackShader(enemy);
         // }
         if(this.game.shaderManager.shaderState != 0){
-            this.game.shaderManager.applyShader(this.activePickupMesh);
+            this.game.shaderManager.applyShader(enemy);
         }
 
     }

@@ -99,6 +99,7 @@ export class RedBlackShaderManager {
     }
 
     applyRedBlackShader(object) {
+        if(object === undefined) return;
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
         if (object.material?.isRedBlackShader) return;
 
