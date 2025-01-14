@@ -160,7 +160,8 @@ export class ShaderManager {
             }
         };
         scene.traverse((object) => {
-            if (this.shaderState != 0 && !object.userData.isParticle && !object.userData.isCollider) {
+            if (this.shaderState != 0 && !object.userData.isParticle && !object.userData.isCollider
+            && !object.userData.isSceneWall) {
                 this.applyShader(object);
             } else {
                 this.restoreOriginalMaterial(object);

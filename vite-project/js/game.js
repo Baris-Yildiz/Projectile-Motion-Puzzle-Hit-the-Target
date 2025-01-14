@@ -442,7 +442,7 @@ flashUpdate() {
     this.scene.add(moonLight);
 
     const scale = 0.4;
-    const SCENE_SIZE = 200 * scale;
+    const SCENE_SIZE = 400 * scale;
     const PLAYGROUND_SIZE = 50 * scale;
     const PAVEMENT_SIZE = 10 * scale;
     const BASKETBALL_COURT_SCALE = [0,0,0].fill(scale * 4);
