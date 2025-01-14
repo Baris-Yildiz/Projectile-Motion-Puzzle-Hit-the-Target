@@ -74,7 +74,7 @@ class Game {
     this.zombieAIs = [];
 
     this.STEPS_PER_FRAME = 5;
-    this.cameraMoveSpeed = 25;
+    this.cameraMoveSpeed = 25 * 3.;
     this.playerVelocity = new THREE.Vector3();
     this.playerDirection = new THREE.Vector3();
     this.keyStates = {};

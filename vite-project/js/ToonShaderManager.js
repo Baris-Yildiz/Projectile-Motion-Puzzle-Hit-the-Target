@@ -92,7 +92,9 @@ export class ToonShaderManager {
             object.name.includes('picker') ||
             object.name.includes('playerCollider') ||
             object.name.includes('plane') ||
-            object.userData.sceneWall;
+            object.userData.sceneWall ||
+            object.userData.isParticle ||
+            object.userData.isCollider;
             
         return isTransformControl;
     }
@@ -130,8 +132,7 @@ export class ToonShaderManager {
         this.isToonEnabled = !this.isToonEnabled;
         
         scene.traverse((object) => {
-            if (this.isToonEnabled && !object.userData.isParticle && !object.userData.isCollider
-            ) {
+            if (this.isToonEnabled) {
                 this.applyToonShader(object);
             } else {
                 this.restoreOriginalMaterial(object);
