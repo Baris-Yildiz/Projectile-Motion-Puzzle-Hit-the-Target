@@ -6,7 +6,6 @@ class Skybox {
     constructor(game) {
         this.sunlight = null;
         this.ambientLight = null;
-        this.sunPosition = null;
         this.sky = null;
         this.game = game;
 
@@ -40,10 +39,7 @@ class Skybox {
         let sky = new Sky();
         sky.scale.setScalar( 450000 );
 
-
-        this.sunPosition = new THREE.Vector3();
-
-        sky.material.uniforms['sunPosition'].value = this.sunPosition;
+        sky.material.uniforms['sunPosition'].value = this.sunlight.position;
 
         this.sky = sky;
 
@@ -56,10 +52,9 @@ class Skybox {
     sunAnimate(timeElapsed) {
         let t = timeElapsed * 0.1;
         let sunRadius = 20;
+        t = Math.PI / 1.25;
         this.sunlight.intensity = Math.max(0, Math.sin(t));
         this.sunlight.position.set(Math.cos(t) * sunRadius, Math.sin(t) * sunRadius, 0);
-
-        this.sunPosition.set(Math.cos(t) * sunRadius, Math.sin(t) * sunRadius, 0);
     }
 }
 
