@@ -236,10 +236,10 @@ class Physics {
     }
     createWalls() {
         const walls = [
-            { normal: new Ammo.btVector3(1, 0, 0), position: new Ammo.btVector3(-23, 0, 0), color: 0xff0000 }, //Right wall (Red)
-            { normal: new Ammo.btVector3(-1, 0, 0), position: new Ammo.btVector3(23, 0, 0), color: 0x00ff00 }, //Left wall (Green)
-            { normal: new Ammo.btVector3(0, 0, 1), position: new Ammo.btVector3(0, 0, -24), color: 0x0000ff }, //Back wall (Blue)
-            { normal: new Ammo.btVector3(0, 0, -1), position: new Ammo.btVector3(0, 0, 24), color: 0xffff00 }  //Front wall (Yellow)
+            { normal: new Ammo.btVector3(1, 0, 0), position: new Ammo.btVector3(-23, 0, 0), color: 0x999999 }, //Right wall
+            { normal: new Ammo.btVector3(-1, 0, 0), position: new Ammo.btVector3(23, 0, 0), color: 0x999999 }, //Left wall
+            { normal: new Ammo.btVector3(0, 0, 1), position: new Ammo.btVector3(0, 0, -24), color: 0x999999 }, //Back wall
+            { normal: new Ammo.btVector3(0, 0, -1), position: new Ammo.btVector3(0, 0, 24), color: 0x999999 }  //Front wall
         ];
 
         for (const wall of walls) {
@@ -254,7 +254,7 @@ class Physics {
 
             //For Visuality
 
-            const material = new THREE.MeshBasicMaterial({ color: wall.color, side: THREE.DoubleSide });
+            const material = new THREE.MeshBasicMaterial({ color: wall.color, side: THREE.DoubleSide, opacity:0.5, transparent:true });
             const geometry = new THREE.PlaneGeometry(50, 10);
             const mesh = new THREE.Mesh(geometry, material);
 
