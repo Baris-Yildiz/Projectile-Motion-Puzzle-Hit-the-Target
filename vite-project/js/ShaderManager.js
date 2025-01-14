@@ -20,7 +20,7 @@ export class ShaderManager {
         };
     }
 
-    createToonMaterial(originalMaterial) {
+    createMaterial(originalMaterial) {
         try {
             const materialColor = this.getMaterialColor(originalMaterial);
             
@@ -96,7 +96,7 @@ export class ShaderManager {
         return isTransformControl;
     }
 
-    applyToonShader(object) {
+    applyShader(object) {
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
         //if (object.material?.isToonShader) return;
 
@@ -105,9 +105,9 @@ export class ShaderManager {
         }
 
         if (Array.isArray(object.material)) {
-            object.material = object.material.map(mat => this.createToonMaterial(mat));
+            object.material = object.material.map(mat => this.createMaterial(mat));
         } else {
-            object.material = this.createToonMaterial(object.material);
+            object.material = this.createMaterial(object.material);
         }
     }
 
@@ -124,7 +124,6 @@ export class ShaderManager {
         if (!scene) return;
         
         this.shaderState = (this.shaderState +1) % 4;
-        console.log(this.shaderState);
         if(this.shaderState == 1){
             this.currentShader = {
                 uniforms: {
@@ -161,7 +160,7 @@ export class ShaderManager {
         };
         scene.traverse((object) => {
             if (this.shaderState != 0 && !object.userData.isParticle && !object.userData.isCollider) {
-                this.applyToonShader(object);
+                this.applyShader(object);
             } else {
                 this.restoreOriginalMaterial(object);
             }

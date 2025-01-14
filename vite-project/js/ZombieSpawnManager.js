@@ -73,11 +73,12 @@ export class ZombieSpawnManager {
         let zombieAI = new PathfindingAI(enemy, this.game.player.parent, this.game.physics.colliders.map(c => c.mesh), []);
         this.game.zombieAIs.push(zombieAI);
 
-        if (this.game.toonShaderManager.isToonEnabled) {
-            this.game.toonShaderManager.applyToonShader(enemy);
-        } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
-            this.game.redBlackShaderManager.applyRedBlackShader(enemy);
-        }
+        // if (this.game.toonShaderManager.isToonEnabled) {
+        //     this.game.toonShaderManager.applyToonShader(enemy);
+        // } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
+        //     this.game.redBlackShaderManager.applyRedBlackShader(enemy);
+        // }
+        this.game.shaderManager.applyShader(enemy);
 
     }
 
