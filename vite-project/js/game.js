@@ -19,6 +19,7 @@ import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
 import {BulletManager} from "./BulletManager.js";
 import {PickupManager} from "./PickupManager.js";
 import {ZombieSpawnManager} from "./ZombieSpawnManager.js";
+import {ShaderManager} from "./ShaderManager.js";
 
 
 class Game {
@@ -50,8 +51,9 @@ class Game {
     //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
     //this.characterCamera.position.set(0, 0, 800);
     //this.characterCamera.userData.playerCamera = 'player';
-    this.toonShaderManager = new ToonShaderManager();
-    this.redBlackShaderManager = new RedBlackShaderManager();
+    // this.toonShaderManager = new ToonShaderManager();
+    // this.redBlackShaderManager = new RedBlackShaderManager();
+    this.shaderManager = new ShaderManager();
    
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.camera.rotation.order = 'YXZ';
@@ -328,10 +330,10 @@ flashUpdate() {
     });
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyT') {
-          if (this.redBlackShaderManager.isRedBlackEnabled) {
-            this.redBlackShaderManager.toggleRedBlackShader(this.scene);
-          }
-          this.toonShaderManager.toggleToonShader(this.scene);
+          // if (this.redBlackShaderManager.isRedBlackEnabled) {
+          //   this.redBlackShaderManager.toggleRedBlackShader(this.scene);
+          // }
+          // this.toonShaderManager.toggleToonShader(this.scene);
       } else if (event.code === 'KeyU') {
 
         this.postProcessing.raining = !this.postProcessing.raining;
@@ -339,10 +341,11 @@ flashUpdate() {
         else{this.soundManager.stopRainSound();}
       }
       else if (event.code === 'KeyQ') {
-        if (this.toonShaderManager.isToonEnabled) {
-          this.toonShaderManager.toggleToonShader(this.scene);
-        }
-        this.redBlackShaderManager.toggleRedBlackShader(this.scene);
+        // if (this.toonShaderManager.isToonEnabled) {
+        //   this.toonShaderManager.toggleToonShader(this.scene);
+        // }
+        // this.redBlackShaderManager.toggleRedBlackShader(this.scene);
+        this.shaderManager.toggleShader(this.scene);
       }
   });
     window.addEventListener('resize', this.onWindowResize.bind(this));
@@ -866,14 +869,15 @@ flashUpdate() {
       //this.player.playerCollider.userData.rb.setVelocity(this.player.tps.lastVelocity.clone().multiplyScalar(20));
 
     }
-    if (this.toonShaderManager.isToonEnabled) {
-      this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
-      this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    }
+    // if (this.toonShaderManager.isToonEnabled) {
+    //   this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
+    //   this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
+    // }
 
-    if (this.redBlackShaderManager.isRedBlackEnabled) {
-      this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    }
+    // if (this.redBlackShaderManager.isRedBlackEnabled) {
+    //   this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
+    // }
+    this.shaderManager.update(this.scene,this.skybox.sunlight.position, this.clock.getElapsedTime());
     
     this.flashUpdate();
     //console.log(this.renderCamera);
