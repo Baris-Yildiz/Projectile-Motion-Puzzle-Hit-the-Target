@@ -20,7 +20,6 @@ class ParticleEmitter {
 
     updateParticleTime(time) {
         for (let i = 0; i < this.particles.length; i++) {
-
             this.particles[i].updateTime(time % this.particles[i].life);
         }
     }
@@ -50,7 +49,7 @@ class Particle {
         this.setLife(life);
 
         this.setOnBeforeRenderCallback(() => {
-            this.material.uniforms.t.value = this.t;
+            this.material.uniforms.time.value = this.t;
             this.material.uniforms.u_life.value = this.life - this.t;
         });
 
@@ -80,7 +79,7 @@ class Particle {
 
     setVelocity(value) {
         this.velocity = value;
-        this.material.uniforms.init_vel.value.copy(this.velocity);
+        this.material.uniforms.velocity.value.copy(this.velocity);
     }
 
     setScale(value) {
@@ -99,9 +98,4 @@ class Particle {
     }
 }
 
-
-
-
-
 export {Particle, ParticleEmitter};
-

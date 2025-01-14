@@ -755,11 +755,10 @@ flashUpdate() {
         vertexShader: smokeVertexShader,
         fragmentShader: smokeFragmentShader,
         uniforms: {
-          init_vel: {
+          velocity: {
             value: velocity
           },
-          g: {value: 10},
-          t:{value:0},
+          time:{value:0},
           u_color: {value: color},
           u_life : {value: life},
           u_scale: {value: scale},

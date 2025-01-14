@@ -1,6 +1,6 @@
 const pickupVertexShader = `
-    uniform vec3 init_vel;
-    uniform float t; 
+    uniform vec3 velocity;
+    uniform float time;
     uniform vec4 u_color;
     uniform float u_life;
     uniform float rand;
@@ -14,9 +14,9 @@ const pickupVertexShader = `
         f_uv = uv;
         
         vec3 object_pos = vec3(
-            position.x + rand * init_vel.x*t,
-            position.y + rand * 3.0 * init_vel.y*t,
-            position.z + init_vel.z*t);
+            position.x + rand * velocity.x*time,
+            position.y + rand * 3.0 * velocity.y*time,
+            position.z + velocity.z*time);
         o_color = u_color;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(object_pos, 1);
     }
