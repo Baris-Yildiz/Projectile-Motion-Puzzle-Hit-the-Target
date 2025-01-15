@@ -115,7 +115,7 @@ export class PlayerLoader {
             });
         }, (xhr) => {
             const percentComplete = (xhr.loaded / xhr.total) * 100;
-            console.log(`Loading Gun model... ${Math.round(percentComplete)}% complete`);
+            
         });
     }
 
