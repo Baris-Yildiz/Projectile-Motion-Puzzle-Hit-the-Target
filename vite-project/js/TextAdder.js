@@ -46,18 +46,3 @@ export class TextAdder {
     }
 }
 
-let fontLoader = new FontLoader();
-let fontGroup = new THREE.Group();
-let mat = new THREE.MeshBasicMaterial({color: 0x00ffff});
-let font = fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json' , function(response){
-    font = response;
-    let bar = new TextAdder('Baris Yildiz', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
-    let me = new TextAdder('Said Cetin', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
-    let muzo = new TextAdder('Berke Savas', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
-    let emre = new TextAdder('Emre Erdogan', font, 100, 8, 12, true, 4, 8, -2, 8, mat);
-    bar.setPosition(-bar.boundingBox.max.x + bar.centerOffSet, 0, -1000);
-    me.setPosition(bar.totalGroup.position.x + bar.boundingBox.max.x + 1000 - me.centerOffSet, 0, 0);
-    muzo.setPosition(me.totalGroup.position.x + me.boundingBox.max.x - muzo.centerOffSet + 500, 0, -1000);
-    emre.setPosition(muzo.totalGroup.position.x + muzo.boundingBox.max.x - emre.centerOffSet, 0, 0);
-    fontGroup.add(bar.totalGroup, me.totalGroup, muzo.totalGroup, emre.totalGroup);
-});

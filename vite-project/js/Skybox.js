@@ -46,7 +46,7 @@ class Skybox {
     }
 
     sunAnimate(timeElapsed) {
-        let t = timeElapsed * 0.1;
+        let t = timeElapsed * 2;
         let sunRadius = 20;
         this.sunlight.intensity = Math.max(0, Math.sin(t));
         this.sunlight.position.set(Math.cos(t) * sunRadius, Math.sin(t) * sunRadius, 0);

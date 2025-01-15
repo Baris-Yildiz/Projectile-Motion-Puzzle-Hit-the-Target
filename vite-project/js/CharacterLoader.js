@@ -112,11 +112,6 @@ export class PlayerLoader {
                 this.tps = new ThirdPersonCamera(this.canvas, this.camera, this.parent, this.offSet, this.aimOffSet, this.velocity, this.lookAtOffset, this.characterSkeleton, this.shadedPlane, this.leftShoulder, this.rightShoulder);
                 this.animationControls = new AnimationControls(this.tps, this.characterMixer, this.characterAnimations, this.characterSkeleton);
 
-                //addEventListener('keydown', (e) => this.tps.onKeyDown(e));
-                //addEventListener('keyup', (e) => this.tps.onKeyUp(e));
-                //addEventListener('pointermove', (e) => this.tps.onMouseMoveTest(e));
-                //addEventListener('mousedown', (e) => this.tps.onMousePress(e));
-                //addEventListener('mouseup', (e) => this.tps.onMouseRelease(e));
             });
         }, (xhr) => {
             const percentComplete = (xhr.loaded / xhr.total) * 100;
