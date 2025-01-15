@@ -5,9 +5,6 @@ export class TextAdder {
     boundingBox = undefined;
     centerOffSet = undefined;
     totalGroup = undefined;
-    lookAtObject = undefined;
-    spotLight = undefined;
-    spotLightHelper = undefined;
 
     constructor(text, font, size, depth, curveSegments, bevelEnabled, bevelThickness, bevelSize, bevelOffset, bevelSegments, material) {
         this.text = text;
@@ -40,8 +37,6 @@ export class TextAdder {
         this.textMesh = new THREE.Mesh(this.textGeometry, this.material);
         this.textMesh.castShadow = true;
         this.boundingBox = new THREE.Box3().setFromObject(this.textMesh);
-        this.centerOffSetX = -0.5 * (this.boundingBox.max.x - this.boundingBox.min.x);
-        this.centerOffSetY = 0.5 * (this.boundingBox.max.y - this.boundingBox.min.y);
         this.totalGroup.add(this.textMesh );
         this.totalGroup.position.set(0,0,0);
     }
@@ -65,14 +60,4 @@ let font = fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json
     muzo.setPosition(me.totalGroup.position.x + me.boundingBox.max.x - muzo.centerOffSet + 500, 0, -1000);
     emre.setPosition(muzo.totalGroup.position.x + muzo.boundingBox.max.x - emre.centerOffSet, 0, 0);
     fontGroup.add(bar.totalGroup, me.totalGroup, muzo.totalGroup, emre.totalGroup);
-    console.log('font loaded');
 });
-
-
-
-
-
-
-
-
-

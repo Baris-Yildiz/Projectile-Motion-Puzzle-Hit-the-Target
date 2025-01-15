@@ -13,12 +13,10 @@ class AnimatedObject {
         this.scale = scale;
         this.meshes = [];
         this.boundingBox = null;
-        //this.addLights();
     }
 
     async Load() {
-        const promise = await this.load(this.path,this.position,this.rotation,this.scale);
-        console.log("model loaded!");
+        await this.load(this.path,this.position,this.rotation,this.scale);
     }
 
     load(path, positions, rotations, scale) {
@@ -36,7 +34,7 @@ class AnimatedObject {
                     },
                     undefined,
                     (error) => {
-                        console.error('GLTF Yükleme Hatası:', error);
+                        console.error('Failed to load GLTF:', error);
                         reject(error);
                     }
                 );
@@ -50,18 +48,17 @@ class AnimatedObject {
                     },
                     undefined,
                     (error) => {
-                        console.error('FBX Yükleme Hatası:', error);
+                        console.error('Failed to load FBX:', error);
                     }
                 );
             } else {
-                console.error('Desteklenmeyen dosya formatı:', extension);
+                console.error('Unexpected file extension:', extension);
             }
         })
 
     }
 
     setupModel(positions, rotations, scale) {
-        // Modeli sahneye ekle ve transform uygula
         this.scene.add(this.model);
         this.model.position.set(positions[0], positions[1], positions[2]);
         this.model.rotation.set(rotations[0], rotations[1], rotations[2]);
@@ -79,7 +76,6 @@ class AnimatedObject {
             }
         });
 
-        // Eğer modelde animasyon varsa mixer oluştur
         if (this.model.animations && this.model.animations.length > 0) {
             this.mixer = new THREE.AnimationMixer(this.model);
             const action = this.mixer.clipAction(this.model.animations[0]);
@@ -92,28 +88,6 @@ class AnimatedObject {
             this.mixer.update(deltaTime);
         }
     }
-
-    addLights() {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); //Yumuşak ışık
-        this.scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 10, 7.5);
-        directionalLight.castShadow = true;
-        this.scene.add(directionalLight);
-    }
 }
 
 export default AnimatedObject;
-
-//          ----game.js constructor icinde kullanimi----
-
-//         this.animatedObject1 = new AnimatedObject(this.scene, 'Models/DartBoard/dartboard_4k.gltf', [0, 0, 0], [0, 0, 0], [1, 1, 1]);
-//         this.animatedObject2 = new AnimatedObject(this.scene, 'Models/dancingLeonardo/Silly Dancing.fbx', [5, 0, 0], [0, Math.PI / 4, 0], [0.01, 0.01, 0.01]);
-//         this.animatedObject3 = new AnimatedObject(this.scene, 'Models/walkingman/Strut Walking.fbx', [10,0,0],[0,0,0],[0.01,0.01,0.01])
-
-//          ---game.js animate() fonksiyonu icinde kullanimi---
-
-//          this.animatedObject1.update(deltaTime);
-//         this.animatedObject2.update(deltaTime);
-//         this.animatedObject3.update(deltaTime);

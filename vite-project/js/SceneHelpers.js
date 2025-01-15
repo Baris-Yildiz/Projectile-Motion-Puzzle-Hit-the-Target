@@ -45,7 +45,6 @@ function createBox(width, height, depth, pos, color, textureFiles) {
 }
 
 function loadShaders(material, width, height) {
-    //rain puddle shader
     material.onBeforeCompile = (shader) => {
 
         shader.uniforms.iTime = { value: rainTimer };

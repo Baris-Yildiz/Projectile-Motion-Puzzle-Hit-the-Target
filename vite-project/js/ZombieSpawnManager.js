@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import PathfindingAI  from './pathfinding.js';
 
-//game class'ında this.zombieSpawnManager = new ZombieSpawnManager(this);
-//animate fonksiyonunda this.zombieSpawnManager.update();
 export class ZombieSpawnManager {
     constructor(game) {
         this.game = game;
@@ -73,12 +71,7 @@ export class ZombieSpawnManager {
         let zombieAI = new PathfindingAI(enemy, this.game.player.parent, this.game.physics.colliders.map(c => c.mesh), []);
         this.game.zombieAIs.push(zombieAI);
 
-        // if (this.game.toonShaderManager.isToonEnabled) {
-        //     this.game.toonShaderManager.applyToonShader(enemy);
-        // } else if (this.game.redBlackShaderManager.isRedBlackEnabled) {
-        //     this.game.redBlackShaderManager.applyRedBlackShader(enemy);
-        // }
-        if(this.game.shaderManager.shaderState != 0){
+        if(this.game.shaderManager.shaderState !== 0){
             this.game.shaderManager.applyShader(enemy);
         }
 

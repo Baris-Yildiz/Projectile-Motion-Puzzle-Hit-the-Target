@@ -1,21 +1,15 @@
-import {THREE , GLTFLoader , FontLoader , Ammo} from "./LibImports.js"
+import {THREE , GLTFLoader , FontLoader} from "./LibImports.js"
 import PostProcessing from "./PostProcessing.js"
 import Skybox from "./Skybox.js"
-//import {Particle, ParticleEmitter, smokeParticleVShader, smokeParticleFShader} from "./ParticleSystem.js"
-import TextureMaps from "./TextureBumpMapping.js"
-//import {ObjectMover} from "./ObjectMover.js";
 import {Particle, ParticleEmitter} from "./ParticleSystem.js"
 import {ObjectMover} from "./ObjectMover.js";
 import AnimatedObject from "./animatedObject.js";
 import {createBox, rainTimer, createBoxCollider} from "./SceneHelpers.js";
-import PathfindingAI from "./pathfinding.js"
 import SoundManager from "./SoundManager.js";
 import { PlayerLoader } from './CharacterLoader.js';
 import {ShadedPlane} from './shaderTest.js';
 import {TextAdder} from './TextAdder.js';
 import {Physics} from "./Physics.js";
-import {ToonShaderManager} from "./ToonShaderManager.js";
-import {RedBlackShaderManager} from "./RedBlackShaderManager.js";
 import {BulletManager} from "./BulletManager.js";
 import {PickupManager} from "./PickupManager.js";
 import {ZombieSpawnManager} from "./ZombieSpawnManager.js";
@@ -42,17 +36,10 @@ class Game {
     this.settings = new Settings(this);
     initUI(this);
     this.canvas = document.querySelector("#glCanvas");
-
     this.clock = new THREE.Clock();
-
     this.scene = new THREE.Scene();
     
     this.scene.background = new THREE.Color(0xffffff);
-    //this.characterCamera  = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 800);
-    //this.characterCamera.position.set(0, 0, 800);
-    //this.characterCamera.userData.playerCamera = 'player';
-    // this.toonShaderManager = new ToonShaderManager();
-    // this.redBlackShaderManager = new RedBlackShaderManager();
     this.shaderManager = new ShaderManager();
    
     this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -68,7 +55,6 @@ class Game {
 
     this.postProcessing = new PostProcessing(this);
     this.particleEmitters = [];
-    //this.objectMover = new ObjectMover(this.scene, this.renderCamera, this.renderer);
 
     this.animatableObjects = [];
     this.skybox = new Skybox(this);
@@ -87,7 +73,6 @@ class Game {
     this.soundManager = new SoundManager(this);
     this.shadedPlane = new ShadedPlane(window.innerWidth, window.innerHeight, 0.03, 50);
     this.loader = new GLTFLoader();
-    //loader, characterPath, gunPath, canvas, camera, offSet, aimOffSet, velocity, lookAtOffset, shadedPlane
     this.player = new PlayerLoader(this.loader, this.char1Path, this.gunPath, this.canvas, this.renderCamera,
       new THREE.Vector3(0, 1.5, -5/3), //offSet
       new THREE.Vector3(-0.3, 1.5, -1.2/4), //aimOffSet
@@ -101,8 +86,6 @@ class Game {
 
     this.bulletManager = new BulletManager(this);
     this.loadCubeMaterial();
-    //this.physics.createBoxRigidBody(this.player.playerCollider, 80.0);
-    //this.player.playerCollider.userData.rb.setFactors(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0));
     this.scene.add(this.shadedPlane.mesh);
     this.pickupManager = new PickupManager(this);
     this.createFlashlight();
@@ -115,33 +98,29 @@ class Game {
     albedo.wrapS = THREE.RepeatWrapping;
     albedo.wrapT = THREE.RepeatWrapping;
     albedo.repeat.set(10,10);
-    //albedo.colorSpace = THREE.SRGBColorSpace;
     
     let ao = textureLoader.load('resources/textures/test/ao1.jpg');
     ao.wrapS = THREE.RepeatWrapping;
     ao.wrapT = THREE.RepeatWrapping;
     ao.repeat.set(10,10);
-    //ao.colorSpace = THREE.SRGBColorSpace;
+
     let normal = textureLoader.load('resources/textures/test/normal1.jpg');
     normal.wrapS = THREE.RepeatWrapping;
     normal.wrapT = THREE.RepeatWrapping;
     normal.repeat.set(10,10);
-    //normal.colorSpace = THREE.SRGBColorSpace;
+
     let roughness = textureLoader.load('resources/textures/test/roughness1.jpg');
     roughness.wrapS = THREE.RepeatWrapping;
     roughness.wrapT = THREE.RepeatWrapping;
     roughness.repeat.set(10,10);
-    //roughness.colorSpace = THREE.SRGBColorSpace;
+
     let metalness = textureLoader.load('resources/textures/test/metallic1.jpg');
     metalness.wrapS = THREE.RepeatWrapping;
     metalness.wrapT = THREE.RepeatWrapping;
     metalness.repeat.set(10,10);
-    //metalness.colorSpace = THREE.SRGBColorSpace;
-    //let color = textureLoader.load('resources/assets/textures/test/color.tif');
-    //let height = textureLoader.load('resources/assets/textures/test/height.tif');
+
     let material = new THREE.MeshStandardMaterial({  map: albedo, aoMap: ao, normalMap: normal, roughnessMap: roughness, metalnessMap: metalness});
     this.cubeMaterial = material;
-    console.log(this.cubeMaterial);
   }
 
 
@@ -208,54 +187,14 @@ flashUpdate() {
     }
 }
 
-
-
   async startGame() {
     await this.createSceneObjects();
-    this.setupEnemyAI();
     this.initEventListeners();
-    this.player.character.traverse((child) => {
-      if (child.isMesh) {
-        //console.log("Found a mesh:", child);
-      }});
 
     this.animate();
     this.soundManager.playBackgroundMusic();
   }
 
-  setupEnemyAI() {
-    /*
-    let obstacles = [];
-    for(let i = 0; i < this.physics.colliders.length; i++){
-      obstacles.push(this.physics.colliders[i].mesh);
-    }
-
-    
-    for(let i = 0; i < this.enemyCount; i++){
-      let enemy = new THREE.Mesh(
-        new THREE.BoxGeometry(3, 3, 3),
-        new THREE.MeshBasicMaterial({color: 0xffff00})
-      );
-      enemy.position.copy(this.enemyPositions[i]);
-      this.enemies.push(enemy);
-      enemy.userData.onWaitList = false;
-
-      this.scene.add(enemy);
-      this.physics.createBoxRigidBody(enemy, 1.0);
-      enemy.userData.rb.setFactors(new THREE.Vector3(1, 1, 1), new THREE.Vector3(1, 1, 1));
-    }
-    for(let i = 0; i < this.enemyCount; i++){
-      let otherEnemies = this.enemies.slice();
-      otherEnemies.splice(i, 1);
-      //console.log(otherEnemies);
-      let zombieAI = new PathfindingAI(this.enemies[i], this.player.parent, obstacles, []);
-      this.zombieAIs.push(zombieAI);
-    }*/
-   
-    
-  }
-
-  // Initialize event listeners for controls and window resize
   initEventListeners() {
     document.addEventListener('keydown', (event) => {
       if(event.key.toLowerCase() === 'p') {
@@ -287,10 +226,7 @@ flashUpdate() {
       }
     });
     document.addEventListener('pointermove', (event) => {
-      //console.log("pointer move")
       if(this.playerState){
-        //console.log("player pointer is moving");
-        
         this.player.tps.onMouseMoveTest(event , this.settings.horizontalSensitivity, this.settings.verticalSensitivity);
       }
     });
@@ -301,7 +237,6 @@ flashUpdate() {
       
       if(!moveState){
         document.body.requestPointerLock();
-        
       }else{
         this.objectMover.onMouseClick(event);
       }
@@ -329,22 +264,12 @@ flashUpdate() {
       }
     });
     document.addEventListener('keydown', (event) => {
-      if (event.code === 'KeyT') {
-          // if (this.redBlackShaderManager.isRedBlackEnabled) {
-          //   this.redBlackShaderManager.toggleRedBlackShader(this.scene);
-          // }
-          // this.toonShaderManager.toggleToonShader(this.scene);
-      } else if (event.code === 'KeyU') {
-
+      if (event.code === 'KeyU') {
         this.postProcessing.raining = !this.postProcessing.raining;
         if (this.postProcessing.raining){this.soundManager.playRainSound();}
         else{this.soundManager.stopRainSound();}
       }
       else if (event.code === 'KeyQ') {
-        // if (this.toonShaderManager.isToonEnabled) {
-        //   this.toonShaderManager.toggleToonShader(this.scene);
-        // }
-        // this.redBlackShaderManager.toggleRedBlackShader(this.scene);
         this.shaderManager.toggleShader(this.scene);
       }
   });
@@ -359,7 +284,6 @@ flashUpdate() {
     this.shadedPlane.resize(window.innerWidth, window.innerHeight);
   }
 
-
   updatePlayer(deltaTime) {
     let damping = Math.exp(-4 * deltaTime) - 1;
     this.playerVelocity.addScaledVector(this.playerVelocity, damping);
@@ -369,7 +293,6 @@ flashUpdate() {
 
   }
 
-  // Calculate forward direction for movement
   getForwardVector() {
     this.renderCamera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
@@ -377,7 +300,6 @@ flashUpdate() {
     return this.playerDirection;
   }
 
-  // Calculate side direction for movement
   getSideVector() {
     this.renderCamera.getWorldDirection(this.playerDirection);
     this.playerDirection.y = 0;
@@ -414,14 +336,13 @@ flashUpdate() {
               this.scene.add(collider);
             }
 
-
             resolve();
           });
     })
   }
 
 
-  loadBasicObject(mesh, mass= 0) {
+  loadBasicObject(mesh) {
 
     mesh.material.onBeforeRender = () => {
       if (this.postProcessing.raining) {
@@ -429,12 +350,10 @@ flashUpdate() {
       } else {
         rainTimer.x = 0;
       }
-
     }
 
     this.physics.createKinematicCube(mesh);
     this.scene.add(mesh);
-    //this.objectMover.addRayCastObject(mesh);
   }
 
   async createSceneObjects() {
@@ -459,20 +378,11 @@ flashUpdate() {
     let ground = createBox(SCENE_SIZE, 0.01, SCENE_SIZE,
         new THREE.Vector3(0, 0, 0), 0xaaaaaa);
     this.loadBasicObject(ground);
-      /*
-    let cube = createBoxCollider(1,1,1, new THREE.Vector3(0, 2, 0));
-    this.loadBasicObject(cube);
-
-    let cube2 = createBox(1, 1, 1,
-        new THREE.Vector3(0, 4, 0), 0xffff00);
-    this.loadBasicObject(cube2, 1);
-    */
 
     await this.loadAnimatedObject('resources/assets/glbAssets/wooden_branch_pcyee_low.glb',
         [-scale * 15.0, scale / 0.25 * 0.01 , -PLAYGROUND_SIZE/2 - PAVEMENT_SIZE - scale * 10.0 ],
         [0.0, Math.PI / 5.0, 0.0], [scale * 35, scale * 35, scale * 35],
         true, [5,1,5]);
-
 
     let grassTextures = [
         'resources/textures/uncut_grass_oilpt20_1k/Uncut_Grass_oilpt20_1K_BaseColor.jpg',
@@ -631,13 +541,10 @@ flashUpdate() {
         [0.0, 0.1 , PLAYGROUND_SIZE/2 + PAVEMENT_SIZE + scale * 10.0 ],
         [0.0, 0., 0.], TRASH_SCALE, true, [2,2,2]);
 
-
     this.scene.add(this.objectMover.rayCastableObjects);
     this.createText();
     this.createParticleSystemInstances(scale);
   }
-
-
 
   createTextGroup(font, mat){
     let textGroup = new THREE.Group();
@@ -691,12 +598,7 @@ flashUpdate() {
     s2.target = said.textMesh;
     s3.target = emre.textMesh;
     s4.target = baris.textMesh;
-    /*
-    let l1 = new THREE.SpotLightHelper(s1 , 0xff0000);
-    let l2 = new THREE.SpotLightHelper(s2 , 0x00ff00);
-    let l3 = new THREE.SpotLightHelper(s3 , 0x0000ff);
-    let l4 = new THREE.SpotLightHelper(s4 , 0xffff00);
-    */
+
     textGroup.add(baris.totalGroup , muzo.totalGroup , said.totalGroup , emre.totalGroup,s1, s2, s3, s4);
     textGroup.position.set(1000, 40, 0);
     baris.textMesh.rotation.set(-Math.PI / 2, 0, 0);
@@ -707,8 +609,6 @@ flashUpdate() {
     said.textMesh.scale.set(0.01, 0.01, 0.01);
     emre.textMesh.rotation.set(-Math.PI / 2, 0, 0);
     emre.textMesh.scale.set(0.01, 0.01, 0.01);
-    console.log('here');
-    console.log(textGroup);
 
     return {textGroup, charMixers, chars};
 
@@ -718,8 +618,7 @@ flashUpdate() {
     let mat = new THREE.MeshPhongMaterial({ color: 0xff0000 });
 
     fontLoader.load('resources/assets/fonts/helvetiker_bold.typeface.json', (font) => {
-        // Ensure font is available in this callback
-        let group = this.createTextGroup(font, mat); // Call createTextGroup only after the font is loaded
+        let group = this.createTextGroup(font, mat);
         this.scene.add(group.textGroup);
         this.charMixers = group.charMixers;
         this.chars = group.chars;
@@ -727,8 +626,6 @@ flashUpdate() {
         console.error('Error loading font:', error);
     });
   }
-
-
 
   createParticleSystemInstances(scale) {
     let numberOfParticles = 250;
@@ -777,8 +674,6 @@ flashUpdate() {
     smokeEmitter.startEmitting(this.scene);
 
     this.particleEmitters.push(smokeEmitter);
-
-    //this.createPickupParticleEffect();
   }
 
   controls(deltaTime) {
@@ -786,22 +681,15 @@ flashUpdate() {
 
     if (this.keyStates['KeyW']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(speedDelta));
-      //this.soundManager.playWalkingSound();
     }
     if (this.keyStates['KeyS']) {
       this.playerVelocity.add(this.getForwardVector().multiplyScalar(-speedDelta));
-      //this.soundManager.playWalkingSound();
-
     }
     if (this.keyStates['KeyA']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(-speedDelta));
-      //this.soundManager.playWalkingSound();
-
     }
     if (this.keyStates['KeyD']) {
       this.playerVelocity.add(this.getSideVector().multiplyScalar(speedDelta));
-      //this.soundManager.playWalkingSound();
-
     }
 
     if (this.keyStates['Space']) {
@@ -817,8 +705,6 @@ flashUpdate() {
     if (this.keyStates['KeyX'] || this.keyStates['ShiftRight']) {
       this.renderCamera.rotation.z -= speedDelta / 10.0;
     }
-
-
   }
 
   animate() {
@@ -828,8 +714,6 @@ flashUpdate() {
       this.previousScore = score;
       this.pickupManager.createPickupObject(new THREE.Vector3(0, 3, 0));
     }
-
-    
 
     if(this.nameState){
       this.renderCamera.position.lerp(new THREE.Vector3(994, 62, 12), 0.11);
@@ -848,7 +732,6 @@ flashUpdate() {
         this.charMixers[i].update(d);
       }
     }
-
 
     this.skybox.sunAnimate(this.clock.getElapsedTime());
     for (let i = 0; i < this.particleEmitters.length; i++) {
@@ -872,7 +755,6 @@ flashUpdate() {
     this.zombieSpawnManager.update();
     this.zombieAIs.forEach(zombieAI => {
       if(zombieAI.zombie.userData.rb.dead && !zombieAI.zombie.userData.onWaitList){
-        console.log("dead");
         zombieAI.zombie.userData.onWaitList = true;
         setTimeout(() => {
           let zombie = zombieAI.zombie;
@@ -891,34 +773,16 @@ flashUpdate() {
     
   
     this.physics.updatePhysics(1/144);
-      //this.player.playerCollider.userData.rb.setVelocity(this.player.tps.lastVelocity.clone().multiplyScalar(20));
-
     }
-    // if (this.toonShaderManager.isToonEnabled) {
-    //   this.toonShaderManager.updateLightPosition(this.scene, this.skybox.sunlight.position);
-    //   this.toonShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    // }
 
-    // if (this.redBlackShaderManager.isRedBlackEnabled) {
-    //   this.redBlackShaderManager.updateTime(this.scene, this.clock.getElapsedTime());
-    // }
     this.shaderManager.update(this.scene,this.skybox.sunlight.position, this.clock.getElapsedTime());
     
     this.flashUpdate();
-    //console.log(this.renderCamera);
     this.shadedPlane.update(this.clock.getElapsedTime());
-    //this.renderer.render(this.scene, this.renderCamera);
     this.postProcessing.composer.render();
     this.postProcessing.updatePostProcessing(this.clock.getElapsedTime());
-    
-    /*
-    if (scoreNeededForNextPickup <= 0) {
-      this.pickupManager.createPickupObject(new THREE.Vector3(0, 5, 0));
-    }
-    */
 
     requestAnimationFrame(this.animate.bind(this));
-
   }
 }
 
@@ -951,10 +815,8 @@ function initializeScene() {
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('screen').style.display = 'block';
 
-      
     }
   }, intervalTime);
 }
 
 window.initializeScene = initializeScene;
-

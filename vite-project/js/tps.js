@@ -48,35 +48,13 @@ export class ThirdPersonCamera{
         this.camera.position.add(this.offSet);
         this.camera.lookAt(this.target.position);
         this.camera.updateMatrix();
-        //this.setupPointerLock();        
         this.shadedPlane.mesh.visible = false;
     }
-    /*
-    setupPointerLock() {
-        this.canvas.addEventListener('click', () => this.requestPointerLock());
-        document.addEventListener('pointerlockchange', () => this.onPointerLockChange());
-    }
 
-    requestPointerLock() {
-        this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock || this.canvas.webkitRequestPointerLock;
-        this.canvas.requestPointerLock();
-    }
-
-    onPointerLockChange() {
-        if (document.pointerLockElement === this.canvas) {
-            console.log('Pointer locked');
-        } else {
-            console.log('Pointer unlocked');
-        }
-    }
-    */
     onMouseMoveTest(event,xSensitivity = 1,ySensitivity = 1){
-        //console.log("mouse move inside tps");
         this.mousePosition.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mousePosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
         this.lastMousePosition.copy(this.mousePosition);
-        //this.phi -= event.movementX * 0.0005;
-        //this.theta += event.movementY * 0.0005;
         this.phi -= event.movementX * xSensitivity * 0.0005;
         this.theta -= event.movementY * ySensitivity * 0.0005;
         this.theta = THREE.MathUtils.clamp(this.theta, -Math.PI / 4, Math.PI / 4);
@@ -96,23 +74,11 @@ export class ThirdPersonCamera{
         const targetPosition = this.target.children[1].getWorldPosition(new THREE.Vector3());
         this.raycaster.set(this.camera.position, targetPosition.clone().sub(this.camera.position).normalize());
         const intersects = this.raycaster.intersectObjects(scene.children, true);
-        if (intersects.length > 0 && intersects[0].object !== this.target.children[1] && intersects[0].object  !== this.shadedPlane.mesh) {
-            //console.log(intersects[0].object);
-            //console.log(`Clicked on target at position: ${targetPosition.x}, ${targetPosition.y}, ${targetPosition.z}`);
-            //let cube = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0x00ff00}));
-            //cube.position.copy(intersects[0].point);
-            //scene.add(cube);
-        }
         }
         } 
     update(scene){
         if(this.shooting){
             this.cameraShake(this.original, this.aimOriginal , 0.1);
-
-            //this.skeleton.bones[7].rotation.x -=Math.sin(this.theta);
-            //this.skeleton.bones[31].rotation.x -= Math.sin(this.theta);
-            //console.log(this.leftShoulder.position);
-            //this.leftShoulder.position.y = 5;
             this.leftShoulder.rotation.x -= Math.sin(this.theta)*4/5;
             this.rightShoulder.rotation.x -= Math.sin(this.theta)*4/5;
         }
@@ -122,10 +88,7 @@ export class ThirdPersonCamera{
         }
         const worldOffset = this.controlOffSet.clone().applyQuaternion(this.target.quaternion);
         const targetPosition = this.target.position.clone().add(worldOffset);
-        //console.log(targetPosition);
-        //console.log(this.camera);
         this.camera.position.lerp(targetPosition , 0.15);
-        //console.log(this.target.children[1].getWorldPosition(new THREE.Vector3()));
         this.camera.lookAt(this.target.children[1].getWorldPosition(new THREE.Vector3()));
         this.camera.updateMatrix();
         this.raycast(scene , shootFrequency);
@@ -151,8 +114,7 @@ export class ThirdPersonCamera{
             else if(this.movementArray[3]){
                 this.lastVelocity.add(right.clone().multiplyScalar(-this.velocity.x));
                 this.target.position.sub(right.multiplyScalar(this.velocity.x));
-            }   
-            //console.log(this.lastVelocity);    
+            }
         }
     
     }

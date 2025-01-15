@@ -1,5 +1,3 @@
-// In Game class, call inside constructor with this.settings = new Settings(this);
-
 const Quality = Object.freeze({
     LOW: 0,
     MEDIUM: 1,
@@ -40,9 +38,7 @@ class Settings {
 
     setBrightness(value) {
         this.brightness = value;
-
         this.game.postProcessing.shaderPass.uniforms.brightness.value = this.brightness;
-        //this.game.composer.passes[1].uniforms.brightness.value = this.brightness;
     }
 
     setEnvironmentQuality(value) {

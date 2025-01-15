@@ -1,6 +1,3 @@
-// this.UIHandler = new UIHandler(game);
-// TODO: code above only adds keyH listener and instantiates gameRef, change to function not class.
-
 const buttons = Object.freeze({
     ABOUT_BUTTON:0,
     OPTIONS_BUTTON:1,
@@ -87,7 +84,6 @@ function toggleUI(event) {
     }
     uiState = !uiState;
     gameUI.style.visibility = uiState ? "unset" : "hidden";
-    console.log(uiState);
     if(uiState){
         playMenuSFX();
         document.exitPointerLock();
@@ -109,4 +105,3 @@ function playMenuSFX() {
         console.error('Audio playback failed:', error);
     });
 }
-

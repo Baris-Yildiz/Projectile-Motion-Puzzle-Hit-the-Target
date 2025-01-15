@@ -1,4 +1,3 @@
-
 import * as THREE from 'three'
 export class AnimationControls{
     currentAnimation = null;
@@ -12,9 +11,6 @@ export class AnimationControls{
         this.currentAnimation = this.animations['Idle'];
         this.currentAnimation.setLoop(THREE.LoopRepeat);
         this.currentAnimation.play();
-        //console.log(this.character.skeleton.bones);
-        
-
         }
 
     playAnimation(animationName){
@@ -137,8 +133,4 @@ export class AnimationControls{
             this.stopAnimation(previousAnimation._clip.name);
         }
     }
-    
-
-
-
 }

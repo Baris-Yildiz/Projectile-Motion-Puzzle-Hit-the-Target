@@ -27,7 +27,7 @@ class PostProcessing{
                     brightness: { value: 1.0 },
                     applicationTime: {value: 0.0},
                     isRaining:{value: this.raining},
-                    isInRedBlackMode: {value: this.game.shaderManager.shaderSate === 2}
+                    isInRedBlackMode: {value: this.game.shaderManager.shaderState === 2}
                 },
             }
         );
@@ -44,7 +44,7 @@ class PostProcessing{
     updatePostProcessing(t) {
         this.game.postProcessing.shaderPass.uniforms.applicationTime.value = t;
         this.game.postProcessing.shaderPass.uniforms.isRaining.value = this.raining;
-        this.game.postProcessing.shaderPass.uniforms.isInRedBlackMode.value = (this.game.shaderManager.shaderSate === 2);
+        this.game.postProcessing.shaderPass.uniforms.isInRedBlackMode.value = (this.game.shaderManager.shaderState === 2);
     }
 
     render() {
@@ -52,9 +52,6 @@ class PostProcessing{
             this.composer.render();
         }
     }
-    toggleOn(isEnabled){
-        this.enabled = isEnabled;
-    }   
 }
 
 export default PostProcessing;

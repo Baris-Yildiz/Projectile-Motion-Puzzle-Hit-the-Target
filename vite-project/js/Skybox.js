@@ -1,7 +1,5 @@
 import{THREE, Sky} from "./LibImports.js"
 
-//In constructor: this.skybox = new Skybox(this);
-//In update: this.skybox.sunAnimate(timeElapsed);
 class Skybox {
     constructor(game) {
         this.sunlight = null;
@@ -30,8 +28,6 @@ class Skybox {
         sunlight.shadow.camera.far = 1000;
 
         sunlight.shadow.bias = -0.0005;
-
-        //sunlight.target = mesh;
         this.sunlight = sunlight;
 
         this.game.scene.add(sunlight);
@@ -58,5 +54,3 @@ class Skybox {
 }
 
 export default Skybox;
-
-

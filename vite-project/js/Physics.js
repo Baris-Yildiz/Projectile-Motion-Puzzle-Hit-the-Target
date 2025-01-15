@@ -10,14 +10,12 @@ class Rigidbody {
     mesh = null;
     mass = null;
     shapeString = null;
-    gotHit = false;
     hitCount = 0;
     maxHitCount = 100;
     pickup = false;
     player = false;
     dead = false;
-    constructor() {
-    }
+
     createKinematicBoxRigidBody(mesh) {
         this.transform = new Ammo.btTransform();
         this.transform.setIdentity();
@@ -36,9 +34,6 @@ class Rigidbody {
 
         this.body.setCollisionFlags(this.body.getCollisionFlags() || Ammo.btCollisionObject.CF_KINEMATIC_OBJECT);
         this.body.setActivationState(Ammo.DISABLE_DEACTIVATION);
-        //console.log(this.body.isKinematicObject());
-        //const isKinematic = (this.body.getCollisionFlags() && Ammo.btCollisionObject.CF_KINEMATIC_OBJECT) !== 0;
-        //console.log("Is Kinematic:", isKinematic);
     
         Ammo.destroy(btSize);
     }
@@ -112,81 +107,16 @@ class Rigidbody {
         )
 
         this.body = new Ammo.btRigidBody(this.info);
-        //console.log(this.body);
-        //this.body.setLinearFactor(1,0,1);
     }
     setVelocity(velocity){
-        //console.log(this.hitCount);
         if(this.hitCount <= this.maxHitCount){
             let scaler = 1 - (this.hitCount / this.maxHitCount);
             this.body.applyForce(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
-            //console.log(scaler);
-            //this.body.setLinearVelocity(new Ammo.btVector3(velocity.x * scaler, velocity.y * scaler, velocity.z * scaler));
         } 
         else{
             this.dead = true;
         }
     }
-/*
-    createRigidBodyForModel(model, mass) {
-        let pos = model.position;
-        let quaternion = model.quaternion;
-
-        this.transform = new Ammo.btTransform();
-        this.transform.setIdentity();
-        this.transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-        this.transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
-
-        this.motionState = new Ammo.btDefaultMotionState(this.transform);
-        this.localInertia = new Ammo.btVector3(0, 0, 0);
-
-        let verticePositions = model.children[0].geometry.attributes.position.array;
-
-        let triangles = [];
-
-        for (let i = 0; i < verticePositions.length; i+= 3) {
-            triangles.push({
-                x: verticePositions[i],
-                y: verticePositions[i + 1],
-                z: verticePositions[i + 2],
-            });
-        }
-        console.log(model);
-
-        let triangle, triangleMesh = new Ammo.btTriangleMesh();
-        let a = new Ammo.btVector3(0, 0, 0);
-        let b = new Ammo.btVector3(0, 0, 0);
-        let c = new Ammo.btVector3(0, 0, 0);
-
-        for (let i = 0; i < triangles.length - 3; i+= 3) {
-            a.setX(triangles[i].x);
-            a.setY(triangles[i].y);
-            a.setZ(triangles[i].z);
-
-            b.setX(triangles[i+1].x);
-            b.setY(triangles[i+1].y);
-            b.setZ(triangles[i+1].z);
-
-            c.setX(triangles[i+2].x);
-            c.setY(triangles[i+2].y);
-            c.setZ(triangles[i+2].z);
-
-            triangleMesh.addTriangle(a, b, c, true);
-        }
-
-        Ammo.destroy(a);
-        Ammo.destroy(b);
-        Ammo.destroy(c);
-
-        this.shape = new Ammo.btConvexHullShape(triangleMesh, true);
-        model.children[0].geometry.verticesNeedUpdate = true;
-
-        this.shape.setMargin(0.05);
-        this.shape.calculateLocalInertia(mass, this.localInertia);
-
-        this.rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, this.motionState, this.shape, this.localInertia);
-        this.body = new Ammo.btRigidBody(this.rbInfo);
-    }*/
 }
 
 class Physics {
@@ -211,7 +141,6 @@ class Physics {
             solver,
             collisionConfiguration
         );
-        
 
         this.physicsWorld.setGravity(new Ammo.btVector3(0, -10, 0));
         this.createGround();
@@ -252,8 +181,6 @@ class Physics {
             const wallBody = new Ammo.btRigidBody(wallInfo);
             this.physicsWorld.addRigidBody(wallBody);
 
-            //For Visuality
-
             const material = new THREE.MeshBasicMaterial({ color: wall.color, side: THREE.DoubleSide, opacity:0.5, transparent:true });
             const geometry = new THREE.PlaneGeometry(50, 10);
             const mesh = new THREE.Mesh(geometry, material);
@@ -270,8 +197,6 @@ class Physics {
     }
     removeRigidBody(rigidBody) {
         if(!rigidBody.body || !rigidBody) return;
-        let mesh = rigidBody.mesh;
-        let mass = rigidBody.mass;
         this.rigidbodies.forEach((rb, index) => {
             if (rb.rigidBody === rigidBody) {
                 this.rigidbodies.splice(index, 1);
@@ -327,7 +252,6 @@ class Physics {
         this.colliders.push(pair);
     }
 
-    
 
     ThrowSphere(sphere, mass, direction) {
         const bulletVelocityMultiplier = bulletVelocity;
@@ -344,20 +268,6 @@ class Physics {
         this.bullets.push(pair);
     }
 
-
-    applyInstantForce(index, x,y,z) {
-        let force = new Ammo.btVector3(x,y,z);
-        this.rigidbodies[index].rigidBody.body.applyCentralImpulse(force);
-        Ammo.destroy(force);
-    }
-
-    applyInstantForceAtAPoint(index, fx, fy, fz, px, py, pz) {
-        let force = new Ammo.btVector3(fx,fy,fz);
-        let point = new Ammo.btVector3(px,py,pz);
-        this.rigidbodies[index].rigidBody.body.applyForce(force, point);
-        Ammo.destroy(force);
-        Ammo.destroy(point);
-    }
     detectCollision() {
         let dispatcher = this.physicsWorld.getDispatcher();
         let numManifolds = dispatcher.getNumManifolds();
@@ -385,7 +295,6 @@ class Physics {
                 }
             } 
             if(rb1 && rb2 && (rb1.shapeString === "Sphere" || rb2.shapeString === "Sphere")){
-                //console.log("sphere collision");
                 let numContacts = contactManifold.getNumContacts();
                 for (let j = 0; j < numContacts; j++) {
                     let contactPoint = contactManifold.getContactPoint(j);
@@ -417,33 +326,8 @@ class Physics {
                     }
                 }
             }
-            /*           
-            for (let i = 0; i < this.rigidbodies.length; i++) {
-                let rbA = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyA.ptr;
-                let rbB = this.rigidbodies[i].rigidBody.body.ptr === rigidBodyB.ptr;
-                let rbAShape = this.rigidbodies[i].rigidBody.shapeString;
-                let rbBShape = this.rigidbodies[i].rigidBody.shapeString;
-               
-                if ((rbA && rbAShape === "Sphere") || (rbB && rbBShape === "Sphere")) {
-                    let numContacts = contactManifold.getNumContacts();
-                    console.log(rigidBodyA.ptr + " " + rigidBodyB.ptr);
-
-                   
-                    for (let j = 0; j < numContacts; j++) {
-                        let contactPoint = contactManifold.getContactPoint(j);
-                        let distance = contactPoint.getDistance();
-                       // console.log(`Contact Point ${j} Distance: ${distance}`);
-                        if (distance < 0.0) {
-                            //console.log("Collision detected!");
-                            this.rigidbodies[i].rigidBody.gotHit = true;
-                        }
-                    }
-                    break;
-                }
-            }*/
         }
     }
-    
 
     updatePhysics (delta) {
         this.physicsWorld.stepSimulation(delta, 10);
@@ -466,8 +350,6 @@ class Physics {
         }
         this.detectCollision();
     }
-
-
 
 }
 

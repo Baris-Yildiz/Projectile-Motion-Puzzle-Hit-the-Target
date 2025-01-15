@@ -1,7 +1,5 @@
 import {THREE} from "./LibImports.js";
 
-
-//zombieAI.getVelocity()
 class PathfindingAI {
     constructor(zombie, player, obstacles, otherZombies) {
         this.zombie = zombie;
@@ -20,7 +18,6 @@ class PathfindingAI {
         this.hasSpottedPlayer = false;
         this.lastTimePlayerSeen = 0;
         this.chaseTimeout = 5000;
-        this.raycaster = new THREE.Raycaster();
 
         this.wanderRadius = 4;
         this.wanderTarget = this.getRandomWanderTarget();
@@ -28,7 +25,6 @@ class PathfindingAI {
         this.minWanderDelay = 2000;
         this.maxWanderDelay = 5000;
         this.lastWanderUpdate = Date.now();
-        this.isWandering = true;
     }
 
     calculateZombieAvoidanceVector() {
@@ -91,8 +87,6 @@ class PathfindingAI {
             .subVectors(this.player.position, this.zombie.position)
             .normalize();
         
-        const avoidanceVector = this.calculateTotalAvoidanceVector();
-        
         return new THREE.Vector3()
             .addVectors(
                 targetDirection.multiplyScalar(1.0),
@@ -110,40 +104,26 @@ class PathfindingAI {
             return false;
         }
         return true;
-        /*
-        this.raycaster.set(this.zombie.position, toPlayer.normalize());
-        const intersects = this.raycaster.intersectObjects(this.obstacles);
-        
-        return intersects.length === 0 || intersects[0].distance > distance;*/
     }
 
-    // Returns current velocity vector that can be used for position updates
     getVelocity() {
         const currentTime = Date.now();
         
         if (this.canSeePlayer()) {
-            //console.log("can see player");
             this.hasSpottedPlayer = true;
             this.lastTimePlayerSeen = currentTime;
-            this.isWandering = false;
             return this.calculateChasingVelocity();
         } else {
-            //console.log("can not see player");
             if (this.hasSpottedPlayer) {
-                //console.log("has spotted player");
                 const timeSinceLastSeen = currentTime - this.lastTimePlayerSeen;
                 if (timeSinceLastSeen > this.chaseTimeout) {
-                    //console.log("time since last seen > chase timeout");
                     this.hasSpottedPlayer = false;
-                    this.isWandering = true;
                     this.wanderTarget = this.getRandomWanderTarget();
                     return this.calculateWanderingVelocity();
                 } else {
-                    //console.log("time since last seen < chase timeout");
                     return this.calculateChasingVelocity();
                 }
             } else {
-                //console.log("has not spotted player");
                 return this.calculateWanderingVelocity();
             }
         }

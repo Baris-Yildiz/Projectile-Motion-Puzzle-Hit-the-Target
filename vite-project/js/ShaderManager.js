@@ -1,12 +1,10 @@
 import * as THREE from 'three';
 
-
 //Normal 0,Toon 1,RedBlack 2,Random 3
 export class ShaderManager {
     constructor() {
         this.shaderState = 0;
         this.oldMaterials = new Map();
-        this.isToonEnabled = false;
         
         this.currentShader = {
             uniforms: {
@@ -97,9 +95,7 @@ export class ShaderManager {
     }
 
     applyShader(object) {
-        //if(object === undefined) return;
         if (!object.isMesh || this.shouldSkipObject(object) || object.material instanceof THREE.RawShaderMaterial) return;
-        //if (object.material?.isToonShader) return;
 
         if (!this.oldMaterials.has(object.uuid)) {
             this.oldMaterials.set(object.uuid, object.material);
